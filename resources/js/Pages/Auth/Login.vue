@@ -30,6 +30,7 @@ const submit = () => {
 </script>
 
 <template>
+
     <Head title="Log in" />
 
     <AuthenticationCard>
@@ -37,51 +38,40 @@ const submit = () => {
             <AuthenticationCardLogo />
         </template>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div v-if="status" class="mb-4 text-success">
             {{ status }}
         </div>
 
         <form @submit.prevent="submit">
-            <div>
+            <div class="mb-3">
                 <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
+                <TextInput id="email" v-model="form.email" type="email" class="form-control" required autofocus
+                    autocomplete="username" />
+                <InputError class="text-danger mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div class="mb-3">
                 <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="current-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
+                <TextInput id="password" v-model="form.password" type="password" class="form-control" required
+                    autocomplete="current-password" />
+                <InputError class="text-danger mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="block mt-4">
-                <label class="flex items-center">
-                    <Checkbox v-model:checked="form.remember" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
+            <div class="form-check mb-3">
+                <Checkbox v-model:checked="form.remember" name="remember" class="form-check-input" />
+                <label class="form-check-label" for="remember">
+                    Remember me
                 </label>
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <Link v-if="canResetPassword" :href="route('password.request')" class="link-secondary">
                     Forgot your password?
-                </Link>
+                    </Link>
+                </div>
 
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                <PrimaryButton class="btn btn-primary" :class="{ 'disabled': form.processing }" :disabled="form.processing">
                     Log in
                 </PrimaryButton>
             </div>

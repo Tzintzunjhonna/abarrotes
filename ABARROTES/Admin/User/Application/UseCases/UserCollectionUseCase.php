@@ -1,8 +1,8 @@
 <?php
 
-namespace ABARROTES\Admin\User\Application\UseCases;
+namespace abarrotes\Admin\User\Application\UseCases;
 
-use ABARROTES\Admin\User\Domain\Contracts\IUserRepository;
+use abarrotes\Admin\User\Domain\Contracts\IUserRepository;
 
 class UserCollectionUseCase
 {

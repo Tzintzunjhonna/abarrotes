@@ -1,10 +1,10 @@
 <?php
 
-namespace ABARROTES\Admin\User\Application\UseCases;
+namespace abarrotes\Admin\User\Application\UseCases;
 
-use ABARROTES\Admin\Shared\Domain\ValueObjects\Uuid;
-use ABARROTES\Admin\User\Domain\Contracts\IUserRepository;
-use ABARROTES\Admin\User\Domain\Entities\User;
+use abarrotes\Admin\Shared\Domain\ValueObjects\Uuid;
+use abarrotes\Admin\User\Domain\Contracts\IUserRepository;
+use abarrotes\Admin\User\Domain\Entities\User;
 
 class UserFinderUseCase
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace ABARROTES\Admin\User\Infrastructure\Controllers\Collection;
+namespace abarrotes\Admin\User\Infrastructure\Controllers\Collection;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use ABARROTES\Admin\User\Application\UseCases\UserCollectionUseCase;
-use ABARROTES\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
+use abarrotes\Admin\User\Application\UseCases\UserCollectionUseCase;
+use abarrotes\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
 
 class CollectionController extends Controller
 {

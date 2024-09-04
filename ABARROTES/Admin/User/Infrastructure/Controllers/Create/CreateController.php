@@ -1,15 +1,15 @@
 <?php
 
-namespace ABARROTES\Admin\User\Infrastructure\Controllers\Create;
+namespace abarrotes\Admin\User\Infrastructure\Controllers\Create;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUserRequest;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use ABARROTES\Admin\Shared\Infrastructure\Services\Utils;
-use ABARROTES\Admin\User\Application\UseCases\UserCreatorUseCase;
-use ABARROTES\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
+use abarrotes\Admin\Shared\Infrastructure\Services\Utils;
+use abarrotes\Admin\User\Application\UseCases\UserCreatorUseCase;
+use abarrotes\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
 
 class CreateController extends Controller
 {

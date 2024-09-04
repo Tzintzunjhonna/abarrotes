@@ -1,6 +1,6 @@
 <?php
 
-namespace ABARROTES\Admin\User\Domain\ValueObjects;
+namespace abarrotes\Admin\User\Domain\ValueObjects;
 
 use InvalidArgumentException;
 

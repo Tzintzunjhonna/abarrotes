@@ -6,10 +6,10 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully responsive admin theme which can be used to build CRM, CMS,ERP etc." name="description" />
-    <meta content="BITFX" name="author" />
+    <meta content="CONTRERAS CORP" name="author" />
     
     <!-- App favicon -->
-    <link rel="shortcut icon" href="assets/images/favicon.ico">
+    <link rel="shortcut icon" href="{{asset('images/abarrotes/favicon.ico')}}" type="image/x-icon">
 
     <!-- Daterangepicker css -->
     <link href="{{ URL('css/vendor/daterangepicker.css') }}" rel="stylesheet">
@@ -24,12 +24,10 @@
     <script src="{{ URL('js/config.js') }}"></script>
 
     <!-- Icons css -->
-    <link href="{{ URL('css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ URL('css/icons.css') }}" rel="stylesheet" type="text/css" />
     
     <!-- App css -->
-    <link href="{{ URL('css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
-
-    <link href="{{ URL('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
+    <link href="{{ URL('css/app.css') }}" rel="stylesheet" type="text/css" id="app-style" />
 
 
     <!-- Scripts -->

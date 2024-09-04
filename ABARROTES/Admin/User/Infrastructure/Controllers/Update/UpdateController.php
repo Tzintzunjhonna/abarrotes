@@ -1,14 +1,14 @@
 <?php
 
-namespace ABARROTES\Admin\User\Infrastructure\Controllers\Update;
+namespace abarrotes\Admin\User\Infrastructure\Controllers\Update;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\Response;
-use ABARROTES\Admin\Shared\Infrastructure\Services\Utils;
-use ABARROTES\Admin\User\Application\UseCases\UserUpdateUseCase;
-use ABARROTES\Admin\User\Application\UseCases\UserFinderUseCase;
-use ABARROTES\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
+use abarrotes\Admin\Shared\Infrastructure\Services\Utils;
+use abarrotes\Admin\User\Application\UseCases\UserUpdateUseCase;
+use abarrotes\Admin\User\Application\UseCases\UserFinderUseCase;
+use abarrotes\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
 
 class UpdateController extends Controller
 {

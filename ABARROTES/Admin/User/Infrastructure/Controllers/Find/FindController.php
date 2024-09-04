@@ -1,11 +1,11 @@
 <?php
 
-namespace ABARROTES\Admin\User\Infrastructure\Controllers\Find;
+namespace abarrotes\Admin\User\Infrastructure\Controllers\Find;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use ABARROTES\Admin\User\Application\UseCases\UserFinderUseCase;
-use ABARROTES\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
+use abarrotes\Admin\User\Application\UseCases\UserFinderUseCase;
+use abarrotes\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
 
 class FindController extends Controller
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace ABARROTES\Admin\User\Domain\Entities;
+namespace abarrotes\Admin\User\Domain\Entities;
 
 class User
 {

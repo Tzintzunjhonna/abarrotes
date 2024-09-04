@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use ABARROTES\Admin\User\Infrastructure\Controllers\Collection\CollectionController;
-use ABARROTES\Admin\User\Infrastructure\Controllers\Create\CreateController;
-use ABARROTES\Admin\User\Infrastructure\Controllers\Delete\DeleteController;
-use ABARROTES\Admin\User\Infrastructure\Controllers\Find\FindController;
-use ABARROTES\Admin\User\Infrastructure\Controllers\Update\UpdateController;
+use abarrotes\Admin\User\Infrastructure\Controllers\Collection\CollectionController;
+use abarrotes\Admin\User\Infrastructure\Controllers\Create\CreateController;
+use abarrotes\Admin\User\Infrastructure\Controllers\Delete\DeleteController;
+use abarrotes\Admin\User\Infrastructure\Controllers\Find\FindController;
+use abarrotes\Admin\User\Infrastructure\Controllers\Update\UpdateController;
 
 /**
  * Rutas NO protegidas

@@ -1,6 +1,6 @@
 <?php
 
-namespace ABARROTES\Admin\User\Infrastructure\Models;
+namespace abarrotes\Admin\User\Infrastructure\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

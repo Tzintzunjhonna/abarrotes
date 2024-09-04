@@ -7,7 +7,7 @@
         <div class="wrapper">
 
             <!-- Muestra el menú solo si el usuario está autenticado -->
-            @if($page['props']['isLoggedIn'])
+            {{--  @if($page['props']['isLoggedIn'])
                 @include('template.menu')
                 
                 <!-- Left sidebar -->
@@ -25,7 +25,8 @@
                 </div>
             @else
                 @inertia
-            @endif
+            @endif  --}}
+            @inertia
         </div>
         
         @include('template.scripts')

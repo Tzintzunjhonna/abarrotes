@@ -1,11 +1,15 @@
 <template>
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-        <div>
+    <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center bg-light py-5">
+        <div class="mb-4">
             <slot name="logo" />
         </div>
 
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            <slot />
+        <div class="w-100" style="max-width: 500px;">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <slot />
+                </div>
+            </div>
         </div>
     </div>
 </template>

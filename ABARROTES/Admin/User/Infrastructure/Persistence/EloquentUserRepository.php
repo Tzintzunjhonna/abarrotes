@@ -1,12 +1,13 @@
 <?php
 
-namespace ABARROTES\Admin\User\Infrastructure\Persistence;
+namespace abarrotes\Admin\User\Infrastructure\Persistence;
 
-use ABARROTES\Admin\Shared\Domain\Enum\Status;
-use ABARROTES\Admin\Shared\Domain\ValueObjects\Uuid;
-use ABARROTES\Admin\User\Domain\Contracts\IUserRepository;
-use ABARROTES\Admin\User\Domain\Entities\User;
-use ABARROTES\Admin\User\Infrastructure\Models\UserEloquentModel;
+use abarrotes\Admin\Shared\Domain\Enum\Status;
+use abarrotes\Admin\Shared\Domain\ValueObjects\Uuid;
+use abarrotes\Admin\User\Domain\Contracts\IUserRepository;
+use abarrotes\Admin\User\Domain\Entities\User;
+use abarrotes\Admin\User\Infrastructure\Models\UserEloquentModel;
+use App\Models\User as ModelsUser;
 
 class EloquentUserRepository implements IUserRepository
 {
@@ -14,7 +15,8 @@ class EloquentUserRepository implements IUserRepository
 
     public function __construct()
     {
-        $this->model = new UserEloquentModel();
+        //$this->model = new UserEloquentModel();
+        $this->model = new ModelsUser();
     }
 
     public function all()

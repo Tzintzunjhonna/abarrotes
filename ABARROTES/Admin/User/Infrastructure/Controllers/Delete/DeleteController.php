@@ -1,12 +1,12 @@
 <?php
 
-namespace ABARROTES\Admin\User\Infrastructure\Controllers\Delete;
+namespace abarrotes\Admin\User\Infrastructure\Controllers\Delete;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use ABARROTES\Admin\User\Application\UseCases\UserDeleteUseCase;
-use ABARROTES\Admin\User\Application\UseCases\UserFinderUseCase;
-use ABARROTES\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
+use abarrotes\Admin\User\Application\UseCases\UserDeleteUseCase;
+use abarrotes\Admin\User\Application\UseCases\UserFinderUseCase;
+use abarrotes\Admin\User\Infrastructure\Persistence\EloquentUserRepository;
 
 class DeleteController extends Controller
 {

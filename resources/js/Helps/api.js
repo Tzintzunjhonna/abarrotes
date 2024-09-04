@@ -13,14 +13,7 @@ var patch = { headers: { "Content-Type": "multipart/form-data" } };
 /**
  * @category Route
  */
-console.log(window)
 const baseUrl = window.location.origin + "/api/";
-// console.log(window)
-// if (window.local.user) {
-//     const token = window.local.user.access_token;
-// // const token_type = window.local.user.access_token_type;
-//     axios.defaults.headers.common["Authorization"] = "Bearer " + token
-// }
 
 var api = {
     baseUrl: baseUrl,
@@ -32,10 +25,10 @@ var api = {
             showConfirmButton: false,
             allowOutsideClick: false,
             html: `
-            <img src="/images/abarrotes/logo.png" class="w-25">
+            <img src="/images/abarrotes/logo.png" class="w-30">
             <br>
             <div class="spinner-border text-light text-center mb-5" role="status">
-            <span class="visually-hidden">Loading...</span>
+            <span class="visually-hidden">Cargando...</span>
             </div>
 			`,
         });

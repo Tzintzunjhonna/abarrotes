@@ -1,13 +1,13 @@
 <?php
 
-namespace ABARROTES\Admin\User\Application\UseCases;
+namespace abarrotes\Admin\User\Application\UseCases;
 
-use ABARROTES\Admin\Shared\Domain\ValueObjects\Uuid;
-use ABARROTES\Admin\User\Domain\Contracts\IUserRepository;
-use ABARROTES\Admin\User\Domain\Entities\User;
-use ABARROTES\Admin\User\Domain\ValueObjects\UserEmail;
-use ABARROTES\Admin\User\Domain\ValueObjects\UserName;
-use ABARROTES\Admin\User\Domain\ValueObjects\UserPassword;
+use abarrotes\Admin\Shared\Domain\ValueObjects\Uuid;
+use abarrotes\Admin\User\Domain\Contracts\IUserRepository;
+use abarrotes\Admin\User\Domain\Entities\User;
+use abarrotes\Admin\User\Domain\ValueObjects\UserEmail;
+use abarrotes\Admin\User\Domain\ValueObjects\UserName;
+use abarrotes\Admin\User\Domain\ValueObjects\UserPassword;
 
 class UserUpdateUseCase
 {
