@@ -7,6 +7,8 @@ import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
 import LeftSideBar from '@/Layouts/LeftSideBar.vue';
 import Footer from '@/Layouts/Footer.vue';
+import TablePagination from '@/Components/helps/TablePagination.vue';
+import Search from './Search.vue';
 
 // VARIABLES --------------------------
 const app = getCurrentInstance()
@@ -20,13 +22,45 @@ const prevPageUrl = ref('')
 
 const search = ref({
     email : null,
-    role: null
+    name: null
 })
+
+// TABLAS --------------------------
+let endpoint = ref(`v1/users`)
+
 const getList = ref([])
+const tableHeaders = ['ID', 'Nombre', 'Email', 'Rol', 'Fecha de registro', 'Opciones'];
+const tableTitle = ref('Lista de usuarios')
+
+const tbody = [
+    'id',
+    'name',
+    'email',
+    'role',
+    'created_at',
+];
+
+
+const actions = [
+    {
+        name: 'edit',
+        class: 'btn btn-warning btn-sm',
+        class_icon: 'mdi mdi-image-edit',
+        tooltip: 'Editar'
+    },
+    {
+        name: 'delete',
+        class: 'btn btn-danger btn-sm m-1',
+        class_icon: 'mdi mdi-delete',
+        tooltip: 'Eliminar'
+    },
+]
+
+let searchPost = ref()
 
 // MOUNTED  --------------------------
 onMounted(() => {
-    getData()
+    // getData()
 });
 
 
@@ -57,12 +91,28 @@ function setData(data) {
             id: item.id,
             name: item.name,
             email: item.email,
-            role: !item.roles.length ? null : item.roles.name,
+            role: !item.roles.length ? null : item.roles[0].name,
             created_at: item.created_at,
         })
     });
 
     return arrData
+}
+
+
+function action(value) {
+    let actions = {
+        onUpdate: function (item) {
+            onUpdate(item)
+        },
+        search: function (item) {
+            onSearch(item)
+        },
+    }
+
+    if (actions.hasOwnProperty(value.action)) {
+        actions[value.action](value.value)
+    }
 }
 
 function onUpdate(data) {
@@ -73,103 +123,33 @@ function onUpdate(data) {
     //v-if="can('admin.usuarios.editar')"
 }
 
+function onSearch(data) {
+    searchPost.value = data
+    setTimeout(function () {
+        searchPost.value = data
+    }, 500)
+}
+
+
+
 </script>
 
 <template>
-
     <MenuPage />
     <LeftSideBar />
-
     <div class="content-page">
         <div class="content">
             <div class="container-fluid">
 
                 <Head :title="title" />
-                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl" :pageNowName="pageNowName" />
+                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                    :pageNowName="pageNowName" />
                 <div class="row">
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="header-title">Busqueda de usuarios</h4>
+                    <Search :title="'Buscar'" :method="'search'" @btnAction="action"/>
 
-                                <form class="needs-validation" @submit.prevent="getData">
-                                    <div class="row">
-
-                                        <div class="mb-2 col-md-6">
-                                            <label for="name" class="form-label">Nombre</label>
-                                            <input type="text" class="form-control" id="name" placeholder="Nombre">
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="email" class="form-label">Correo electrónico</label>
-                                            <input type="email" class="form-control" id="email"
-                                                placeholder="Correo electrónico">
-                                        </div>
-                                    </div>
-
-                                    <button class="btn btn-primary" type="submit">Buscar</button>
-                                </form>
-
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div>
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="responsive-table-plugin">
-                                    <div class="table-rep-plugin">
-                                        <div class="table-responsive" data-pattern="priority-columns">
-                                            <table id="tech-companies-1" class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Nombre</th>
-                                                        <th>Email</th>
-                                                        <th>Rol</th>
-                                                        <th>Fecha de registro</th>
-                                                        <th>Opciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-
-                                                    <tr v-if="getList.length <= 0">
-                                                        <td colspan="10" style="text-align:center; color:black"> <b> Sin
-                                                                registros</b></td>
-                                                    </tr>
-                                                    <tr v-else v-for="(user, index) in getList" :key="index">
-                                                        <th>{{ user.name }}</th>
-                                                        <th>{{ user.email }}</th>
-                                                        <th>
-                                                            <template v-if="user.role != null">
-                                                                <span class="badge bg-primary">
-                                                                    {{ user.role }}
-                                                                </span>
-                                                            </template>
-                                                            <template v-else>
-                                                                <span class="badge bg-danger">
-                                                                    Sin rol asignado
-                                                                </span>
-                                                            </template>
-                                                        </th>
-                                                        <th>{{ formatDate(user.created_at) }}</th>
-                                                        <th>
-                                                            <button class="btn btn-danger btn-sm" type="button"
-                                                                title="Eliminar">
-                                                                <i class="mdi mdi-delete"></i>
-                                                            </button>
-                                                            <button class="btn btn-warning btn-sm m-1" type="button" @click="onUpdate(user)"
-                                                                title="Editar">
-                                                                <i class="mdi mdi-image-edit"></i>
-                                                            </button>
-
-                                                        </th>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <table-pagination :headers="tableHeaders" :tbody="tbody" @update="onUpdate" :options="true"
+                        :actions="actions" @btnAction="action" :endpoint="endpoint" :title="tableTitle"
+                        :searchPost="searchPost" />
                 </div>
             </div>
         </div>
