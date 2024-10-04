@@ -3,20 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
+use Spatie\Permission\Models\Permission;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
-class UsersController extends Controller
+class RolesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Admin/Users/Index', []);
+        return Inertia::render('Admin/Roles/Index', []);
     }
 
     /**
@@ -24,7 +23,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Users/Create', []);
+        return Inertia::render('Admin/Roles/Create', []);
     }
 
     /**
@@ -51,28 +50,46 @@ class UsersController extends Controller
         $id = base64_decode($token);
         // $ids = explode(',', $ids);
 
-        $user = User::where('id', $id)->with('roles')->first();
+        $role = Role::find($id);
 
-        if($user == null){
-            return redirect('/admin/usuarios');
+        if($role == null){
+            return redirect('/admin/roles');
         }
-
-        $roles_cat = Role::all();
         
         // dd($user->roles);
-        return Inertia::render('Admin/Users/Edit', 
+        return Inertia::render('Admin/Roles/Edit', 
             [
-                'user' => $user,
-                'rolesCat' => $roles_cat,
+                'role' => $role
             ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function assing(Request $request, $token)
     {
-        //
+        $id = base64_decode($token);
+
+        $role = Role::find($id);
+
+        if ($role == null) {
+            return redirect('/admin/roles');
+        }
+
+        $lista_permission = Permission::whereNull('deleted_at')->where('guard_name', $role->guard_name)->get();
+
+        foreach ($lista_permission as $i => $item) {
+            $roles = $item->roles->where('id', $id)->first();
+            $lista_permission[$i]->rol = (isset($roles)) ? true : false;
+        }
+        
+        return Inertia::render(
+            'Admin/Roles/Assign',
+            [
+                'role' => $role,
+                'lista_permission' => $lista_permission
+            ]
+        );
     }
 
     /**

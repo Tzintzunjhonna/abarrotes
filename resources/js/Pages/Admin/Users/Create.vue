@@ -15,21 +15,10 @@ const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
 const alert = app.appContext.config.globalProperties.alert
 
-const title = ref('Editar usuario')
+const title = ref('Crear usuario')
 const prevPageName = ref('Usuarios')
-const pageNowName = ref('Editar usuario')
+const pageNowName = ref('Crear usuario')
 const prevPageUrl = ref('admin/usuarios')
-
-const props = defineProps({
-    user: {
-        type: Object,
-        required: true,
-    },
-    rolesCat: {
-        type: Object,
-        required: true,
-    },
-});
 
 const form = ref({
     name    : '',
@@ -47,9 +36,15 @@ const rolesSelect = ref(
     ]
 );
 
+const config = {
+        confirmButtonText: 'Aceptar',
+        showCloseButton: false,
+        showCancelButton: false
+    }
+
 // MOUNTED  --------------------------
 onMounted(() => {
-    getData()
+    // getData()
 });
 
 // VALIDACION DE FORMULARIOS --------------------------
@@ -71,6 +66,12 @@ const validateRulesForm = {
             email
         ),
     },
+    password: {
+        required: helpers.withMessage(
+            'El campo contraseña es requerido.',
+            required,
+        ),
+    },
     role: {
         required: helpers.withMessage(
             'El campo es requerido.',
@@ -85,12 +86,9 @@ const f$ = useVuelidate(validateRulesForm, form);
 // FUNCIONES --------------------------
 
 function getData() {
-    form.value.name     = props.user.name;
-    form.value.email    = props.user.email;
-    if (props.user.roles?.length > 0){
-        form.value.role = props.user.roles[0];
-    }
-    
+    form.value.name     = '';
+    form.value.role     = '';
+    form.value.email    = '';
 }
 
 async function onSubmit() {
@@ -99,6 +97,8 @@ async function onSubmit() {
     console.log(isFormCorrect)
     console.log(f$.value)
     if (!isFormCorrect) return;
+
+    console.log(form.value)
     
     const formData = new FormData();
 
@@ -108,7 +108,7 @@ async function onSubmit() {
     formData.append('email', form.value.email);
 
     api
-        .put(`v1/app-users/${props.user.id}/update`, formData)
+        .post(`v1/app-users/store`, formData)
         .then((response) => {
             alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
@@ -150,12 +150,7 @@ async function onSubmit() {
                     <div class="col-lg-8">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="header-title">
-                                    Asignar rol 
-                                    <span class="badge bg-danger">
-                                        {{ user.name }}
-                                    </span> 
-                                </h4>
+                                <h4 class="header-title">Crear usuario</h4>
 
                                 <form class="needs-validation" @submit.prevent="onSubmit">
                                     <div class="row">
@@ -180,14 +175,18 @@ async function onSubmit() {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="password" class="form-label">Contraseña</label>
-                                            <input v-model="form.password" type="password" class="form-control"
+                                            <input v-model="form.password" type="text" class="form-control"
                                                 id="password" placeholder="Contraseña">
+                                            <div class="input-errors" v-for="error of f$.password.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="rol" class="form-label">Rol</label>
                                             <Multiselect v-model="form.role" track-by="name" label="name"
                                                 placeholder="Selecciona un rol" :show-labels="false" deselectLabel=" "
-                                                :block-keys="['Tab', 'Enter']" :options="rolesCat" :searchable="true"
+                                                :block-keys="['Tab', 'Enter']" :options="rolesSelect" :searchable="true"
                                                 :allow-empty="true" :showNoOptions="false">
                                                 <template v-slot:noResult>
                                                     <span>Opción no encontrada</span>

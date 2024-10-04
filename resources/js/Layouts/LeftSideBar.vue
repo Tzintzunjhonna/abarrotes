@@ -6,20 +6,21 @@
             <!-- Brand Logo Light -->
             <a href="{{ route('dashboard') }}" class="logo logo-light">
                 <span class="logo-lg">
-                    <img src="{{ URL('images/abarrotes/logo.png') }}" alt="logo">
+                    <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="logo">
+
                 </span>
                 <span class="logo-sm">
-                    <img src="{{ URL('images/abarrotes/logo.png') }}" alt="small logo">
+                    <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="small logo">
                 </span>
             </a>
 
             <!-- Brand Logo Dark -->
             <a href="{{ route('dashboard') }}" class="logo logo-dark">
                 <span class="logo-lg">
-                    <img src="{{ URL('images/abarrotes/logo.png') }}" alt="dark logo">
+                    <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="dark logo">
                 </span>
                 <span class="logo-sm">
-                    <img src="{{ URL('images/abarrotes/logo.pngg') }}" alt="small logo">
+                    <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="small logo">
                 </span>
             </a>
 
@@ -50,6 +51,20 @@
                         <div class="collapse" id="sidebarSystem">
                             <ul class="side-nav-second-level">
                                 <li>
+                                    <a href="/admin/roles">Roles</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="collapse" id="sidebarSystem"  v-if="can('Leer permisos')">
+                            <ul class="side-nav-second-level">
+                                <li>
+                                    <a href="/admin/permisos">Permisos</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="collapse" id="sidebarSystem">
+                            <ul class="side-nav-second-level">
+                                <li>
                                     <a href="/admin/usuarios">Usuarios</a>
                                 </li>
                             </ul>
@@ -76,7 +91,10 @@ import { Head, Link, router } from '@inertiajs/vue3';
 // VARIABLES --------------------------
 const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
-const formatDate = app.appContext.config.globalProperties.formatDate
+const can = app.appContext.config.globalProperties.can;
+
+
+const BaseUrl = window.location.origin
 
 // MOUNTED  --------------------------
 onMounted(() => {

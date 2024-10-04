@@ -86,6 +86,29 @@ class AppServiceProvider extends ServiceProvider
         Response::macro('internalServerError', function ($message = 'Internal Server Error.', $errors = []) use ($instance) {
             return $instance->handleErrorResponse($message, $errors, HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         });
+
+        Response::macro('success', function ($data, $message, int $statusCode = 200) {
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => $message,
+            ], $statusCode);
+        });
+
+        Response::macro('fail', function ($errors, int $statusCode = 422) {
+            return response()->json([
+                'success' => false,
+                'errors' => $errors
+            ], $statusCode);
+        });
+
+        Response::macro('error', function (string $message, $errors, int $statusCode = 500) {
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'errors' => $errors
+            ], $statusCode);
+        });
     }
 
     public function handleErrorResponse($message, $errors, $status)

@@ -5,12 +5,13 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import Multiselect from "vue-multiselect";
-// import 'vue-multiselect/dist/vue-multiselect.css'; // Importa los estilos
+import { Bootstrap4Pagination } from "laravel-vue-pagination";
 
 
 //HELPERS
 import api from "./Helps/api.js";
 import { formatDate } from "./Helps/format_date.js";
+import alert from "@/Helps/alert.js";
 
 
 const appName = import.meta.env.VITE_APP_NAME || 'ABARROTES';
@@ -24,8 +25,17 @@ createInertiaApp({
         // Agregar la instancias a la aplicación global para que esté disponible en todas partes
         app.config.globalProperties.api = api;
         app.config.globalProperties.formatDate = formatDate;
+        app.config.globalProperties.alert = alert;
+
+        // Añadir la función can para verificar permisos
+        app.config.globalProperties.can = (permission) => {
+            // Accede a los permisos desde props (Inertia)
+            const userPermissions = props.initialPage.props.user.permissions || [];
+            return userPermissions.includes(permission);
+        };
 
         app.component("Multiselect", Multiselect);
+        app.component("Pagination", Bootstrap4Pagination);
 
 
         return app.use(plugin).use(ZiggyVue).mount(el);

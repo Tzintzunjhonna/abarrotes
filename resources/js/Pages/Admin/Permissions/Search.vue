@@ -13,7 +13,6 @@ const props = defineProps({
 
 let search = ref({
   name: '',
-  email: '',
 })
 
 
@@ -30,7 +29,7 @@ function btnAction(value) {
   <div class="col-lg-8">
     <div class="card">
       <div class="card-body">
-        <h4 class="header-title">Busqueda de usuarios</h4>
+        <h4 class="header-title">Busqueda de permisos</h4>
 
         <form class="needs-validation" @submit.prevent="submitForm">
           <div class="row">
@@ -38,11 +37,6 @@ function btnAction(value) {
             <div class="mb-2 col-md-6">
               <label for="name" class="form-label">Nombre</label>
               <input v-model="search.name" type="text" class="form-control" id="name" placeholder="Nombre">
-            </div>
-            <div class="mb-2 col-md-6">
-              <label for="email" class="form-label">Correo electrónico</label>
-              <input v-model="search.email" type="text" class="form-control" id="email"
-                placeholder="Correo electrónico">
             </div>
           </div>
 

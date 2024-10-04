@@ -25,9 +25,6 @@ class CreateUserRequest extends FormRequest
     {
         return [
             'name'       => 'required',
-            'first_name' => 'required',
-            'last_name'  => '',
-            'phone'      => 'required|min:10|max:10|unique:users',
             'email'      => 'required|email|unique:users',
             'password'   => 'required|min:8',
             'role'       => 'required',
@@ -37,8 +34,11 @@ class CreateUserRequest extends FormRequest
     public function messages()
     {
         return [
-           'phone.unique' => 'El número de teléfono ya ha sido registrado.',
-           'email.unique' => 'El correo electrónico ya ha sido registrado.',
+            'phone.unique' => 'El número de teléfono ya ha sido registrado.',
+            'email.unique' => 'El correo electrónico ya ha sido registrado.',
+            'name.required' => 'El nombre es requerido.',
+            'password.required' => 'La contraseña es requerido.',
+            'password.min' => 'La contraseña deberá se minimo 8 caracteres',
         ];
     }
 

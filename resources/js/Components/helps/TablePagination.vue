@@ -3,6 +3,17 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="header-title">{{ props.title }}</h4>
+                <template v-if="props.showBtnNew">
+                    <div class="col-12 d-flex justify-content-end">
+                        <div class="col-auto">
+                            <button @click="btnAction({ action: 'add', value: null })" type="button"
+                                class="btn btn-danger mb-2 mr-1">
+                                <i :class="props.btnNewIcon" />
+                                {{ props.labelBtnNew }}
+                            </button>
+                        </div>
+                    </div>
+                </template>
                 <div class="responsive-table-plugin">
                     <div class="table-rep-plugin">
                         <div class="table-responsive" data-pattern="priority-columns">
@@ -20,9 +31,9 @@
                                     </tr>
                                     <tr v-else v-for="(item, index) in collection" :key="index">
                                         <td class="text-justify" v-for="attribute in tbody" :key="attribute">
-                                            <template v-if="['role'].includes(attribute)">
-                                                <template v-if="item.role">
-                                                    <span class="badge bg-primary">{{ item.role }}</span>
+                                            <template v-if="['roles'].includes(attribute)">
+                                                <template v-if="item.roles?.length > 0">
+                                                    <span class="badge bg-primary">{{ item.roles[0].name }}</span>
                                                 </template>
                                                 <template v-else>
                                                     <span class="badge bg-danger">Sin rol asignado</span>
@@ -54,6 +65,15 @@
                                         </td>
                                     </tr>
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td :colspan="props.options ? props.headers.length + 1 : props.options"
+                                            class="pt-5">
+                                            <pagination :showDisabled="true" :limit="5" align="right" :data="response"
+                                                @pagination-change-page="getData" />
+                                        </td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -64,7 +84,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, getCurrentInstance, onMounted, watch, ref} from 'vue';
+import {getCurrentInstance, onMounted, watch, ref} from 'vue';
 
 const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
@@ -93,6 +113,19 @@ const props = defineProps({
     searchPost: {
         type: Object
     },
+    labelBtnNew: {
+        type: String
+    },
+    showBtnNew: {
+        type: Boolean
+    },
+    btnNewIcon: {
+        type: String,
+        default: 'mdi mdi-content-save'
+    },
+    reload: {
+        type: Boolean
+    },
 });
 
 // VARIABLES  --------------------------
@@ -101,7 +134,7 @@ const search = ref('')
 let collection = ref([])
 
 
-const emit = defineEmits(['btnAction']);
+const emit = defineEmits(['btnAction', 'reload']);
 
 const btnAction = (item) => {
     emit('btnAction', item);
@@ -119,10 +152,28 @@ watch(
 )
 
 
+watch(
+    () => props.reload,
+    () => {
+        if (props.reload) {
+            reload(false)
+            getData()
+        }
+    }
+)
+
+
 // MOUNTED  --------------------------
 onMounted(() => {
     getData()
 });
+
+
+// FUNTIONS  --------------------------
+
+function reload(value) {
+    emit('reload', value)
+}
 
 
 
@@ -290,7 +341,18 @@ function getData(page = 1, pageSize = 10) {
             collection.value = data.hasOwnProperty('data') ? data.data : data
         })
         .catch((error) => {
-            console.error({ error })
+            console.log(error)
+            if (error.message) {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.message
+                });
+            } else {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.errors.message
+                });
+            }
         })
 }
 

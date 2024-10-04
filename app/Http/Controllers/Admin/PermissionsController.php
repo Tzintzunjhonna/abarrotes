@@ -3,20 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
-class UsersController extends Controller
+class PermissionsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Admin/Users/Index', []);
+        return Inertia::render('Admin/Permissions/Index', []);
     }
 
     /**
@@ -24,7 +22,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Users/Create', []);
+        return Inertia::render('Admin/Permissions/Create', []);
     }
 
     /**
@@ -51,26 +49,22 @@ class UsersController extends Controller
         $id = base64_decode($token);
         // $ids = explode(',', $ids);
 
-        $user = User::where('id', $id)->with('roles')->first();
+        $role = Permission::find($id);
 
-        if($user == null){
-            return redirect('/admin/usuarios');
+        if($role == null){
+            return redirect('/admin/permisos');
         }
-
-        $roles_cat = Role::all();
         
-        // dd($user->roles);
-        return Inertia::render('Admin/Users/Edit', 
+        return Inertia::render('Admin/Permissions/Edit', 
             [
-                'user' => $user,
-                'rolesCat' => $roles_cat,
+                'role' => $role
             ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function assing(Request $request, $token)
     {
         //
     }

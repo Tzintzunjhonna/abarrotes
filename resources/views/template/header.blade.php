@@ -9,7 +9,7 @@
     <meta content="CONTRERAS CORP" name="author" />
     
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{asset('images/abarrotes/favicon.ico')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('images/abarrotes/favicon/favicon.ico')}}" type="image/x-icon">
 
     <!-- Daterangepicker css -->
     <link href="{{ URL('css/vendor/daterangepicker.css') }}" rel="stylesheet">

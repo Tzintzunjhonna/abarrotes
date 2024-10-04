@@ -15,27 +15,21 @@ const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
 const alert = app.appContext.config.globalProperties.alert
 
-const title = ref('Editar usuario')
-const prevPageName = ref('Usuarios')
-const pageNowName = ref('Editar usuario')
-const prevPageUrl = ref('admin/usuarios')
+const title = ref('Editar permiso')
+const prevPageName = ref('Roles')
+const pageNowName = ref('Editar permiso')
+const prevPageUrl = ref('admin/permisos')
 
 const props = defineProps({
-    user: {
+    permission: {
         type: Object,
         required: true,
-    },
-    rolesCat: {
-        type: Object,
-        required: true,
-    },
+    }
 });
 
 const form = ref({
     name    : '',
-    role    : '',
-    password: '',
-    email   : '',
+    guard_name    : '',
 })
 
 const rolesSelect = ref(
@@ -43,7 +37,7 @@ const rolesSelect = ref(
         { name: 'Admin', id: 1 },
         { name: 'Editor', id: 2 },
         { name: 'Subscriber', id: 3 },
-        // Agrega más roles aquí
+        // Agrega más permisos aquí
     ]
 );
 
@@ -61,17 +55,7 @@ const validateRulesForm = {
             required,
         )
     },
-    email: {
-        required: helpers.withMessage(
-            'El campo email es requerido.',
-            required,
-        ),
-        email: helpers.withMessage(
-            "El campo debe ser un de correo electrónico valido.",
-            email
-        ),
-    },
-    role: {
+    guard_name: {
         required: helpers.withMessage(
             'El campo es requerido.',
             required,
@@ -85,11 +69,8 @@ const f$ = useVuelidate(validateRulesForm, form);
 // FUNCIONES --------------------------
 
 function getData() {
-    form.value.name     = props.user.name;
-    form.value.email    = props.user.email;
-    if (props.user.roles?.length > 0){
-        form.value.role = props.user.roles[0];
-    }
+    form.value.name     = props.permission.name;
+    form.value.guard_name = props.permission.guard_name;
     
 }
 
@@ -103,16 +84,14 @@ async function onSubmit() {
     const formData = new FormData();
 
     formData.append('name', form.value.name);
-    formData.append('role', form.value.role.id);
-    formData.append('password', form.value.password);
-    formData.append('email', form.value.email);
+    formData.append('guard_name', form.value.guard_name);
 
     api
-        .put(`v1/app-users/${props.user.id}/update`, formData)
+        .put(`v1/app-permissions/${props.permission.id}/update`, formData)
         .then((response) => {
             alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
-                    router.visit(`/admin/usuarios`);
+                    router.visit(`/admin/permisos`);
                 }
             });
         })
@@ -129,6 +108,8 @@ async function onSubmit() {
                     error: error.errors.message
                 });
             }
+
+            
         })
 }
 
@@ -151,9 +132,9 @@ async function onSubmit() {
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="header-title">
-                                    Asignar rol 
+                                    Asignar permiso 
                                     <span class="badge bg-danger">
-                                        {{ user.name }}
+                                        {{ permission.name }}
                                     </span> 
                                 </h4>
 
@@ -170,30 +151,10 @@ async function onSubmit() {
                                             </div>
                                         </div>
                                         <div class="mb-2 col-md-6">
-                                            <label for="email" class="form-label">Correo electrónico</label>
-                                            <input v-model="form.email" type="email" class="form-control" id="email"
-                                                placeholder="Correo electrónico">
-                                            <div class="input-errors" v-for="error of f$.email.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="password" class="form-label">Contraseña</label>
-                                            <input v-model="form.password" type="password" class="form-control"
-                                                id="password" placeholder="Contraseña">
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="rol" class="form-label">Rol</label>
-                                            <Multiselect v-model="form.role" track-by="name" label="name"
-                                                placeholder="Selecciona un rol" :show-labels="false" deselectLabel=" "
-                                                :block-keys="['Tab', 'Enter']" :options="rolesCat" :searchable="true"
-                                                :allow-empty="true" :showNoOptions="false">
-                                                <template v-slot:noResult>
-                                                    <span>Opción no encontrada</span>
-                                                </template>
-                                            </Multiselect>
-                                            <div class="input-errors" v-for="error of f$.role.$errors"
+                                            <label for="guard_name" class="form-label">Nombre del permiso</label>
+                                            <input v-model="form.guard_name" type="text" class="form-control"
+                                                id="guard_name" placeholder="Nombre del permiso">
+                                            <div class="input-errors" v-for="error of f$.guard_name.$errors"
                                                 :key="error.$uid">
                                                 <div class="text-danger">{{ error.$message }}</div>
                                             </div>
