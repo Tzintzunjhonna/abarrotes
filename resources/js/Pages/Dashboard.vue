@@ -1,22 +1,177 @@
 <script setup>
+
+// IMPORTS --------------------------
+import {  getCurrentInstance, onMounted, ref } from "vue";
+import { Head, Link, router } from '@inertiajs/vue3';
+import PageTitle from '@/Components/PageTitle.vue';
+import MenuPage from '@/Layouts/Menu.vue';
+import LeftSideBar from '@/Layouts/LeftSideBar.vue';
+import Footer from '@/Layouts/Footer.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Welcome from '@/Components/Welcome.vue';
+
+// VARIABLES --------------------------
+const app = getCurrentInstance()
+const api = app.appContext.config.globalProperties.api
+const alert = app.appContext.config.globalProperties.alert
+
+const title = ref('Dashboard')
+const prevPageName = ref('')
+const pageNowName = ref('Dashboard')
+const prevPageUrl = ref('')
+
+
+// TABLAS --------------------------
+let endpoint = ref(`v1/app-users/collection`)
+
+const getList = ref([])
+const tableHeaders = ['ID', 'Nombre', 'Email', 'Rol', 'Fecha de registro', 'Opciones'];
+const tableTitle = ref('Lista de usuarios')
+
+const tbody = [
+    'id',
+    'name',
+    'email',
+    'roles',
+    'created_at',
+];
+
+
+const actions = [
+    {
+        name: 'edit',
+        class: 'btn btn-warning btn-sm',
+        class_icon: 'mdi mdi-image-edit',
+        tooltip: 'Editar'
+    },
+    {
+        name: 'delete',
+        class: 'btn btn-danger btn-sm m-1',
+        class_icon: 'mdi mdi-delete',
+        tooltip: 'Eliminar'
+    },
+]
+
+let searchForm = ref()
+
+let reloadPage = ref(false)
+
+
+const config = {
+    confirmButtonText: 'Aceptar',
+    showCloseButton: false,
+    showCancelButton: false
+}
+
+// MOUNTED  --------------------------
+onMounted(() => {
+});
+
+
+// FUNCIONES --------------------------
+
+function action(value) {
+    console.log(value)
+    let actions = {
+        edit: function (item) {
+            onEdit(item)
+        },
+        search: function (item) {
+            onSearch(item)
+        },
+        add: function (item) {
+            onAdd(item)
+        },
+        delete: function (item) {
+            onDelete(item)
+        },
+    }
+
+    if (actions.hasOwnProperty(value.action)) {
+        actions[value.action](value.value)
+    }
+}
+
+const reload = (value) => {
+    reloadPage.value = value
+}
+
+function onEdit(data) {
+
+    let ids = data.id.toString();
+    ids = btoa(ids);
+    router.visit(`/admin/usuarios/${ids}/editar`);
+}
+
+function onSearch(data) {
+    searchForm.value = { ...data };
+}
+
+function onAdd(data) {
+    router.visit(`/admin/usuarios/nuevo`);
+}
+
+function onDelete(data) {
+    
+    alert
+        .deleteConfirmation({
+            title: 'Eliminar registro',
+            text: `Ingresar la palabra "Confirmar" para eliminar el registro ${data.name}`,
+            options: {
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Eliminar',
+                inputPlaceholder: 'Ingresar',
+                showCancelButton: true,
+                reverseButtons: true
+            }
+        })
+        .then((result) => {
+            if (result.value == 'Confirmar') {
+                api
+                    .delete(`v1/app-users/${data.id}/destroy`)
+                    .then((response) => {
+                        alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
+                            if (result.isConfirmed) {
+                                reloadPage.value = true
+                            }
+                        })
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                        if (error.message) {
+                            alert.apiError({
+                                title: 'Error en la operación',
+                                error: error.message
+                            });
+                        } else {
+                            alert.apiError({
+                                title: 'Error en la operación',
+                                error: error.errors.message
+                            });
+                        }
+                    })
+            }
+        })
+}
+
+
+
 </script>
 
 <template>
-    <AppLayout title="Dashboard">
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Dashboard
-            </h2>
-        </template>
+    <MenuPage />
+    <LeftSideBar />
+    <div class="content-page">
+        <div class="content">
+            <div class="container-fluid">
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <Welcome />
-                </div>
+                <Head :title="title" />
+                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                    :pageNowName="pageNowName" />
             </div>
         </div>
-    </AppLayout>
+    </div>
+
+    <Footer />
+
 </template>

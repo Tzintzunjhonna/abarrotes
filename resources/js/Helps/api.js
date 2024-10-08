@@ -79,10 +79,10 @@ var api = {
             );
         });
     },
-    post: function (endpoint, data) {
+    post: function (endpoint, data, config_data = config) {
         api.loader();
         return new Promise((resolve, reject) => {
-            axios.post(baseUrl + endpoint, data, config).then(
+            axios.post(baseUrl + endpoint, data, config_data).then(
                 ({ data }) => {
                     Swal.close();
                     resolve({ ...data });
@@ -109,10 +109,10 @@ var api = {
             );
         });
     },
-    put: function (endpoint, data) {
+    put: function (endpoint, data, config_data = config) {
         api.loader();
         return new Promise((resolve, reject) => {
-            axios.put(baseUrl + endpoint, data, config).then(
+            axios.put(baseUrl + endpoint, data, config_data).then(
                 ({ data }) => {
                     Swal.close();
                     resolve({ ...data });

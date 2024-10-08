@@ -39,6 +39,18 @@
                                                     <span class="badge bg-danger">Sin rol asignado</span>
                                                 </template>
                                             </template>
+                                            <template v-else-if="['is_active'].includes(attribute)">
+                                                <template v-if="item.is_active == 1">
+                                                    <span class="badge bg-primary">Activo</span>
+                                                </template>
+                                                <template v-else>
+                                                    <span class="badge bg-danger">Inactivo</span>
+                                                </template>
+                                            </template>
+                                            <template v-else-if="['path_logo'].includes(attribute)">
+                                                <img id="logo" class="avatar-md rounded-circle"
+                                                    :src="item.path_logo ? BaseUrl + item.path_logo : BaseUrl + '/images/users/avatar-1.jpg'" />
+                                            </template>
                                             <template v-else>
                                                 {{ getValueProperty(item, attribute) }}
                                             </template>
@@ -132,7 +144,7 @@ const props = defineProps({
 const response = ref({})
 const search = ref('')
 let collection = ref([])
-
+const BaseUrl = window.location.origin
 
 const emit = defineEmits(['btnAction', 'reload']);
 

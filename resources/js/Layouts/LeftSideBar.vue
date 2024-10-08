@@ -32,7 +32,7 @@
                     <li class="side-nav-title">ABARROTES</li>
 
                     <li class="side-nav-item">
-                        <a href="{{ route('dashboard') }}" class="side-nav-link">
+                        <a href="/dashboard" class="side-nav-link">
                             <i class="ri-dashboard-3-line"></i>
                             <span class="badge bg-success float-end">9+</span>
                             <span> Dashboard </span>
@@ -55,7 +55,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="collapse" id="sidebarSystem"  v-if="can('Leer permisos')">
+                        <div class="collapse" id="sidebarSystem" v-if="can('Leer permisos')">
                             <ul class="side-nav-second-level">
                                 <li>
                                     <a href="/admin/permisos">Permisos</a>
@@ -69,6 +69,19 @@
                                 </li>
                             </ul>
                         </div>
+                    </li>
+
+                    <li class="side-nav-item">
+                        <a href="/admin/proveedores" class="side-nav-link">
+                            <i class="mdi mdi-account-group"></i>
+                            <span> Proveedores </span>
+                        </a>
+                    </li>
+                    <li class="side-nav-item">
+                        <a href="/admin/clientes" class="side-nav-link">
+                            <i class="mdi mdi-account-group"></i>
+                            <span> Clientes </span>
+                        </a>
                     </li>
 
 

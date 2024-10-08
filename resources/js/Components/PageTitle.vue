@@ -5,8 +5,8 @@
             <div class="page-title-box">
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a :href="BaseUrl + prevPageUrl"> {{ prevPageName }} </a></li>
-                        <li class="breadcrumb-item active">{{ pageNowName }}</li>
+                        <li class="breadcrumb-item" v-if="prevPageName"><a :href="BaseUrl + prevPageUrl"> {{ prevPageName }} </a></li>
+                        <li class="breadcrumb-item active" v-if="pageNowName">{{ pageNowName }}</li>
                     </ol>
                 </div>
                 <h4 class="page-title">{{ title }} </h4>

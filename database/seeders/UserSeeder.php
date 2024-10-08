@@ -16,13 +16,13 @@ class UserSeeder extends Seeder
     public function run()
     {
         $admin_edi = User::create([
-            'name' => 'admin',
-            'email' => 'edi@moed.com',
+            'name' => 'azu',
+            'email' => 'azu@corp.com',
             'password' => Hash::make('admin')
         ]);
         $admin_bitfx = User::create([
             'name' => 'admin',
-            'email' => 'admin@bitfx.mx',
+            'email' => 'admin@corp.com',
             'password' => Hash::make('admin')
         ]);
 
