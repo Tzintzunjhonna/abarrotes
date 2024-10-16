@@ -18871,20 +18871,20 @@ span.flatpickr-weekday,
   }
 
   .multiselect__option--highlight {
-    background: #41b883;
+    background: #716cb0;
     outline: none;
     color: white;
   }
 
   .multiselect__option--highlight::after {
     content: attr(data-select);
-    background: #41b883;
+    background: #716cb0;
     color: white;
   }
 
   .multiselect__option--selected {
-    background: #f3f3f3;
-    color: #35495e;
+    background: RGBA(242, 79, 124, var(--tz-bg-opacity, 1)) !important;
+    color: white;
     font-weight: bold;
   }
 

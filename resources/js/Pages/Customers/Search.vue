@@ -30,7 +30,7 @@ function btnAction(value) {
   <div class="col-lg-8">
     <div class="card">
       <div class="card-body">
-        <h4 class="header-title">Busqueda de proveedores</h4>
+        <h4 class="header-title">Busqueda de clientes</h4>
 
         <form class="needs-validation" @submit.prevent="submitForm">
           <div class="row">

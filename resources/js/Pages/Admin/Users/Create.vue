@@ -27,14 +27,13 @@ const form = ref({
     email   : '',
 })
 
-const rolesSelect = ref(
-    [
-        { name: 'Admin', id: 1 },
-        { name: 'Editor', id: 2 },
-        { name: 'Subscriber', id: 3 },
-        // Agrega más roles aquí
-    ]
-);
+
+const props = defineProps({
+    rolesCat: {
+        type: Object,
+        required: true,
+    },
+});
 
 const config = {
         confirmButtonText: 'Aceptar',
@@ -186,7 +185,7 @@ async function onSubmit() {
                                             <label for="rol" class="form-label">Rol</label>
                                             <Multiselect v-model="form.role" track-by="name" label="name"
                                                 placeholder="Selecciona un rol" :show-labels="false" deselectLabel=" "
-                                                :block-keys="['Tab', 'Enter']" :options="rolesSelect" :searchable="true"
+                                                :block-keys="['Tab', 'Enter']" :options="rolesCat" :searchable="true"
                                                 :allow-empty="true" :showNoOptions="false">
                                                 <template v-slot:noResult>
                                                     <span>Opción no encontrada</span>

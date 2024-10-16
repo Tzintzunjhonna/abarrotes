@@ -28,6 +28,9 @@
     
     <!-- App css -->
     <link href="{{ URL('css/app.css') }}" rel="stylesheet" type="text/css" id="app-style" />
+    
+    <!-- sb-admin-2 CSS -->
+    <link href="{{ URL('css/sb-admin-2.css') }}" rel="stylesheet" type="text/css" id="app-style" />
 
 
     <!-- Scripts -->

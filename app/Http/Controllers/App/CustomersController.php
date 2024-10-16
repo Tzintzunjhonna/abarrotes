@@ -4,6 +4,9 @@ namespace App\Http\Controllers\App;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customers;
+use App\Models\CustomersHasAddress;
+use App\Models\CustomersHasBilling;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +37,7 @@ class CustomersController extends Controller
             
             $list = $query->orderBy('id', 'desc')->paginate($request->pageSize);
 
-            return response()->success($list, 'Se consulto correctamnete la lista de usuarios.');
+            return response()->success($list, 'Se consulto correctamnete la lista de clientes.');
 
 
         } catch (\Exception $exception) {
@@ -48,7 +51,7 @@ class CustomersController extends Controller
             if ($exception->getCode()) {
                 $code = $exception->getCode();
             }
-            return response()->error('Error conusltar la lista de usuarios', $response, $code);
+            return response()->error('Error conusltar la lista de clientes', $response, $code);
         }
     }
 
@@ -69,41 +72,66 @@ class CustomersController extends Controller
         try {
 
             $request->validate([
-                'name' => 'required',
-                'business_name' => 'required',
-                'address' => 'required',
-                'phone' => 'required',
-                'email' => 'required',
-                'name_contact' => 'required',
+                'name'  => 'required',
+                'business_name'  => 'required',
+                'address'  => 'required',
+                'phone'  => 'required',
+                'email'  => 'required',
+                'name_contact'  => 'required',
+                'uso_cdfi_id'  => 'required',
+                'regimen_fiscal_id'  => 'required',
+                'metodo_pago_id'  => 'required',
+                'forma_pago_id'  => 'required',
+                'tipo_exportacion_id'  => 'required',
+                'zip_code'  => 'required',
+                'pais_id'  => 'required',
+                'codigo_postal_id'  => 'required',
+                'estado_id'  => 'required',
+                'municipio_id'  => 'required',
+                'localidad_id'  => 'required',
+                'street'  => 'required',
+                'number'  => 'required',
             ], [
-                'name.required' => 'El nombre es obligatorio.',
-                'business_name.required' => 'La razón social es obligatoria.',
-                'address.required' => 'La dirección es obligatoria.',
-                'phone.required' => 'El número de teléfono es obligatorio.',
-                'email.required' => 'El email es obligatorio.',
-                'name_contact.required' => 'El nombre de contacto es obligatorio.',
+                'name.required' => 'El campo nombre es requerido',
+                'business_name.required' => 'El campo nombre de la empresa es requerido',
+                'address.required' => 'El campo dirección es requerido',
+                'phone.required' => 'El campo teléfono es requerido',
+                'email.required' => 'El campo correo electrónico es requerido',
+                'name_contact.required' => 'El campo nombre del contacto es requerido',
+                'uso_cdfi_id.required' => 'El campo uso de CFDI es requerido',
+                'regimen_fiscal_id.required' => 'El campo régimen fiscal es requerido',
+                'metodo_pago_id.required' => 'El campo método de pago es requerido',
+                'forma_pago_id.required' => 'El campo forma de pago es requerido',
+                'tipo_exportacion_id.required' => 'El campo tipo de exportación es requerido',
+                'zip_code.required' => 'El campo código postal es requerido',
+                'pais_id.required' => 'El campo país es requerido',
+                'codigo_postal_id.required' => 'El campo código postal es requerido',
+                'estado_id.required' => 'El campo estado es requerido',
+                'municipio_id.required' => 'El campo municipio es requerido',
+                'localidad_id.required' => 'El campo localidad es requerido',
+                'street.required' => 'El campo calle es requerido',
+                'number.required' => 'El campo número es requerido',
+
             ]);
 
-            $providers = new Customers();
+            $customer = new Customers();
 
-            $providers->name              = $request->name;
-            $providers->business_name     = $request->business_name;
-            $providers->address           = $request->address;
-            $providers->phone             = $request->phone;
-            $providers->email             = $request->email;
-            $providers->name_contact      = $request->name_contact;
-
-            $providers->save();
+            $customer->name                 = $request->name;
+            $customer->business_name        = $request->business_name;
+            $customer->address              = $request->address;
+            $customer->phone                = $request->phone;
+            $customer->email                = $request->email;
+            $customer->name_contact         = $request->name_contact;
 
             if ($request->file('photo_input') != null) {
 
-                if (File::exists(public_path() . $providers->path_logo)) {
-                    File::delete(public_path() . $providers->path_logo);
+                if (File::exists(public_path() . $customer->path_logo)) {
+                    File::delete(public_path() . $customer->path_logo);
                 }
                 // OBTENER ARCHIVO
                 $file = $request->file('photo_input');
-                $name = 'provider_' . time() . '.' . $file->getClientOriginalExtension();
-                $path = public_path() . '/uploads/providers/';
+                $name = 'customer_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = public_path() . '/uploads/customer/';
 
                 if (!file_exists($path)) {
                     mkdir($path, 0777, true);
@@ -111,18 +139,53 @@ class CustomersController extends Controller
 
                 //CARGAR ARCHIVO
                 $file->move($path, $name);
-                $providers->path_logo = '/uploads/providers/' . $name;
+                $customer->path_logo = '/uploads/customer/' . $name;
             }
+
+            $customer->created_at = Carbon::now();
+            $customer->updated_at = Carbon::now();
+            $customer->save();
+
+            $customer_has_billing = new CustomersHasBilling();
+
+            $customer_has_billing->customer_id          = $customer->id;
+            $customer_has_billing->uso_cdfi_id          = $request->uso_cdfi_id;
+            $customer_has_billing->regimen_fiscal_id    = $request->regimen_fiscal_id;
+            $customer_has_billing->metodo_pago_id       = $request->metodo_pago_id;
+            $customer_has_billing->forma_pago_id        = $request->forma_pago_id;
+            $customer_has_billing->tipo_exportacion_id  = $request->tipo_exportacion_id;
+            $customer_has_billing->zip_code             = $request->zip_code;
+            $customer_has_billing->created_at = Carbon::now();
+            $customer_has_billing->updated_at = Carbon::now();
+            $customer_has_billing->save();
+
+            $customers_has_address = new CustomersHasAddress();
+
+            $customers_has_address->customer_id          = $customer->id;
+            $customers_has_address->pais_id              = $request->pais_id;
+            $customers_has_address->codigo_postal_id     = $request->codigo_postal_id;
+            $customers_has_address->estado_id            = $request->estado_id;
+            $customers_has_address->municipio_id         = $request->municipio_id;
+            $customers_has_address->localidad_id         = $request->localidad_id;
+            $customers_has_address->street               = $request->street;
+            $customers_has_address->number               = $request->number;
+            $customers_has_address->created_at = Carbon::now();
+            $customers_has_address->updated_at = Carbon::now();
+            $customers_has_address->save();
 
             DB::commit();
             
 
-            return response()->success($providers, 'Se dio de alta el cliente.');
-        } catch (ValidationException $e) {
-            return response()->json([
-                'errors' => 'Validation failed.',
-                'message' => $e->validator->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->success($customer, 'Se dio de alta el cliente.');
+        } catch (ValidationException $exception) {
+            DB::rollBack();
+            $response = [
+                "file"    => $exception->getFile(),
+                "line"    => $exception->getLine(),
+                "message" => $exception->getMessage(),
+            ];
+            log::debug($response);
+            return response()->error($exception->validator->errors(), $response, Response::HTTP_UNPROCESSABLE_ENTITY);
         }catch (\Exception $exception) {
             DB::rollBack();
             $response = [

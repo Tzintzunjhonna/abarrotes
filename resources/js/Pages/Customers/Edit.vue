@@ -15,10 +15,10 @@ const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
 const alert = app.appContext.config.globalProperties.alert
 
-const title = ref('Editar proveedor')
-const prevPageName = ref('Proveedores')
-const pageNowName = ref('Editar proveedor')
-const prevPageUrl = ref('admin/proveedores')
+const title = ref('Editar cliente')
+const prevPageName = ref('Clientes')
+const pageNowName = ref('Editar cliente')
+const prevPageUrl = ref('admin/clientes')
 
 const BaseUrl = window.location.origin
 
@@ -127,14 +127,14 @@ async function onSubmit() {
     // }
 
     api
-        .post(`v1/app-providers/${props.item_info.id}/update`, form.value, {
+        .post(`v1/app-customers/${props.item_info.id}/update`, form.value, {
           headers: {
             'Content-Type': `multipart/form-data`,
           },})
         .then((response) => {
             alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
-                    router.visit(`/admin/proveedores`);
+                    router.visit(`/admin/clientes`);
                 }
             });
         })
@@ -178,7 +178,7 @@ function uploadFile(event, name) {
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="header-title">
-                                    Editar proveedor: 
+                                    Editar cliente: 
                                     <span class="badge bg-danger">
                                         {{ item_info.name }}
                                     </span> 

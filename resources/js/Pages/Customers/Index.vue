@@ -15,18 +15,18 @@ const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
 const alert = app.appContext.config.globalProperties.alert
 
-const title = ref('Proveedores')
+const title = ref('Clientes')
 const prevPageName = ref('Dashboard')
-const pageNowName = ref('Lista de proveedores')
+const pageNowName = ref('Lista de clientes')
 const prevPageUrl = ref('')
 
 
 // TABLAS --------------------------
-let endpoint = ref(`v1/app-providers/collection`)
+let endpoint = ref(`v1/app-customers/collection`)
 
 const getList = ref([])
 const tableHeaders = ['Logo', 'Nombre', 'Email', 'Nombre de contacto','Estatus', 'Fecha de registro', 'Opciones'];
-const tableTitle = ref('Lista de proveedores')
+const tableTitle = ref('Lista de clientes')
 
 const tbody = [
     'path_logo',
@@ -110,7 +110,7 @@ function onEdit(data) {
 
     let ids = data.id.toString();
     ids = btoa(ids);
-    router.visit(`/admin/proveedores/${ids}/editar`);
+    router.visit(`/admin/clientes/${ids}/editar`);
 }
 
 function onSearch(data) {
@@ -118,7 +118,7 @@ function onSearch(data) {
 }
 
 function onAdd(data) {
-    router.visit(`/admin/proveedores/nuevo`);
+    router.visit(`/admin/clientes/nuevo`);
 }
 
 function onDelete(data) {
@@ -138,7 +138,7 @@ function onDelete(data) {
         .then((result) => {
             if (result.value == 'Confirmar') {
                 api
-                    .delete(`v1/app-providers/${data.id}/destroy`)
+                    .delete(`v1/app-customers/${data.id}/destroy`)
                     .then((response) => {
                         alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
                             if (result.isConfirmed) {
@@ -181,7 +181,7 @@ function onChangeStatus(data) {
         .then((result) => {
             if (result.value == 'Confirmar') {
                 api
-                    .post(`v1/app-providers/${data.id}/change-status`)
+                    .post(`v1/app-customers/${data.id}/change-status`)
                     .then((response) => {
                         alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
                             if (result.isConfirmed) {
@@ -226,7 +226,7 @@ function onChangeStatus(data) {
 
                     <table-pagination :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
                         @btnAction="action" :endpoint="endpoint" :title="tableTitle" :searchPost="searchForm"
-                        :labelBtnNew="'Nuevo proveedor'" :showBtnNew="true" :reload="reloadPage" @reload="reload"/>
+                        :labelBtnNew="'Nuevo cliente'" :showBtnNew="true" :reload="reloadPage" @reload="reload"/>
                 </div>
             </div>
         </div>

@@ -2,6 +2,12 @@ import Swal from 'sweetalert2';
 
 const API_URL = window.location.origin;
 
+
+// const apiSuccessImageUrl = "images/alerts/icon-check-circle.svg";
+
+// const deleteConfirmationimageUrl = "images/alerts/icon-modal-autorizar.svg";
+// const apiErrorimageUrl = "images/alerts/icon-error.svg";
+
 const custom = Swal.mixin({
     customClass: {
         confirmButton: 'btn btn-danger rounded-lg m-2',

@@ -1,0 +1,26 @@
+
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('G01', 'Adquisición de mercancías.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('G02', 'Devoluciones, descuentos o bonificaciones.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('G03', 'Gastos en general.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I01', 'Construcciones.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I02', 'Mobiliario y equipo de oficina por inversiones.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I03', 'Equipo de transporte.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I04', 'Equipo de computo y accesorios.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I05', 'Dados, troqueles, moldes, matrices y herramental.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I06', 'Comunicaciones telefónicas.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I07', 'Comunicaciones satelitales.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('I08', 'Otra maquinaria y equipo.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D01', 'Honorarios médicos, dentales y gastos hospitalarios.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D02', 'Gastos médicos por incapacidad o discapacidad.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D03', 'Gastos funerales.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D04', 'Donativos.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D05', 'Intereses reales efectivamente pagados por créditos hipotecarios (casa habitación).');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D06', 'Aportaciones voluntarias al SAR.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D07', 'Primas por seguros de gastos médicos.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D08', 'Gastos de transportación escolar obligatoria.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D09', 'Depósitos en cuentas para el ahorro, primas que tengan como base planes de pensiones.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('D10', 'Pagos por servicios educativos (colegiaturas).');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('S01', 'Sin efectos fiscales.');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('CP01', 'Pagos');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('CN01', 'Nómina');
+INSERT INTO cat_sat_uso_de_cfdi (codigo, nombre) VALUES('P01', 'Por definir.');

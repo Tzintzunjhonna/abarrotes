@@ -24,7 +24,12 @@ class UsersController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Users/Create', []);
+        $roles_cat = Role::all();
+
+        return Inertia::render('Admin/Users/Create', 
+        [
+            'rolesCat' => $roles_cat,
+        ]);
     }
 
     /**
