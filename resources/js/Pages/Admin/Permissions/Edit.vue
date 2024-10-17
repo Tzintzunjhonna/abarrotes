@@ -20,8 +20,14 @@ const prevPageName = ref('Roles')
 const pageNowName = ref('Editar permiso')
 const prevPageUrl = ref('admin/permisos')
 
+
+const is_disabled = ref(true);
+const text_disabled = ref('Editar');
+const class_button_disabled = ref('btn btn-primary');
+const icon_disabled = ref('mdi mdi-content-save');
+
 const props = defineProps({
-    permission: {
+    info_get: {
         type: Object,
         required: true,
     }
@@ -69,8 +75,8 @@ const f$ = useVuelidate(validateRulesForm, form);
 // FUNCIONES --------------------------
 
 function getData() {
-    form.value.name     = props.permission.name;
-    form.value.guard_name = props.permission.guard_name;
+    form.value.name     = props.info_get.name;
+    form.value.guard_name = props.info_get.guard_name;
     
 }
 
@@ -87,7 +93,7 @@ async function onSubmit() {
     formData.append('guard_name', form.value.guard_name);
 
     api
-        .put(`v1/app-permissions/${props.permission.id}/update`, formData)
+        .put(`v1/app-permissions/${props.info_get.id}/update`, formData)
         .then((response) => {
             alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
@@ -113,6 +119,28 @@ async function onSubmit() {
         })
 }
 
+function btnIndex() {
+
+    router.visit(`/admin/permisos`);
+
+}
+
+
+function btnEdit() {
+
+    is_disabled.value = !is_disabled.value;
+    if (is_disabled.value == false) {
+        text_disabled.value = 'Cancelar edicion';
+        class_button_disabled.value = 'btn btn-danger';
+        icon_disabled.value = 'mdi mdi-book-cancel';
+    } else {
+        text_disabled.value = 'Editar';
+        class_button_disabled.value = 'btn btn-primary';
+        icon_disabled.value = 'mdi mdi-content-save';
+    }
+}
+
+
 </script>
 
 <template>
@@ -132,18 +160,27 @@ async function onSubmit() {
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="header-title">
-                                    Asignar permiso 
+                                    <a ref="#" type="button" title="Regresar" class="m-2" @click="btnIndex()">
+                                        <i class="mdi mdi-page-previous-outline"></i>
+                                    </a>
+                                    Editar permiso
                                     <span class="badge bg-danger">
-                                        {{ permission.name }}
-                                    </span> 
+                                        {{ info_get.name }}
+                                    </span>
                                 </h4>
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button :class="class_button_disabled" type="button" @click="btnEdit()">
+                                        <i :class="icon_disabled"></i>
+                                        {{ text_disabled }}
+                                    </button>
+                                </div>
 
                                 <form class="needs-validation" @submit.prevent="onSubmit">
                                     <div class="row">
 
                                         <div class="mb-2 col-md-6">
                                             <label for="name" class="form-label">Nombre</label>
-                                            <input v-model="form.name" type="text" class="form-control" id="name"
+                                            <input :disabled="is_disabled" v-model="form.name" type="text" class="form-control" id="name"
                                                 name="name" placeholder="Nombre">
                                             <div class="input-errors" v-for="error of f$.name.$errors"
                                                 :key="error.$uid">
@@ -152,7 +189,7 @@ async function onSubmit() {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="guard_name" class="form-label">Nombre del permiso</label>
-                                            <input v-model="form.guard_name" type="text" class="form-control"
+                                            <input :disabled="is_disabled" v-model="form.guard_name" type="text" class="form-control"
                                                 id="guard_name" placeholder="Nombre del permiso">
                                             <div class="input-errors" v-for="error of f$.guard_name.$errors"
                                                 :key="error.$uid">
@@ -161,7 +198,7 @@ async function onSubmit() {
                                         </div>
                                     </div>
 
-                                    <button class="btn btn-primary" type="submit">
+                                    <button class="btn btn-primary" type="submit" v-if="!is_disabled">
                                         <i class="mdi mdi-content-save"></i>
                                         Guardar
                                     </button>

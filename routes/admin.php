@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\PermissionsController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Admin\CompanyController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -29,6 +30,11 @@ Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')-
         Route::get('/', [PermissionsController::class, 'index'])->name('permissions');
         Route::get('/nuevo', [PermissionsController::class, 'create'])->name('create.permissions');
         Route::get('/{id_token}/editar', [PermissionsController::class, 'edit'])->name('edit.permissions');
+    });
+    
+    // PERMISSIONS
+    Route::group(['prefix' => 'mi-empresa'], function () {
+        Route::get('/', [CompanyController::class, 'index'])->name('company');
     });
 });
 

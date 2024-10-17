@@ -38,14 +38,10 @@ const form = ref({
     email   : '',
 })
 
-const rolesSelect = ref(
-    [
-        { name: 'Admin', id: 1 },
-        { name: 'Editor', id: 2 },
-        { name: 'Subscriber', id: 3 },
-        // Agrega más roles aquí
-    ]
-);
+const is_disabled = ref(true);
+const text_disabled = ref('Editar');
+const class_button_disabled = ref('btn btn-primary');
+const icon_disabled = ref('mdi mdi-content-save');
 
 // MOUNTED  --------------------------
 onMounted(() => {
@@ -132,6 +128,30 @@ async function onSubmit() {
         })
 }
 
+
+function btnIndex() {
+
+    router.visit(`/admin/usuarios`);
+
+}
+
+
+function btnEdit() {
+
+    is_disabled.value = !is_disabled.value;
+    if (is_disabled.value == false) {
+        text_disabled.value = 'Cancelar edicion';
+        class_button_disabled.value = 'btn btn-danger';
+        icon_disabled.value = 'mdi mdi-book-cancel';
+    } else {
+        text_disabled.value = 'Editar';
+        class_button_disabled.value = 'btn btn-primary';
+        icon_disabled.value = 'mdi mdi-content-save';
+    }
+
+}
+
+
 </script>
 
 <template>
@@ -151,19 +171,28 @@ async function onSubmit() {
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="header-title">
-                                    Asignar rol 
+                                    <a ref="#" type="button" title="Regresar" class="m-2" @click="btnIndex()">
+                                        <i class="mdi mdi-page-previous-outline"></i>
+                                    </a>
+                                    Asignar rol
                                     <span class="badge bg-danger">
                                         {{ user.name }}
-                                    </span> 
+                                    </span>
                                 </h4>
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button :class="class_button_disabled" type="button" @click="btnEdit()">
+                                        <i :class="icon_disabled"></i>
+                                        {{text_disabled}}
+                                    </button>
+                                </div>
 
                                 <form class="needs-validation" @submit.prevent="onSubmit">
                                     <div class="row">
 
                                         <div class="mb-2 col-md-6">
                                             <label for="name" class="form-label">Nombre</label>
-                                            <input v-model="form.name" type="text" class="form-control" id="name"
-                                                name="name" placeholder="Nombre">
+                                            <input :disabled="is_disabled" v-model="form.name" type="text"
+                                                class="form-control" id="name" name="name" placeholder="Nombre">
                                             <div class="input-errors" v-for="error of f$.name.$errors"
                                                 :key="error.$uid">
                                                 <div class="text-danger">{{ error.$message }}</div>
@@ -171,8 +200,8 @@ async function onSubmit() {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="email" class="form-label">Correo electrónico</label>
-                                            <input v-model="form.email" type="email" class="form-control" id="email"
-                                                placeholder="Correo electrónico">
+                                            <input :disabled="is_disabled" v-model="form.email" type="email"
+                                                class="form-control" id="email" placeholder="Correo electrónico">
                                             <div class="input-errors" v-for="error of f$.email.$errors"
                                                 :key="error.$uid">
                                                 <div class="text-danger">{{ error.$message }}</div>
@@ -180,15 +209,15 @@ async function onSubmit() {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="password" class="form-label">Contraseña</label>
-                                            <input v-model="form.password" type="password" class="form-control"
-                                                id="password" placeholder="Contraseña">
+                                            <input :disabled="is_disabled" v-model="form.password" type="password"
+                                                class="form-control" id="password" placeholder="Contraseña">
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="rol" class="form-label">Rol</label>
-                                            <Multiselect v-model="form.role" track-by="name" label="name"
-                                                placeholder="Selecciona un rol" :show-labels="false" deselectLabel=" "
-                                                :block-keys="['Tab', 'Enter']" :options="rolesCat" :searchable="true"
-                                                :allow-empty="true" :showNoOptions="false">
+                                            <Multiselect :disabled="is_disabled" v-model="form.role" track-by="name"
+                                                label="name" placeholder="Selecciona un rol" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="rolesCat"
+                                                :searchable="true" :allow-empty="true" :showNoOptions="false">
                                                 <template v-slot:noResult>
                                                     <span>Opción no encontrada</span>
                                                 </template>
@@ -200,7 +229,7 @@ async function onSubmit() {
                                         </div>
                                     </div>
 
-                                    <button class="btn btn-primary" type="submit">
+                                    <button class="btn btn-primary" type="submit" v-if="!is_disabled">
                                         <i class="mdi mdi-content-save"></i>
                                         Guardar
                                     </button>

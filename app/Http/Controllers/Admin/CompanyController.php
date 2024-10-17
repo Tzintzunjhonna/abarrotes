@@ -3,18 +3,35 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Permission;
+use App\Models\Sat\Addresses\CatSatCountry;
+use App\Models\Sat\CatSatExportacion;
+use App\Models\Sat\CatSatFormaPago;
+use App\Models\Sat\CatSatMetodoPago;
+use App\Models\Sat\CatSatRegimenFiscal;
+use App\Models\Sat\CatSatUsoCfdi;
 
-class PermissionsController extends Controller
+
+class CompanyController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Admin/Permissions/Index', []);
+        $paises = CatSatCountry::all();
+        $item_info = Company::first();
+        
+        // dd($item_info);
+        $data = [
+            'item_info'             => $item_info,
+            'cat_paises'            => $paises,
+        ];
+
+        return Inertia::render('Admin/Company/Index', $data);
     }
 
     /**
@@ -22,7 +39,7 @@ class PermissionsController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Permissions/Create', []);
+        //
     }
 
     /**
@@ -46,24 +63,13 @@ class PermissionsController extends Controller
      */
     public function edit(string $token)
     {
-        $id = base64_decode($token);
-
-        $info_get = Permission::find($id);
-
-        if($info_get == null){
-            return redirect('/admin/permisos');
-        }
-        
-        return Inertia::render('Admin/Permissions/Edit', 
-            [
-                'info_get' => $info_get
-            ]);
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function assing(Request $request, $token)
+    public function update(Request $request, string $id)
     {
         //
     }

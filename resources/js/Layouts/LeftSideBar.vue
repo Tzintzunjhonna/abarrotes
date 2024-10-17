@@ -4,23 +4,23 @@
         <div class="leftside-menu">
 
             <!-- Brand Logo Light -->
-            <!-- <a href="{{ route('dashboard') }}" class="logo logo-light">
-                <span class="logo-lg">
-                    <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="logo">
+            <a href="/admin/mi-empresa" class="logo logo-light">
+                <template v-if="company != null">
+                    <span class="logo-xxl">
+                        <img :src="BaseUrl + company.path_logo" alt="logo" class="img-thumbnail">
+                    </span>
+                </template>
 
-                </span>
-                <span class="logo-sm">
-                    <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="small logo">
-                </span>
-            </a> -->
-            <div class="text-center">
-                <img id="logo" class="avatar-md rounded-circle"
-                    :src="BaseUrl + '/images/abarrotes/logo_1.png'" />
-            </div>
+                <template v-else>
+                    <span class="logo-xxl">
+                        <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="logo" class="img-thumbnail">
+                    </span>
+                </template>
+            </a>
 
 
             <!-- Brand Logo Dark -->
-            <a href="{{ route('dashboard') }}" class="logo logo-dark">
+            <a href="/admin/mi-empresa" class="logo logo-dark">
                 <span class="logo-lg">
                     <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="dark logo">
                 </span>
@@ -34,7 +34,7 @@
                 <!--- Sidemenu -->
                 <ul class="side-nav">
 
-                    <li class="side-nav-title">ABARROTES</li>
+                    <li class="side-nav-title">{{ company == null ? 'CONTRERAS CORP' : company.business_name }}</li>
 
                     <li class="side-nav-item">
                         <a href="/dashboard" class="side-nav-link">
@@ -56,7 +56,7 @@
                         <div class="collapse" id="sidebarSystem">
                             <ul class="side-nav-second-level">
                                 <li>
-                                    <a href="/admin/roles">Empresa</a>
+                                    <a href="/admin/mi-empresa">Empresa</a>
                                 </li>
                             </ul>
                         </div>
@@ -85,7 +85,7 @@
 
                     <li class="side-nav-item">
                         <a href="/admin/proveedores" class="side-nav-link">
-                            <i class="mdi mdi-account-group"></i>
+                            <i class="mdi mdi-truck-delivery"></i>
                             <span> Proveedores </span>
                         </a>
                     </li>
@@ -95,7 +95,6 @@
                             <span> Clientes </span>
                         </a>
                     </li>
-
 
                 </ul>
                 <!--- End Sidemenu -->
@@ -117,6 +116,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
 const can = app.appContext.config.globalProperties.can;
+const company = app.appContext.config.globalProperties.company;
 
 
 const BaseUrl = window.location.origin

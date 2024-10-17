@@ -1,0 +1,557 @@
+<script setup>
+
+// IMPORTS --------------------------
+import { Head, Link, router } from '@inertiajs/vue3';
+import {watch, computed, getCurrentInstance, onMounted, ref} from "vue";
+import { useVuelidate, } from '@vuelidate/core';
+import { helpers, required, email, numeric } from '@vuelidate/validators';
+import PageTitle from '@/Components/PageTitle.vue';
+import MenuPage from '@/Layouts/Menu.vue';
+import LeftSideBar from '@/Layouts/LeftSideBar.vue';
+import Footer from '@/Layouts/Footer.vue';
+import Divider from '@/Components/helps/Divider.vue';
+
+// VARIABLES --------------------------
+const app = getCurrentInstance()
+const api = app.appContext.config.globalProperties.api
+const alert = app.appContext.config.globalProperties.alert
+
+const title = ref('Mi empresa')
+const prevPageName = ref('Dashboard')
+const pageNowName = ref('Mi empresa')
+const prevPageUrl = ref('dashboard')
+
+const BaseUrl = window.location.origin
+
+const props = defineProps({
+    cat_paises: {
+        type: Object,
+        required: true,
+    },
+    item_info: {
+        type: Object,
+        required: true,
+    },
+});
+
+let cat_estado = ref([])
+let cat_municipio = ref([])
+let cat_localidad = ref([])
+
+const is_disabled = ref(true);
+const text_disabled = ref('Editar');
+const class_button_disabled = ref('btn btn-primary');
+const icon_disabled = ref('mdi mdi-content-save');
+
+const form = ref({
+    rfc: '',
+    business_name: '',
+    photo: '',
+    photo_input: '',
+    path_logo: '',
+    
+    // Facturación
+    zip_code: '',
+
+    //Dirección
+    pais_id: {
+        id: 151,
+        nombre: 'México',
+    },
+    codigo_postal_id: '',
+    estado_id: '',
+    municipio_id: '',
+    localidad_id: '',
+    street: '',
+    number: '',
+})
+
+
+const config = {
+        confirmButtonText: 'Aceptar',
+        showCloseButton: false,
+        showCancelButton: false
+    }
+
+// MOUNTED  --------------------------
+onMounted(() => {
+    getData()
+});
+
+// WATCH -----------------------------
+
+watch(() => form.value.codigo_postal_id, (newValue, oldValue) => {
+    if (newValue?.length >= 5) {
+        getZipCode(newValue);
+    }
+});
+
+// VALIDACION DE FORMULARIOS --------------------------
+
+const validateRulesForm = {
+    
+    rfc: {
+        required: helpers.withMessage(
+            'El campo RFC es requerido.',
+            required,
+        )
+    },
+    business_name: {
+        required: helpers.withMessage(
+            'El campo razón social es requerido.',
+            required,
+        )
+    },
+    zip_code: {
+        required: helpers.withMessage(
+            'El campo codigo postal (Timbrado) para el timbrado es requerido.',
+            required,
+        )
+    },
+    pais_id: {
+        required: helpers.withMessage(
+            'El campo país para el timbrado es requerido.',
+            required,
+        )
+    },
+    codigo_postal_id: {
+        required: helpers.withMessage(
+            'El campo codigo postal para el timbrado es requerido.',
+            required,
+        ),
+        numeric: helpers.withMessage(
+            'El código postal debe contener solo números.',
+            numeric
+        ),
+    },
+    estado_id: {
+        required: helpers.withMessage(
+            'El campo estado para el timbrado es requerido.',
+            required,
+        )
+    },
+    municipio_id: {
+        required: helpers.withMessage(
+            'El campo municipio para el timbrado es requerido.',
+            required,
+        )
+    },
+    localidad_id: {
+        required: helpers.withMessage(
+            'El campo localidad para el timbrado es requerido.',
+            required,
+        )
+    },
+    street: {
+        required: helpers.withMessage(
+            'El campo calle para el timbrado es requerido.',
+            required,
+        )
+    },
+    number: {
+        required: helpers.withMessage(
+            'El campo número para el timbrado es requerido.',
+            required,
+        )
+    },
+};
+
+const f$ = useVuelidate(validateRulesForm, form);
+
+
+// FUNCIONES --------------------------
+
+
+function getData() {
+
+    if(props.item_info != null){
+
+        form.value.rfc             = props.item_info.rfc;
+        form.value.business_name   = props.item_info.business_name;
+        form.value.photo           = props.item_info.path_logo != null ? BaseUrl + props.item_info.path_logo : null;
+        form.value.zip_code        = props.item_info.zip_code;
+
+        const has_address = props.item_info.has_address;
+        
+        //Dirección
+        form.value.pais_id             = has_address.has_pais;
+        form.value.codigo_postal_id    = has_address.has_codigo_postal.codigo;
+        form.value.estado_id           = has_address.has_estado;
+        form.value.municipio_id        = has_address.has_municipio;
+        form.value.localidad_id        = has_address.has_localidad;
+        form.value.street              = has_address.street;
+        form.value.number              = has_address.number;
+        
+    }
+}
+
+async function onSubmit() {
+
+    console.log('onsubmit')
+    const isFormCorrect = await f$.value.$validate();
+    console.log(isFormCorrect)
+    console.log(f$.value)
+    if (!isFormCorrect) return;
+
+    let formData = setForm(form.value);
+
+    api
+        .post(`v1/app-company/update`, formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        )
+        .then((response) => {
+            alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = window.location.origin + '/admin/mi-empresa';
+                }
+            });
+        })
+        .catch((error) => {
+            console.log(error)
+            if (error.errors) {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.errors.message
+                });
+            } else {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.message
+                });
+            }
+        })
+}
+
+function setForm(form){
+
+    const formData = new FormData();
+
+    for (const [key, value] of Object.entries(form)) {
+        if (typeof value === 'object' && value !== null) {
+            if(key == 'photo_input'){
+                formData.append(key, value);
+
+            }else{
+                formData.append(key, value.id);
+            }
+        } else {
+            formData.append(key, value);
+        }
+    }
+
+    return formData;
+}
+function btnEdit(){
+
+    is_disabled.value = !is_disabled.value;
+    if(is_disabled.value == false){
+        text_disabled.value = 'Cancelar edicion';
+        class_button_disabled.value = 'btn btn-danger';
+        icon_disabled.value = 'mdi mdi-book-cancel';
+    }else{
+        text_disabled.value = 'Editar';
+        class_button_disabled.value = 'btn btn-primary';
+        icon_disabled.value = 'mdi mdi-content-save';
+    }
+    
+}
+function uploadFile(event, name) {
+    const file = event.target.files[0];
+    form.value.photo_input = file;
+    form.value.photo = URL.createObjectURL(event.target.files[0]);
+
+}
+
+
+function getZipCode(code) {
+
+    api
+        .get(`v1/sat/addresses/zip_code/${code}`)
+        .then((response) => {
+            const data = response.data
+            cat_estado.value = data.state;
+            cat_municipio.value = data.cat_municipality;
+            cat_localidad.value = data.cat_location;
+            
+        })
+        .catch((error) => {
+            console.log(error)
+            if (error.errors) {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.errors.message
+                });
+            } else {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.message
+                });
+            }
+        })
+}
+
+</script>
+
+<template>
+
+    <MenuPage />
+    <LeftSideBar />
+
+    <div class="content-page">
+        <div class="content">
+            <div class="container-fluid">
+
+                <Head :title="title" />
+                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                    :pageNowName="pageNowName" />
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="header-title">Mi empresa</h4>
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button :class="class_button_disabled" type="button" @click="btnEdit()">
+                                        <i :class="icon_disabled"></i>
+                                        {{text_disabled}}
+                                    </button>
+                                </div>
+
+                                    <form class="needs-validation" @submit.prevent="onSubmit">
+                                        <div class="row">
+                                            <div class="mb-2 col-md-6">
+                                                <label for="rfc" class="form-label">RFC</label>
+                                                <input :disabled="is_disabled" v-model="form.rfc" type="text" class="form-control" id="rfc"
+                                                    name="rfc" placeholder="RFC" maxlength="13">
+                                                <div class="input-errors" v-for="error of f$.rfc.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-2 col-md-6">
+                                                <label for="business_name" class="form-label">Razón social</label>
+                                                <input :disabled="is_disabled" v-model="form.business_name" type="text" class="form-control"
+                                                    id="business_name" name="business_name" placeholder="Razón social">
+                                                <div class="input-errors" v-for="error of f$.business_name.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-2 col-md-6">
+                                                <label for="zip_code" class="form-label">Código postal
+                                                    (Timbrado)</label>
+                                                <input :disabled="is_disabled" v-model="form.zip_code" type="number" class="form-control"
+                                                    id="zip_code" placeholder="Código postal (Timbrado)" step="1"
+                                                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                    maxlength="5">
+                                                <div class="input-errors" v-for="error of f$.zip_code.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row col-sm-12 col-md-4 col-lg-4 d-flex justify-content-center">
+                                            <div class="">
+                                                <div class="ml-5">
+                                                    <label class="text-input">Logo de la Empresa</label>
+                                                    <input :disabled="is_disabled" type="file" name="path_logo" id="path_logo"
+                                                        @change="uploadFile($event, 'path_logo')"
+                                                        class="inputfile inputfile-2" accept="image/png, image/jpeg" />
+                                                    <label for="path_logo" class="p-0">
+                                                        <div style="width: 100%; height: 130px">
+                                                            <img id="imgPreview"
+                                                                :src="form.photo ? form.photo : BaseUrl + '/images/users/avatar-1.jpg'"
+                                                                style="
+                                      width: 100%;
+                                      height: 100%;
+                                      display: block;
+                                      margin-left: auto;
+                                      margin-right: auto;
+                                  " alt="Imagen previa" />
+                                                        </div>
+                                                    </label>
+                                                    <label style="color: #6d6d6d; font-size: 10px">Formato recomendado:
+                                                        JPG,
+                                                        PNG. Máximo 1MB</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Divider label="Datos de dirección de mi empresa" />
+
+                                        <div class="row">
+
+                                            <div class="mb-2 col-md-6">
+                                                <label for="pais_id" class="form-label">País</label>
+                                                <Multiselect :disabled="is_disabled" v-model="form.pais_id" track-by="nombre" label="nombre"
+                                                    placeholder="Selecciona un país" :show-labels="false"
+                                                    deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                    :options="cat_paises" :searchable="true" :allow-empty="true"
+                                                    :showNoOptions="false">
+                                                    <template v-slot:noResult>
+                                                        <span>Opción no encontrada</span>
+                                                    </template>
+                                                </Multiselect>
+                                                <div class="input-errors" v-for="error of f$.pais_id.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-2 col-md-6">
+                                                <label for="codigo_postal_id" class="form-label">Código postal</label>
+                                                <input :disabled="is_disabled" v-model="form.codigo_postal_id" type="text" class="form-control"
+                                                    id="codigo_postal_id" placeholder="Código postal" step="1"
+                                                    maxlength="6">
+                                                <div class="input-errors" v-for="error of f$.codigo_postal_id.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-2 col-md-6">
+                                                <label for="estado_id" class="form-label">Estado</label>
+                                                <Multiselect :disabled="is_disabled" v-model="form.estado_id" track-by="nombre" label="nombre"
+                                                    placeholder="Selecciona un estado" :show-labels="false"
+                                                    deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                    :options="cat_estado" :searchable="true" :allow-empty="true"
+                                                    :showNoOptions="false">
+                                                    <template v-slot:noResult>
+                                                        <span>Opción no encontrada</span>
+                                                    </template>
+                                                </Multiselect>
+                                                <div class="input-errors" v-for="error of f$.estado_id.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-2 col-md-6">
+                                                <label for="municipio_id" class="form-label">Municipio</label>
+                                                <Multiselect :disabled="is_disabled" v-model="form.municipio_id" track-by="nombre"
+                                                    label="nombre" placeholder="Selecciona un municipio"
+                                                    :show-labels="false" deselectLabel=" "
+                                                    :block-keys="['Tab', 'Enter']" :options="cat_municipio"
+                                                    :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                                    <template v-slot:noResult>
+                                                        <span>Opción no encontrada</span>
+                                                    </template>
+                                                </Multiselect>
+                                                <div class="input-errors" v-for="error of f$.municipio_id.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-2 col-md-6">
+                                                <label for="localidad_id" class="form-label">Localidad</label>
+                                                <Multiselect :disabled="is_disabled" v-model="form.localidad_id" track-by="nombre"
+                                                    label="nombre" placeholder="Selecciona un localidad"
+                                                    :show-labels="false" deselectLabel=" "
+                                                    :block-keys="['Tab', 'Enter']" :options="cat_localidad"
+                                                    :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                                    <template v-slot:noResult>
+                                                        <span>Opción no encontrada</span>
+                                                    </template>
+                                                </Multiselect>
+                                                <div class="input-errors" v-for="error of f$.localidad_id.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-2 col-md-6">
+                                                <label for="street" class="form-label">Calle</label>
+                                                <input :disabled="is_disabled" v-model="form.street" type="text" class="form-control"
+                                                    id="street" name="street" placeholder="Calle">
+                                                <div class="input-errors" v-for="error of f$.street.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-2 col-md-6">
+                                                <label for="number" class="form-label">Número</label>
+                                                <input :disabled="is_disabled" v-model="form.number" type="number" class="form-control"
+                                                    id="number" placeholder="Número" step="1"
+                                                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                    maxlength="9">
+                                                <div class="input-errors" v-for="error of f$.number.$errors"
+                                                    :key="error.$uid">
+                                                    <div class="text-danger">{{ error.$message }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <button class="btn btn-primary" type="submit" v-if="!is_disabled">
+                                            <i class="mdi mdi-content-save"></i>
+                                            Guardar
+                                        </button>
+                                    </form>
+
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <Footer />
+
+</template>
+
+<style scope>
+/*Eliminar botones de input number*/
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.btn-option {
+    border: solid 1px red;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    width: 450px;
+    height: 70px;
+}
+
+.inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.inputfile label {
+    max-width: 80%;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    /* padding: 0.625rem 1.25rem; */
+}
+
+.inputfile-2+label {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 5rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #0b21b9;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem 0 0 0.35rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+</style>

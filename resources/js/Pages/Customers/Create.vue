@@ -56,6 +56,7 @@ let cat_localidad = ref([])
 
 const form = ref({
     name: '',
+    rfc: '',
     business_name: '',
     address: '',
     phone: '',
@@ -113,6 +114,12 @@ const validateRulesForm = {
     name: {
         required: helpers.withMessage(
             'El campo nombre es requerido.',
+            required,
+        )
+    },
+    rfc: {
+        required: helpers.withMessage(
+            'El campo rfc es requerido.',
             required,
         )
     },
@@ -362,6 +369,15 @@ function getZipCode(code) {
                                             <input v-model="form.name" type="text" class="form-control" id="name"
                                                 name="name" placeholder="Nombre">
                                             <div class="input-errors" v-for="error of f$.name.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="rfc" class="form-label">RFC</label>
+                                            <input v-model="form.rfc" type="text" maxlength="13" class="form-control"
+                                                id="rfc" name="rfc" placeholder="Razón social">
+                                            <div class="input-errors" v-for="error of f$.rfc.$errors"
                                                 :key="error.$uid">
                                                 <div class="text-danger">{{ error.$message }}</div>
                                             </div>

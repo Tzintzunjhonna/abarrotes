@@ -54,12 +54,18 @@ const props = defineProps({
     }
 });
 
+const is_disabled = ref(true);
+const text_disabled = ref('Editar');
+const class_button_disabled = ref('btn btn-primary');
+const icon_disabled = ref('mdi mdi-content-save');
+
 let cat_estado = ref([])
 let cat_municipio = ref([])
 let cat_localidad = ref([])
 
 const form = ref({
     name: '',
+    rfc: '',
     business_name: '',
     address: '',
     phone: '',
@@ -111,6 +117,12 @@ const validateRulesForm = {
     name: {
         required: helpers.withMessage(
             'El campo nombre es requerido.',
+            required,
+        )
+    },
+    rfc: {
+        required: helpers.withMessage(
+            'El campo rfc es requerido.',
             required,
         )
     },
@@ -240,6 +252,7 @@ const f$ = useVuelidate(validateRulesForm, form);
 function getData() {
 
     form.value.name            = props.item_info.name;
+    form.value.rfc             = props.item_info.rfc;
     form.value.business_name   = props.item_info.business_name;
     form.value.address         = props.item_info.address;
     form.value.phone           = props.item_info.phone;
@@ -303,6 +316,28 @@ async function onSubmit() {
                 });
             }
         })
+}
+
+function btnIndex() {
+
+    router.visit(`/admin/clientes`);
+
+}
+
+
+function btnEdit(){
+
+    is_disabled.value = !is_disabled.value;
+    if(is_disabled.value == false){
+        text_disabled.value = 'Cancelar edicion';
+        class_button_disabled.value = 'btn btn-danger';
+        icon_disabled.value = 'mdi mdi-book-cancel';
+    }else{
+        text_disabled.value = 'Editar';
+        class_button_disabled.value = 'btn btn-primary';
+        icon_disabled.value = 'mdi mdi-content-save';
+    }
+    
 }
 
 function setForm(form) {
@@ -376,17 +411,26 @@ function getZipCode(code) {
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="header-title">
-                                    Editar cliente: 
+                                    <a ref="#" type="button" title="Regresar" class="m-2" @click="btnIndex()">
+                                        <i class="mdi mdi-page-previous-outline"></i>
+                                    </a>
+                                    Editar cliente:
                                     <span class="badge bg-danger">
                                         {{ item_info.name }}
-                                    </span> 
+                                    </span>
                                 </h4>
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button :class="class_button_disabled" type="button" @click="btnEdit()">
+                                        <i :class="icon_disabled"></i>
+                                        {{text_disabled}}
+                                    </button>
+                                </div>
 
                                 <form class="needs-validation" @submit.prevent="onSubmit">
                                     <div class="row">
                                         <div class="mb-2 col-md-6">
                                             <label for="name" class="form-label">Nombre</label>
-                                            <input v-model="form.name" type="text" class="form-control" id="name"
+                                            <input :disabled="is_disabled" v-model="form.name" type="text" class="form-control" id="name"
                                                 name="name" placeholder="Nombre">
                                             <div class="input-errors" v-for="error of f$.name.$errors"
                                                 :key="error.$uid">
@@ -394,8 +438,17 @@ function getZipCode(code) {
                                             </div>
                                         </div>
                                         <div class="mb-2 col-md-6">
+                                            <label for="rfc" class="form-label">RFC</label>
+                                            <input :disabled="is_disabled" v-model="form.rfc" type="text" class="form-control" id="rfc"
+                                                name="rfc" placeholder="RFC" maxlength="13">
+                                            <div class="input-errors" v-for="error of f$.rfc.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
                                             <label for="business_name" class="form-label">Razón social</label>
-                                            <input v-model="form.business_name" type="text" class="form-control"
+                                            <input :disabled="is_disabled" v-model="form.business_name" type="text" class="form-control"
                                                 id="business_name" name="business_name" placeholder="Razón social">
                                             <div class="input-errors" v-for="error of f$.business_name.$errors"
                                                 :key="error.$uid">
@@ -404,7 +457,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="email" class="form-label">Correo electrónico</label>
-                                            <input v-model="form.email" type="email" class="form-control" id="email"
+                                            <input :disabled="is_disabled" v-model="form.email" type="email" class="form-control" id="email"
                                                 placeholder="Correo electrónico">
                                             <div class="input-errors" v-for="error of f$.email.$errors"
                                                 :key="error.$uid">
@@ -413,7 +466,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="address" class="form-label">Dirección</label>
-                                            <input v-model="form.address" type="text" class="form-control" id="address"
+                                            <input :disabled="is_disabled" v-model="form.address" type="text" class="form-control" id="address"
                                                 placeholder="Dirección">
                                             <div class="input-errors" v-for="error of f$.address.$errors"
                                                 :key="error.$uid">
@@ -422,7 +475,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="phone" class="form-label">Teléfono</label>
-                                            <input v-model="form.phone" type="number" class="form-control" id="phone"
+                                            <input :disabled="is_disabled" v-model="form.phone" type="number" class="form-control" id="phone"
                                                 placeholder="Teléfono" step="1"
                                                 oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                                                 maxlength="10">
@@ -433,7 +486,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="name_contact" class="form-label">Nombre de contacto</label>
-                                            <input v-model="form.name_contact" type="text" class="form-control"
+                                            <input :disabled="is_disabled" v-model="form.name_contact" type="text" class="form-control"
                                                 id="name_contact" placeholder="Nombre de contacto">
                                             <div class="input-errors" v-for="error of f$.name_contact.$errors"
                                                 :key="error.$uid">
@@ -445,7 +498,7 @@ function getZipCode(code) {
                                         <div class="">
                                             <div class="ml-5">
                                                 <label class="text-input">Logo de la Empresa</label>
-                                                <input type="file" name="path_logo" id="path_logo"
+                                                <input :disabled="is_disabled" type="file" name="path_logo" id="path_logo"
                                                     @change="uploadFile($event, 'path_logo')"
                                                     class="inputfile inputfile-2" accept="image/png, image/jpeg" />
                                                 <label for="path_logo" class="p-0">
@@ -467,12 +520,12 @@ function getZipCode(code) {
                                         </div>
                                     </div>
 
-                                    <Divider label="Datos de facturación"/>
+                                    <Divider label="Datos de facturación" />
 
                                     <div class="row">
                                         <div class="mb-2 col-md-6">
                                             <label for="rol" class="form-label">Uso de CFDI</label>
-                                            <Multiselect v-model="form.uso_cdfi_id" track-by="nombre" label="nombre"
+                                            <Multiselect :disabled="is_disabled" v-model="form.uso_cdfi_id" track-by="nombre" label="nombre"
                                                 placeholder="Selecciona un uso de CFDI" :show-labels="false"
                                                 deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_uso_cdfi"
                                                 :searchable="true" :allow-empty="true" :showNoOptions="false">
@@ -487,7 +540,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="regimen_fiscal_id" class="form-label">Regimen fiscal</label>
-                                            <Multiselect v-model="form.regimen_fiscal_id" track-by="nombre"
+                                            <Multiselect :disabled="is_disabled" v-model="form.regimen_fiscal_id" track-by="nombre"
                                                 label="nombre" placeholder="Selecciona un regimen fiscal"
                                                 :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
                                                 :options="cat_regimen_fiscal" :searchable="true" :allow-empty="true"
@@ -503,7 +556,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="metodo_pago_id" class="form-label">Método de pago</label>
-                                            <Multiselect v-model="form.metodo_pago_id" track-by="nombre" label="nombre"
+                                            <Multiselect :disabled="is_disabled" v-model="form.metodo_pago_id" track-by="nombre" label="nombre"
                                                 placeholder="Selecciona un método de pago" :show-labels="false"
                                                 deselectLabel=" " :block-keys="['Tab', 'Enter']"
                                                 :options="cat_metodo_pago" :searchable="true" :allow-empty="true"
@@ -519,7 +572,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="forma_pago_id" class="form-label">Forma de pago</label>
-                                            <Multiselect v-model="form.forma_pago_id" track-by="nombre" label="nombre"
+                                            <Multiselect :disabled="is_disabled" v-model="form.forma_pago_id" track-by="nombre" label="nombre"
                                                 placeholder="Selecciona un forma de pago" :show-labels="false"
                                                 deselectLabel=" " :block-keys="['Tab', 'Enter']"
                                                 :options="cat_forma_pago" :searchable="true" :allow-empty="true"
@@ -536,7 +589,7 @@ function getZipCode(code) {
                                         <div class="mb-2 col-md-6">
                                             <label for="tipo_exportacion_id" class="form-label">Tipo de
                                                 exportación</label>
-                                            <Multiselect v-model="form.tipo_exportacion_id" track-by="nombre"
+                                            <Multiselect :disabled="is_disabled" v-model="form.tipo_exportacion_id" track-by="nombre"
                                                 label="nombre" placeholder="Selecciona un tipo de exportación"
                                                 :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
                                                 :options="cat_tipo_exportacion" :searchable="true" :allow-empty="true"
@@ -552,7 +605,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="zip_code" class="form-label">Código postal (Timbrado)</label>
-                                            <input v-model="form.zip_code" type="number" class="form-control"
+                                            <input :disabled="is_disabled" v-model="form.zip_code" type="number" class="form-control"
                                                 id="zip_code" placeholder="Código postal (Timbrado)" step="1"
                                                 oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                                                 maxlength="5">
@@ -562,16 +615,16 @@ function getZipCode(code) {
                                             </div>
                                         </div>
                                     </div>
-                                    <Divider label="Datos de dirección del cliente"/>
+                                    <Divider label="Datos de dirección del cliente" />
 
                                     <div class="row">
 
                                         <div class="mb-2 col-md-6">
                                             <label for="pais_id" class="form-label">País</label>
-                                            <Multiselect v-model="form.pais_id" track-by="nombre" label="nombre"
-                                                placeholder="Selecciona un país" :show-labels="false"
-                                                deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_paises"
-                                                :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                            <Multiselect :disabled="is_disabled" v-model="form.pais_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un país" :show-labels="false" deselectLabel=" "
+                                                :block-keys="['Tab', 'Enter']" :options="cat_paises" :searchable="true"
+                                                :allow-empty="true" :showNoOptions="false">
                                                 <template v-slot:noResult>
                                                     <span>Opción no encontrada</span>
                                                 </template>
@@ -581,10 +634,10 @@ function getZipCode(code) {
                                                 <div class="text-danger">{{ error.$message }}</div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mb-2 col-md-6">
                                             <label for="codigo_postal_id" class="form-label">Código postal</label>
-                                            <input v-model="form.codigo_postal_id" type="text" class="form-control"
+                                            <input :disabled="is_disabled" v-model="form.codigo_postal_id" type="text" class="form-control"
                                                 id="codigo_postal_id" placeholder="Código postal" step="1"
                                                 maxlength="6">
                                             <div class="input-errors" v-for="error of f$.codigo_postal_id.$errors"
@@ -595,7 +648,7 @@ function getZipCode(code) {
 
                                         <div class="mb-2 col-md-6">
                                             <label for="estado_id" class="form-label">Estado</label>
-                                            <Multiselect v-model="form.estado_id" track-by="nombre" label="nombre"
+                                            <Multiselect :disabled="is_disabled" v-model="form.estado_id" track-by="nombre" label="nombre"
                                                 placeholder="Selecciona un estado" :show-labels="false"
                                                 deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_estado"
                                                 :searchable="true" :allow-empty="true" :showNoOptions="false">
@@ -610,9 +663,9 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="municipio_id" class="form-label">Municipio</label>
-                                            <Multiselect v-model="form.municipio_id" track-by="nombre"
-                                                label="nombre" placeholder="Selecciona un municipio"
-                                                :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                            <Multiselect :disabled="is_disabled" v-model="form.municipio_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un municipio" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']"
                                                 :options="cat_municipio" :searchable="true" :allow-empty="true"
                                                 :showNoOptions="false">
                                                 <template v-slot:noResult>
@@ -626,7 +679,7 @@ function getZipCode(code) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="localidad_id" class="form-label">Localidad</label>
-                                            <Multiselect v-model="form.localidad_id" track-by="nombre" label="nombre"
+                                            <Multiselect :disabled="is_disabled" v-model="form.localidad_id" track-by="nombre" label="nombre"
                                                 placeholder="Selecciona un localidad" :show-labels="false"
                                                 deselectLabel=" " :block-keys="['Tab', 'Enter']"
                                                 :options="cat_localidad" :searchable="true" :allow-empty="true"
@@ -643,7 +696,7 @@ function getZipCode(code) {
 
                                         <div class="mb-2 col-md-6">
                                             <label for="street" class="form-label">Calle</label>
-                                            <input v-model="form.street" type="text" class="form-control" id="street"
+                                            <input :disabled="is_disabled" v-model="form.street" type="text" class="form-control" id="street"
                                                 name="street" placeholder="Calle">
                                             <div class="input-errors" v-for="error of f$.street.$errors"
                                                 :key="error.$uid">
@@ -653,8 +706,8 @@ function getZipCode(code) {
 
                                         <div class="mb-2 col-md-6">
                                             <label for="number" class="form-label">Número</label>
-                                            <input v-model="form.number" type="number" class="form-control"
-                                                id="number" placeholder="Número" step="1"
+                                            <input :disabled="is_disabled" v-model="form.number" type="number" class="form-control" id="number"
+                                                placeholder="Número" step="1"
                                                 oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                                                 maxlength="9">
                                             <div class="input-errors" v-for="error of f$.number.$errors"
@@ -665,7 +718,7 @@ function getZipCode(code) {
                                     </div>
 
 
-                                    <button class="btn btn-primary" type="submit">
+                                    <button class="btn btn-primary" type="submit" v-if="!is_disabled">
                                         <i class="mdi mdi-content-save"></i>
                                         Guardar
                                     </button>

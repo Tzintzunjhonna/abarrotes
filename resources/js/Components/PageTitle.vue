@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed, getCurrentInstance, onMounted, ref } from "vue";
+import { computed, getCurrentInstance, onMounted, ref } from "vue";
 import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({

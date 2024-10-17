@@ -33,6 +33,9 @@ createInertiaApp({
             const userPermissions = props.initialPage.props.user.permissions || [];
             return userPermissions.includes(permission);
         };
+        
+        app.config.globalProperties.company = props.initialPage.props.company;
+
 
         app.component("Multiselect", Multiselect);
         app.component("Pagination", Bootstrap4Pagination);

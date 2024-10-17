@@ -96,7 +96,7 @@ class CustomersController extends Controller
             'cat_tipo_exportacion'  => $tipo_exportacion,
             'cat_paises'            => $paises,
         ];
-        // dd($data);
+        
         return Inertia::render('Customers/Edit', $data);
     }
 

@@ -117,6 +117,7 @@ class CustomersController extends Controller
             $customer = new Customers();
 
             $customer->name                 = $request->name;
+            $customer->rfc                  = $request->rfc;
             $customer->business_name        = $request->business_name;
             $customer->address              = $request->address;
             $customer->phone                = $request->phone;
@@ -272,6 +273,7 @@ class CustomersController extends Controller
             }
 
             $customer->name                 = $request->name;
+            $customer->rfc                  = $request->rfc;
             $customer->business_name        = $request->business_name;
             $customer->address              = $request->address;
             $customer->phone                = $request->phone;
