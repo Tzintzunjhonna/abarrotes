@@ -33,7 +33,7 @@ return new class extends Migration
             $table->integer('estado_id')->nullable();
             $table->integer('municipio_id')->nullable();
             $table->integer('localidad_id')->nullable();
-            $table->integer('street')->nullable();
+            $table->string('street')->nullable();
             $table->integer('number')->nullable();
             $table->timestamps();
             $table->softDeletes();

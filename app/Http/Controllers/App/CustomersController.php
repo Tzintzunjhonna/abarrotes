@@ -218,49 +218,75 @@ class CustomersController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    { 
+    {
         DB::beginTransaction();
         try {
+
             $request->validate([
-                'name' => 'required',
-                'business_name' => 'required',
-                'address' => 'required',
-                'phone' => 'required',
-                'email' => 'required',
-                'name_contact' => 'required',
+                'name'  => 'required',
+                'business_name'  => 'required',
+                'address'  => 'required',
+                'phone'  => 'required',
+                'email'  => 'required',
+                'name_contact'  => 'required',
+                'uso_cdfi_id'  => 'required',
+                'regimen_fiscal_id'  => 'required',
+                'metodo_pago_id'  => 'required',
+                'forma_pago_id'  => 'required',
+                'tipo_exportacion_id'  => 'required',
+                'zip_code'  => 'required',
+                'pais_id'  => 'required',
+                'codigo_postal_id'  => 'required',
+                'estado_id'  => 'required',
+                'municipio_id'  => 'required',
+                'localidad_id'  => 'required',
+                'street'  => 'required',
+                'number'  => 'required',
             ], [
-                'name.required' => 'El nombre es obligatorio.',
-                'business_name.required' => 'La razón social es obligatoria.',
-                'address.required' => 'La dirección es obligatoria.',
-                'phone.required' => 'El número de teléfono es obligatorio.',
-                'email.required' => 'El email es obligatorio.',
-                'name_contact.required' => 'El nombre de contacto es obligatorio.',
+                'name.required' => 'El campo nombre es requerido',
+                'business_name.required' => 'El campo nombre de la empresa es requerido',
+                'address.required' => 'El campo dirección es requerido',
+                'phone.required' => 'El campo teléfono es requerido',
+                'email.required' => 'El campo correo electrónico es requerido',
+                'name_contact.required' => 'El campo nombre del contacto es requerido',
+                'uso_cdfi_id.required' => 'El campo uso de CFDI es requerido',
+                'regimen_fiscal_id.required' => 'El campo régimen fiscal es requerido',
+                'metodo_pago_id.required' => 'El campo método de pago es requerido',
+                'forma_pago_id.required' => 'El campo forma de pago es requerido',
+                'tipo_exportacion_id.required' => 'El campo tipo de exportación es requerido',
+                'zip_code.required' => 'El campo código postal es requerido',
+                'pais_id.required' => 'El campo país es requerido',
+                'codigo_postal_id.required' => 'El campo código postal es requerido',
+                'estado_id.required' => 'El campo estado es requerido',
+                'municipio_id.required' => 'El campo municipio es requerido',
+                'localidad_id.required' => 'El campo localidad es requerido',
+                'street.required' => 'El campo calle es requerido',
+                'number.required' => 'El campo número es requerido',
+
             ]);
 
-            $providers = Customers::find($id);
+            $customer = Customers::find($id);
 
-            if($providers == null){
+            if ($customer == null) {
                 throw new \Exception('No se encuentra el cliente.');
             }
 
-            $providers->name              = $request->name;
-            $providers->business_name     = $request->business_name;
-            $providers->address           = $request->address;
-            $providers->phone             = $request->phone;
-            $providers->email             = $request->email;
-            $providers->name_contact      = $request->name_contact;
-
-            
+            $customer->name                 = $request->name;
+            $customer->business_name        = $request->business_name;
+            $customer->address              = $request->address;
+            $customer->phone                = $request->phone;
+            $customer->email                = $request->email;
+            $customer->name_contact         = $request->name_contact;
 
             if ($request->file('photo_input') != null) {
 
-                if (File::exists(public_path() . $providers->path_logo)) {
-                    File::delete(public_path() . $providers->path_logo);
+                if (File::exists(public_path() . $customer->path_logo)) {
+                    File::delete(public_path() . $customer->path_logo);
                 }
                 // OBTENER ARCHIVO
                 $file = $request->file('photo_input');
-                $name = 'provider_' . time() . '.' . $file->getClientOriginalExtension();
-                $path = public_path() . '/uploads/providers/';
+                $name = 'customer_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = public_path() . '/uploads/customer/';
 
                 if (!file_exists($path)) {
                     mkdir($path, 0777, true);
@@ -268,14 +294,59 @@ class CustomersController extends Controller
 
                 //CARGAR ARCHIVO
                 $file->move($path, $name);
-                $providers->path_logo = '/uploads/providers/' . $name;
-                
+                $customer->path_logo = '/uploads/customer/' . $name;
             }
-            $providers->save();
+            $customer->updated_at = Carbon::now();
+            $customer->save();
+
+
+            $customer_has_billing = CustomersHasBilling::where('customer_id', $customer->id)->first();
+
+            if($customer_has_billing == null){
+                $customer_has_billing = new CustomersHasBilling();
+            }
+
+            $customer_has_billing->uso_cdfi_id          = $request->uso_cdfi_id;
+            $customer_has_billing->regimen_fiscal_id    = $request->regimen_fiscal_id;
+            $customer_has_billing->metodo_pago_id       = $request->metodo_pago_id;
+            $customer_has_billing->forma_pago_id        = $request->forma_pago_id;
+            $customer_has_billing->tipo_exportacion_id  = $request->tipo_exportacion_id;
+            $customer_has_billing->zip_code             = $request->zip_code;
+            $customer_has_billing->created_at = Carbon::now();
+            $customer_has_billing->updated_at = Carbon::now();
+            $customer_has_billing->save();
+
+            $customers_has_address = CustomersHasAddress::where('customer_id', $customer->id)->first();
+
+            if ($customers_has_address == null) {
+                $customers_has_address = new CustomersHasAddress();
+            }
+
+            $customers_has_address->customer_id          = $customer->id;
+            $customers_has_address->pais_id              = $request->pais_id;
+            $customers_has_address->codigo_postal_id     = $request->codigo_postal_id;
+            $customers_has_address->estado_id            = $request->estado_id;
+            $customers_has_address->municipio_id         = $request->municipio_id;
+            $customers_has_address->localidad_id         = $request->localidad_id;
+            $customers_has_address->street               = $request->street;
+            $customers_has_address->number               = $request->number;
+            $customers_has_address->created_at = Carbon::now();
+            $customers_has_address->updated_at = Carbon::now();
+            $customers_has_address->save();
 
             DB::commit();
-            
-            return response()->success($providers, 'Se actualizó el cliente.');
+
+
+            return response()->success($customer, 'Se actualizó el cliente.');
+        } catch (ValidationException $exception) {
+            DB::rollBack();
+            $response = [
+                "file"    => $exception->getFile(),
+                "line"    => $exception->getLine(),
+                "message" => $exception->getMessage(),
+            ];
+            log::debug($response);
+            return response()->error($exception->validator->errors(), $response, Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -284,7 +355,7 @@ class CustomersController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($response);
-            return response()->error('Error al actualizar cliente.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al crear cliente.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -296,16 +367,16 @@ class CustomersController extends Controller
         DB::beginTransaction();
         try {
 
-            $provider = Customers::find($id);
+            $customer = Customers::find($id);
 
-            if($provider == null){
+            if($customer == null){
                 throw new \Exception('No se encuentra el cliente.');
             }
 
-            $provider->delete();
+            $customer->delete();
             DB::commit();
 
-            return response()->success($provider, 'Se eliminó el cliente.');
+            return response()->success($customer, 'Se eliminó el cliente.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -325,18 +396,18 @@ class CustomersController extends Controller
         DB::beginTransaction();
         try {
 
-            $provider = Customers::find($id);
+            $customer = Customers::find($id);
 
-            if($provider == null){
+            if($customer == null){
                 throw new \Exception('No se encuentra el cliente.');
             }
 
-            $provider->is_active = !$provider->is_active;
-            $provider->save();
+            $customer->is_active = !$customer->is_active;
+            $customer->save();
 
             DB::commit();
 
-            return response()->success($provider, 'Se cambio de estatus el cliente.');
+            return response()->success($customer, 'Se cambio de estatus el cliente.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [

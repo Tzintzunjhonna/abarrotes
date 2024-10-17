@@ -2,13 +2,14 @@
 
 // IMPORTS --------------------------
 import { Head, Link, router } from '@inertiajs/vue3';
-import {computed, getCurrentInstance, onMounted, ref} from "vue";
+import {watch, computed, getCurrentInstance, onMounted, ref} from "vue";
 import { useVuelidate } from '@vuelidate/core';
-import { helpers, required, email } from '@vuelidate/validators';
+import { helpers, required, email, numeric } from '@vuelidate/validators';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
 import LeftSideBar from '@/Layouts/LeftSideBar.vue';
 import Footer from '@/Layouts/Footer.vue';
+import Divider from '@/Components/helps/Divider.vue';
 
 // VARIABLES --------------------------
 const app = getCurrentInstance()
@@ -27,18 +28,66 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    cat_uso_cdfi: {
+        type: Object,
+        required: true,
+    },
+    cat_regimen_fiscal: {
+        type: Object,
+        required: true,
+    },
+    cat_metodo_pago: {
+        type: Object,
+        required: true,
+    },
+    cat_forma_pago: {
+        type: Object,
+        required: true,
+    },
+    cat_paises: {
+        type: Object,
+        required: true,
+    },
+    cat_tipo_exportacion: {
+        type: Object,
+        required: true,
+    }
 });
 
+let cat_estado = ref([])
+let cat_municipio = ref([])
+let cat_localidad = ref([])
+
 const form = ref({
-    name            : '',
-    business_name   : '',
-    address         : '',
-    phone           : '',
-    email           : '',
-    name_contact    : '',  
-    photo    : '',  
-    photo_input    : '',  
-    path_logo    : '',  
+    name: '',
+    business_name: '',
+    address: '',
+    phone: '',
+    email: '',
+    name_contact: '',
+    photo: '',
+    photo_input: '',
+    path_logo: '',
+
+    // Facturación
+    uso_cdfi_id: '',
+    regimen_fiscal_id: '',
+    metodo_pago_id: '',
+    forma_pago_id: '',
+    tipo_exportacion_id: '',
+    zip_code: '',
+
+    //Dirección
+    pais_id: {
+        id: 151,
+        nombre: 'México',
+    },
+    codigo_postal_id: '',
+    estado_id: '',
+    municipio_id: '',
+    localidad_id: '',
+    street: '',
+    number: '',
 })
 
 // MOUNTED  --------------------------
@@ -46,10 +95,19 @@ onMounted(() => {
     getData()
 });
 
+
+// WATCH -----------------------------
+
+watch(() => form.value.codigo_postal_id, (newValue, oldValue) => {
+    if (newValue?.length >= 5) {
+        getZipCode(newValue);
+    }
+});
+
 // VALIDACION DE FORMULARIOS --------------------------
 
 const validateRulesForm = {
-    
+
     name: {
         required: helpers.withMessage(
             'El campo nombre es requerido.',
@@ -90,6 +148,88 @@ const validateRulesForm = {
             email
         ),
     },
+    uso_cdfi_id: {
+        required: helpers.withMessage(
+            'El campo uso de cdfi es requerido.',
+            required,
+        )
+    },
+    regimen_fiscal_id: {
+        required: helpers.withMessage(
+            'El campo regimen fiscal es requerido.',
+            required,
+        )
+    },
+    metodo_pago_id: {
+        required: helpers.withMessage(
+            'El campo metodo pago es requerido.',
+            required,
+        )
+    },
+    forma_pago_id: {
+        required: helpers.withMessage(
+            'El campo forma pago es requerido.',
+            required,
+        )
+    },
+    tipo_exportacion_id: {
+        required: helpers.withMessage(
+            'El campo tipo exportacion es requerido.',
+            required,
+        )
+    },
+    zip_code: {
+        required: helpers.withMessage(
+            'El campo codigo postal (Timbrado) para el timbrado es requerido.',
+            required,
+        )
+    },
+    pais_id: {
+        required: helpers.withMessage(
+            'El campo país para el timbrado es requerido.',
+            required,
+        )
+    },
+    codigo_postal_id: {
+        required: helpers.withMessage(
+            'El campo codigo postal para el timbrado es requerido.',
+            required,
+        ),
+        numeric: helpers.withMessage(
+            'El código postal debe contener solo números.',
+            numeric
+        ),
+    },
+    estado_id: {
+        required: helpers.withMessage(
+            'El campo estado para el timbrado es requerido.',
+            required,
+        )
+    },
+    municipio_id: {
+        required: helpers.withMessage(
+            'El campo municipio para el timbrado es requerido.',
+            required,
+        )
+    },
+    localidad_id: {
+        required: helpers.withMessage(
+            'El campo localidad para el timbrado es requerido.',
+            required,
+        )
+    },
+    street: {
+        required: helpers.withMessage(
+            'El campo calle para el timbrado es requerido.',
+            required,
+        )
+    },
+    number: {
+        required: helpers.withMessage(
+            'El campo número para el timbrado es requerido.',
+            required,
+        )
+    },
 };
 
 const f$ = useVuelidate(validateRulesForm, form);
@@ -98,6 +238,7 @@ const f$ = useVuelidate(validateRulesForm, form);
 // FUNCIONES --------------------------
 
 function getData() {
+
     form.value.name            = props.item_info.name;
     form.value.business_name   = props.item_info.business_name;
     form.value.address         = props.item_info.address;
@@ -105,7 +246,26 @@ function getData() {
     form.value.email           = props.item_info.email;
     form.value.name_contact    = props.item_info.name_contact;
     form.value.photo           = props.item_info.path_logo != null ? BaseUrl + props.item_info.path_logo : null;
+
+    const has_billing = props.item_info.has_billing;
+    const has_address = props.item_info.has_address;
     
+    // Facturación
+    form.value.uso_cdfi_id         = has_billing.has_uso_cdfi;
+    form.value.regimen_fiscal_id   = has_billing.has_regimen_fiscal;
+    form.value.metodo_pago_id      = has_billing.has_metodo_pago;
+    form.value.forma_pago_id       = has_billing.has_forma_pago;
+    form.value.tipo_exportacion_id = has_billing.has_tipo_exportacion;
+    form.value.zip_code            = has_billing.zip_code;
+    
+    //Dirección
+    form.value.pais_id             = has_address.has_pais;
+    form.value.codigo_postal_id = has_address.has_codigo_postal.codigo;
+    form.value.estado_id           = has_address.has_estado;
+    form.value.municipio_id        = has_address.has_municipio;
+    form.value.localidad_id        = has_address.has_localidad;
+    form.value.street              = has_address.street;
+    form.value.number              = has_address.number;
 }
 
 async function onSubmit() {
@@ -114,20 +274,11 @@ async function onSubmit() {
     console.log(isFormCorrect)
     console.log(f$.value)
     if (!isFormCorrect) return;
-    
-    console.log(form.value)
-    // const formData = new FormData();
-    // const keys = Object.keys(form.value);
-    // for (let i = 0; i < keys.length; i++) {
-    //     if (keys[i] === 'photo_input' && form.value[keys[i]] instanceof File) {
-    //         formData.append(keys[i], form.value[keys[i]]);
-    //     } else {
-    //         formData.append(keys[i], form.value[keys[i]]);
-    //     }
-    // }
+
+    let formData = setForm(form.value);
 
     api
-        .post(`v1/app-customers/${props.item_info.id}/update`, form.value, {
+        .post(`v1/app-customers/${props.item_info.id}/update`, formData, {
           headers: {
             'Content-Type': `multipart/form-data`,
           },})
@@ -154,10 +305,57 @@ async function onSubmit() {
         })
 }
 
+function setForm(form) {
+
+    const formData = new FormData();
+
+    for (const [key, value] of Object.entries(form)) {
+        if (typeof value === 'object' && value !== null) {
+            if (key == 'photo_input') {
+                formData.append(key, value);
+
+            } else {
+                formData.append(key, value.id);
+            }
+        } else {
+            formData.append(key, value);
+        }
+    }
+
+    return formData;
+}
+
 function uploadFile(event, name) {
     const file = event.target.files[0];
     form.value.photo_input = file;
     form.value.photo = URL.createObjectURL(event.target.files[0]);
+}
+
+function getZipCode(code) {
+
+    api
+        .get(`v1/sat/addresses/zip_code/${code}`)
+        .then((response) => {
+            const data = response.data
+            cat_estado.value = data.state;
+            cat_municipio.value = data.cat_municipality;
+            cat_localidad.value = data.cat_location;
+
+        })
+        .catch((error) => {
+            console.log(error)
+            if (error.errors) {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.errors.message
+                });
+            } else {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.message
+                });
+            }
+        })
 }
 </script>
 
@@ -186,7 +384,6 @@ function uploadFile(event, name) {
 
                                 <form class="needs-validation" @submit.prevent="onSubmit">
                                     <div class="row">
-
                                         <div class="mb-2 col-md-6">
                                             <label for="name" class="form-label">Nombre</label>
                                             <input v-model="form.name" type="text" class="form-control" id="name"
@@ -198,8 +395,8 @@ function uploadFile(event, name) {
                                         </div>
                                         <div class="mb-2 col-md-6">
                                             <label for="business_name" class="form-label">Razón social</label>
-                                            <input v-model="form.business_name" type="text" class="form-control" id="business_name"
-                                                name="business_name" placeholder="Razón social">
+                                            <input v-model="form.business_name" type="text" class="form-control"
+                                                id="business_name" name="business_name" placeholder="Razón social">
                                             <div class="input-errors" v-for="error of f$.business_name.$errors"
                                                 :key="error.$uid">
                                                 <div class="text-danger">{{ error.$message }}</div>
@@ -249,7 +446,7 @@ function uploadFile(event, name) {
                                             <div class="ml-5">
                                                 <label class="text-input">Logo de la Empresa</label>
                                                 <input type="file" name="path_logo" id="path_logo"
-                                                    @change="uploadFile($event, 'photo_input')"
+                                                    @change="uploadFile($event, 'path_logo')"
                                                     class="inputfile inputfile-2" accept="image/png, image/jpeg" />
                                                 <label for="path_logo" class="p-0">
                                                     <div style="width: 100%; height: 130px">
@@ -266,6 +463,203 @@ function uploadFile(event, name) {
                                                 </label>
                                                 <label style="color: #6d6d6d; font-size: 10px">Formato recomendado: JPG,
                                                     PNG. Máximo 1MB</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <Divider label="Datos de facturación"/>
+
+                                    <div class="row">
+                                        <div class="mb-2 col-md-6">
+                                            <label for="rol" class="form-label">Uso de CFDI</label>
+                                            <Multiselect v-model="form.uso_cdfi_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un uso de CFDI" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_uso_cdfi"
+                                                :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.uso_cdfi_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="regimen_fiscal_id" class="form-label">Regimen fiscal</label>
+                                            <Multiselect v-model="form.regimen_fiscal_id" track-by="nombre"
+                                                label="nombre" placeholder="Selecciona un regimen fiscal"
+                                                :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                :options="cat_regimen_fiscal" :searchable="true" :allow-empty="true"
+                                                :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.regimen_fiscal_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="metodo_pago_id" class="form-label">Método de pago</label>
+                                            <Multiselect v-model="form.metodo_pago_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un método de pago" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                :options="cat_metodo_pago" :searchable="true" :allow-empty="true"
+                                                :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.metodo_pago_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="forma_pago_id" class="form-label">Forma de pago</label>
+                                            <Multiselect v-model="form.forma_pago_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un forma de pago" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                :options="cat_forma_pago" :searchable="true" :allow-empty="true"
+                                                :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.forma_pago_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="tipo_exportacion_id" class="form-label">Tipo de
+                                                exportación</label>
+                                            <Multiselect v-model="form.tipo_exportacion_id" track-by="nombre"
+                                                label="nombre" placeholder="Selecciona un tipo de exportación"
+                                                :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                :options="cat_tipo_exportacion" :searchable="true" :allow-empty="true"
+                                                :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.tipo_exportacion_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="zip_code" class="form-label">Código postal (Timbrado)</label>
+                                            <input v-model="form.zip_code" type="number" class="form-control"
+                                                id="zip_code" placeholder="Código postal (Timbrado)" step="1"
+                                                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                maxlength="5">
+                                            <div class="input-errors" v-for="error of f$.zip_code.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Divider label="Datos de dirección del cliente"/>
+
+                                    <div class="row">
+
+                                        <div class="mb-2 col-md-6">
+                                            <label for="pais_id" class="form-label">País</label>
+                                            <Multiselect v-model="form.pais_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un país" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_paises"
+                                                :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.pais_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-2 col-md-6">
+                                            <label for="codigo_postal_id" class="form-label">Código postal</label>
+                                            <input v-model="form.codigo_postal_id" type="text" class="form-control"
+                                                id="codigo_postal_id" placeholder="Código postal" step="1"
+                                                maxlength="6">
+                                            <div class="input-errors" v-for="error of f$.codigo_postal_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2 col-md-6">
+                                            <label for="estado_id" class="form-label">Estado</label>
+                                            <Multiselect v-model="form.estado_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un estado" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_estado"
+                                                :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.estado_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="municipio_id" class="form-label">Municipio</label>
+                                            <Multiselect v-model="form.municipio_id" track-by="nombre"
+                                                label="nombre" placeholder="Selecciona un municipio"
+                                                :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                :options="cat_municipio" :searchable="true" :allow-empty="true"
+                                                :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.municipio_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2 col-md-6">
+                                            <label for="localidad_id" class="form-label">Localidad</label>
+                                            <Multiselect v-model="form.localidad_id" track-by="nombre" label="nombre"
+                                                placeholder="Selecciona un localidad" :show-labels="false"
+                                                deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                                :options="cat_localidad" :searchable="true" :allow-empty="true"
+                                                :showNoOptions="false">
+                                                <template v-slot:noResult>
+                                                    <span>Opción no encontrada</span>
+                                                </template>
+                                            </Multiselect>
+                                            <div class="input-errors" v-for="error of f$.localidad_id.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2 col-md-6">
+                                            <label for="street" class="form-label">Calle</label>
+                                            <input v-model="form.street" type="text" class="form-control" id="street"
+                                                name="street" placeholder="Calle">
+                                            <div class="input-errors" v-for="error of f$.street.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2 col-md-6">
+                                            <label for="number" class="form-label">Número</label>
+                                            <input v-model="form.number" type="number" class="form-control"
+                                                id="number" placeholder="Número" step="1"
+                                                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                maxlength="9">
+                                            <div class="input-errors" v-for="error of f$.number.$errors"
+                                                :key="error.$uid">
+                                                <div class="text-danger">{{ error.$message }}</div>
                                             </div>
                                         </div>
                                     </div>

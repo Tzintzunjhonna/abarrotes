@@ -4,7 +4,7 @@
         <div class="leftside-menu">
 
             <!-- Brand Logo Light -->
-            <a href="{{ route('dashboard') }}" class="logo logo-light">
+            <!-- <a href="{{ route('dashboard') }}" class="logo logo-light">
                 <span class="logo-lg">
                     <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="logo">
 
@@ -12,7 +12,12 @@
                 <span class="logo-sm">
                     <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="small logo">
                 </span>
-            </a>
+            </a> -->
+            <div class="text-center">
+                <img id="logo" class="avatar-md rounded-circle"
+                    :src="BaseUrl + '/images/abarrotes/logo_1.png'" />
+            </div>
+
 
             <!-- Brand Logo Dark -->
             <a href="{{ route('dashboard') }}" class="logo logo-dark">
@@ -48,6 +53,13 @@
                             <span> Sistema </span>
                             <span class="menu-arrow"></span>
                         </a>
+                        <div class="collapse" id="sidebarSystem">
+                            <ul class="side-nav-second-level">
+                                <li>
+                                    <a href="/admin/roles">Empresa</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div class="collapse" id="sidebarSystem">
                             <ul class="side-nav-second-level">
                                 <li>

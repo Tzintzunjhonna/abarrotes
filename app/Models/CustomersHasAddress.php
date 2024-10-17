@@ -2,6 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Sat\Addresses\CatSatCountry;
+use App\Models\Sat\Addresses\CatSatLocation;
+use App\Models\Sat\Addresses\CatSatMunicipality;
+use App\Models\Sat\Addresses\CatSatState;
+use App\Models\Sat\Addresses\CatSatZipCode;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -44,4 +49,53 @@ class CustomersHasAddress extends Model
         self::UPDATED_AT,
         self::DELETED_AT,
     );
+
+    protected $with = [
+        'has_pais',
+        'has_codigo_postal',
+        'has_estado',
+        'has_municipio',
+        'has_localidad',
+    ];
+
+    public function has_pais(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            CatSatCountry::class,
+            'id',
+            self::PAIS_ID,
+        );
+    }
+    public function has_codigo_postal(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            CatSatZipCode::class,
+            'codigo',
+            self::CODIGO_POSTAL_ID,
+        );
+    }
+    public function has_estado(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            CatSatState::class,
+            'id',
+            self::ESTADO_ID,
+        );
+    }
+    public function has_municipio(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            CatSatMunicipality::class,
+            'id',
+            self::MUNICIPIO_ID,
+        );
+    }
+    public function has_localidad(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            CatSatLocation::class,
+            'id',
+            self::LOCALIDAD_ID,
+        );
+    }
 }

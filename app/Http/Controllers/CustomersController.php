@@ -76,13 +76,28 @@ class CustomersController extends Controller
         $item_info = Customers::find($id);
 
         if($item_info == null){
-            return redirect('/admin/proveedores');
+            return redirect('/admin/clientes');
         }
 
-        return Inertia::render('Customers/Edit', 
-            [
-                'item_info' => $item_info,
-            ]);
+        $uso_cdfi = CatSatUsoCfdi::all();
+        $regimen_fiscal = CatSatRegimenFiscal::all();
+        $metodo_pago = CatSatMetodoPago::all();
+        $forma_pago = CatSatFormaPago::all();
+        $tipo_exportacion = CatSatExportacion::all();
+        $paises = CatSatCountry::all();
+
+        
+        $data = [
+            'item_info'             => $item_info,
+            'cat_uso_cdfi'          => $uso_cdfi,
+            'cat_regimen_fiscal'    => $regimen_fiscal,
+            'cat_metodo_pago'       => $metodo_pago,
+            'cat_forma_pago'        => $forma_pago,
+            'cat_tipo_exportacion'  => $tipo_exportacion,
+            'cat_paises'            => $paises,
+        ];
+        // dd($data);
+        return Inertia::render('Customers/Edit', $data);
     }
 
     /**

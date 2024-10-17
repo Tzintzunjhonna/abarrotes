@@ -43,4 +43,27 @@ class Customers extends Model
         self::UPDATED_AT,
         self::DELETED_AT,
     );
+
+    protected $with = [
+        'has_billing',
+        'has_address',
+    ];
+
+    public function has_billing(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            CustomersHasBilling::class,
+            CustomersHasBilling::CUSTOMER_ID,
+            self::ID,
+        );
+    }
+
+    public function has_address(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            CustomersHasAddress::class,
+            CustomersHasAddress::CUSTOMER_ID,
+            self::ID,
+        );
+    }
 }
