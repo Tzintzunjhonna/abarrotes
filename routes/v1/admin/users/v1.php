@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 $endpointApp = "app-users";
 
 
-// Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpoint, $endpointApp) {
+Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointApp) {
 
     // USUARIOS
 
@@ -19,4 +19,4 @@ $endpointApp = "app-users";
         Route::delete('/{id_token}/destroy', [AdminUsersController::class, 'destroy'])->name("$endpointApp.destroy");
 
     });
-// });
+});

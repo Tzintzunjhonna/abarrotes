@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 $endpointApp = "app-company";
 
 
-// Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpoint, $endpointApp) {
+Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointApp) {
 
     // USUARIOS
 
@@ -15,4 +15,4 @@ $endpointApp = "app-company";
         Route::post('/update', [CompanyController::class, 'update'])->name("$endpointApp.update");
 
     });
-// });
+});

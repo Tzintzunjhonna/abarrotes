@@ -100,6 +100,7 @@ import {getCurrentInstance, onMounted, watch, ref} from 'vue';
 
 const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
+const alert = app.appContext.config.globalProperties.alert
 
 const props = defineProps({
     headers: {

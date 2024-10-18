@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 $endpointApp = "app-roles";
 
 
-// Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpoint, $endpointApp) {
+Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointApp) {
 
     // USUARIOS
 
@@ -20,4 +20,4 @@ $endpointApp = "app-roles";
         Route::put('/{id_token}/assing/permissions', [RolesController::class, 'assing_permissions'])->name("$endpointApp.assing_permissions");
 
     });
-// });
+});

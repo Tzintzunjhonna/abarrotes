@@ -3,6 +3,11 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 
+const storedUser = localStorage.getItem("token");
+
+if (storedUser) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${storedUser}`;
+}
 
 /**
  * @category Headers

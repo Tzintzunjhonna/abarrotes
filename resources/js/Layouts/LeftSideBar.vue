@@ -95,6 +95,21 @@
                             <span> Clientes </span>
                         </a>
                     </li>
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarProducts" aria-expanded="false"
+                            aria-controls="sidebarProducts" class="side-nav-link">
+                            <i class="ri-briefcase-line"></i>
+                            <span> Productos </span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarProducts">
+                            <ul class="side-nav-second-level">
+                                <li>
+                                    <a href="/admin/categorias-de-producto">Categoría de productos</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
                 </ul>
                 <!--- End Sidemenu -->

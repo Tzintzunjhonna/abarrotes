@@ -7,6 +7,12 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import {computed, getCurrentInstance, onMounted, ref} from "vue";
+
+
+const app = getCurrentInstance()
+const api = app.appContext.config.globalProperties.api
+const alert = app.appContext.config.globalProperties.alert
 
 defineProps({
     canResetPassword: Boolean,
@@ -20,13 +26,37 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.transform(data => ({
-        ...data,
-        remember: form.remember ? 'on' : '',
-    })).post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
+
+    api
+        .post(`login`, form, {
+            headers: {
+                'Content-Type': `multipart/form-data`,
+            },
+        }
+        )
+        .then((response) => {
+            localStorage.setItem('token', response.token);
+
+            form.post(route('login'), {
+                onFinish: () => form.reset('password'),
+            });
+        })
+        .catch((error) => {
+            console.log(error)
+            if (error.message) {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.message
+                });
+            } else {
+                alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.errors.message
+                });
+            }
+        })
 };
+
 </script>
 
 <template>

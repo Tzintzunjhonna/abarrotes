@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 $endpointApp = "app-customers";
 
 
-// Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpoint, $endpointApp) {
+Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointApp) {
 
     // USUARIOS
 
@@ -20,4 +20,4 @@ $endpointApp = "app-customers";
         Route::post('/{id_token}/change-status', [CustomersController::class, 'change_status'])->name("$endpointApp.change_status");
 
     });
-// });
+});

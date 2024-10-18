@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Database\Seeders\Catalogues\Products\CatCategoriesProductSeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatCountrySeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatLocationsSeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatMunicipalitySeeder;
@@ -30,7 +31,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CatSatMunicipalitySeeder::class);
         $this->call(CatSatStateSeeder::class);
         $this->call(CatSatZipCodeSeeder::class);
-        
+
         $this->call(CatSatClaveUnidadSeeder::class);
         $this->call(\Database\Seeders\Catalogues\Sat\CatSatClaveProductoSeeder::class);
         $this->call(\Database\Seeders\Catalogues\Sat\CatSatExportacionSeeder::class);
@@ -41,6 +42,10 @@ class DatabaseSeeder extends Seeder
         $this->call(\Database\Seeders\Catalogues\Sat\CatSatRegimenFiscalSeeder::class);
         $this->call(\Database\Seeders\Catalogues\Sat\CatSatUsoCfdiSeeder::class);
         $this->call(\Database\Seeders\Catalogues\Sat\CatStatusCfdiCancelSeeder::class);
+
+        // CATALOGOS PRODUCTOS
+        $this->call(CatCategoriesProductSeeder::class);
+        
 
 
     }
