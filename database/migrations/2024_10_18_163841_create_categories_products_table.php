@@ -21,14 +21,15 @@ return new class extends Migration
 
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('description')->nullable();
             $table->string('barcode')->nullable();
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->nullable();
+            $table->decimal('discount', 10, 2)->nullable();
             $table->integer('stock')->default(0);
-            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->unsignedBigInteger('provider_id')->nullable();
-            $table->string('unit_of_measurement');
+            $table->string('unit_of_measurement')->nullable();
             $table->integer('is_active')->default(1);
             $table->timestamps();
             $table->softDeletes();
@@ -44,7 +45,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories_products');
-        Schema::dropIfExists('products');
+       Schema::dropIfExists('products');
+       Schema::dropIfExists('categories_products');
     }
 };

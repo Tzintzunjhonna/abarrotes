@@ -16,6 +16,7 @@ class Products extends Model
     CONST DESCRIPTION           = 'description';
     CONST BARCODE               = 'barcode';
     CONST PRICE                 = 'price';
+    CONST DISCOUNT              = 'discount';
     CONST STOCK                 = 'stock';
     CONST CATEGORY_ID           = 'category_id';
     CONST PROVIDER_ID           = 'provider_id';
@@ -35,6 +36,7 @@ class Products extends Model
         self::NAME,
         self::DESCRIPTION,
         self::BARCODE,
+        self::DISCOUNT,
         self::PRICE,
         self::STOCK,
         self::CATEGORY_ID,
@@ -47,25 +49,34 @@ class Products extends Model
     );
 
     protected $with = [
-        'has_billing',
-        'has_address',
+        'has_categorie_products',
+        'has_provider',
+        'has_unit_of_measurement',
     ];
 
-    public function has_billing(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function has_categorie_products(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(
-            CustomersHasBilling::class,
-            CustomersHasBilling::CUSTOMER_ID,
-            self::ID,
+            CategorieProducts::class,
+            CategorieProducts::ID,
+            self::CATEGORY_ID,
         );
     }
 
-    public function has_address(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function has_provider(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(
-            CustomersHasAddress::class,
-            CustomersHasAddress::CUSTOMER_ID,
-            self::ID,
+            Providers::class,
+            Providers::ID,
+            self::PROVIDER_ID,
+        );
+    }
+    public function has_unit_of_measurement(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            UnitOfMeasurement::class,
+            UnitOfMeasurement::ID,
+            self::UNIT_OF_MEASUREMENT,
         );
     }
 }

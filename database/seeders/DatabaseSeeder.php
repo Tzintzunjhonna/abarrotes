@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Database\Seeders\Catalogues\Products\CatCategoriesProductSeeder;
+use Database\Seeders\Catalogues\Products\UnitOfMeasurementSeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatCountrySeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatLocationsSeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatMunicipalitySeeder;
@@ -45,6 +46,7 @@ class DatabaseSeeder extends Seeder
 
         // CATALOGOS PRODUCTOS
         $this->call(CatCategoriesProductSeeder::class);
+        $this->call(UnitOfMeasurementSeeder::class);
         
 
 

@@ -82,7 +82,7 @@ class CategoriesProductsController extends Controller
             DB::commit();
             
 
-            return response()->success($categorie_products, 'Se dio de alta el la categoría de producto.');
+            return response()->success($categorie_products, 'Se dio de alta la categoría de producto.');
         } catch (ValidationException $e) {
             return response()->json([
                 'errors' => 'Validation failed.',
@@ -132,7 +132,7 @@ class CategoriesProductsController extends Controller
             $categorie_products = CategorieProducts::find($id);
 
             if($categorie_products == null){
-                throw new \Exception('No se encuentra el la categoría de producto.');
+                throw new \Exception('No se encuentra la categoría de producto.');
             }
 
             $categorie_products->name       = $request->name;
@@ -141,7 +141,7 @@ class CategoriesProductsController extends Controller
 
             DB::commit();
             
-            return response()->success($categorie_products, 'Se actualizó el la categoría de producto.');
+            return response()->success($categorie_products, 'Se actualizó la categoría de producto.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -165,13 +165,13 @@ class CategoriesProductsController extends Controller
             $categorie_products = CategorieProducts::find($id);
 
             if($categorie_products == null){
-                throw new \Exception('No se encuentra el la categoría de producto.');
+                throw new \Exception('No se encuentra la categoría de producto.');
             }
 
             $categorie_products->delete();
             DB::commit();
 
-            return response()->success($categorie_products, 'Se eliminó el la categoría de producto.');
+            return response()->success($categorie_products, 'Se eliminó la categoría de producto.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -194,7 +194,7 @@ class CategoriesProductsController extends Controller
             $categorie_products = CategorieProducts::find($id);
 
             if($categorie_products == null){
-                throw new \Exception('No se encuentra el la categoría de producto.');
+                throw new \Exception('No se encuentra la categoría de producto.');
             }
 
             $categorie_products->is_active = !$categorie_products->is_active;
@@ -202,7 +202,7 @@ class CategoriesProductsController extends Controller
 
             DB::commit();
 
-            return response()->success($categorie_products, 'Se cambio de estatus el la categoría de producto.');
+            return response()->success($categorie_products, 'Se cambio de estatus la categoría de producto.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [

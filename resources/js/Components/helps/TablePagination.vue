@@ -232,6 +232,16 @@ function getValueProperty(item, attribute) {
 }
 
 
+function checkObjectValue(item, key) {
+  let is_valid = false
+  if (typeof item[key] == 'object') {
+    if (item[key] != null) {
+      is_valid = true
+    }
+  }
+  return is_valid
+}
+
 function checkProperty(item, attribute) {
     let value = ''
     for (const key of Object.keys(item)) {
@@ -341,6 +351,8 @@ function getData(page = 1, pageSize = 10) {
         let properties = [
             'name',
             'email',
+            'name_provider',
+            'description',
         ]
 
         properties.forEach((property) => addParameter(parameters, props.searchPost, property))

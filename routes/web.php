@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 
-// Route::redirect('/', '/login');
+Route::redirect('/', '/login');
 
 Route::middleware([
     'auth:sanctum',

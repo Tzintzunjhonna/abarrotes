@@ -109,6 +109,13 @@
                                 </li>
                             </ul>
                         </div>
+                        <div class="collapse" id="sidebarProducts">
+                            <ul class="side-nav-second-level">
+                                <li>
+                                    <a href="/admin/productos">Productos</a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
 
                 </ul>

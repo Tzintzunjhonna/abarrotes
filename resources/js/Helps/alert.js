@@ -6,7 +6,7 @@ const API_URL = window.location.origin;
 // const apiSuccessImageUrl = "images/alerts/icon-check-circle.svg";
 
 // const deleteConfirmationimageUrl = "images/alerts/icon-modal-autorizar.svg";
-// const apiErrorimageUrl = "images/alerts/icon-error.svg";
+const apiErrorimageUrl = "images/alerts/icon-error.svg";
 
 const custom = Swal.mixin({
     customClass: {
@@ -75,6 +75,7 @@ const alert = {
     deleteConfirmation: ({ title, text, options }) => {
 
         config.title = title
+        config.icon = "question",
         config.input = 'text'
         config.text = text
         config.html = text
@@ -111,6 +112,7 @@ const alert = {
             delete config.input
         }
 
+        config.icon = "success",
         config.title = title
         config.text = fixedDescription
         config.html = fixedDescription
@@ -147,12 +149,13 @@ const alert = {
         
 
         return custom.fire({
+            icon: "error",
             showCloseButton: true,
             closeButtonHtml: '<i class="fa fa-window-close color-orange" aria-hidden="true"></i>',
             allowOutsideClick: false,
             title: title,
-            text: msg,//description ? description: (error.hasOwnProperty('messages') ? error.messages:error),
-            html: msg,//description ? description: (error.hasOwnProperty('messages') ? error.messages:error),
+            text: msg,
+            html: msg,
             confirmButtonText: 'Cerrar',
             ...options
         })
