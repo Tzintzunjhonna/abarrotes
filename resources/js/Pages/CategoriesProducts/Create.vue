@@ -7,7 +7,7 @@ import { useVuelidate } from '@vuelidate/core';
 import { helpers, required, email } from '@vuelidate/validators';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
-import LeftSideBar from '@/Layouts/LeftSideBar.vue';
+
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
@@ -100,44 +100,39 @@ async function onSubmit() {
 <template>
 
     <MenuPage />
-    <LeftSideBar />
+    <div class="content">
+        <div class="container-fluid">
 
-    <div class="content-page">
-        <div class="content">
-            <div class="container-fluid">
+            <Head :title="title" />
+            <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                :pageNowName="pageNowName" />
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Crear categoría</h4>
 
-                <Head :title="title" />
-                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
-                    :pageNowName="pageNowName" />
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="header-title">Crear categoría</h4>
+                            <form class="needs-validation" @submit.prevent="onSubmit">
+                                <div class="row">
 
-                                <form class="needs-validation" @submit.prevent="onSubmit">
-                                    <div class="row">
-
-                                        <div class="mb-2 col-md-6">
-                                            <label for="name" class="form-label">Nombre</label>
-                                            <input v-model="form.name" type="text" class="form-control" id="name"
-                                                name="name" placeholder="Nombre">
-                                            <div class="input-errors" v-for="error of f$.name.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="name" class="form-label">Nombre</label>
+                                        <input v-model="form.name" type="text" class="form-control" id="name"
+                                            name="name" placeholder="Nombre">
+                                        <div class="input-errors" v-for="error of f$.name.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="mdi mdi-content-save"></i>
-                                        Guardar
-                                    </button>
-                                </form>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="mdi mdi-content-save"></i>
+                                    Guardar
+                                </button>
+                            </form>
 
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
                 </div>
             </div>
         </div>

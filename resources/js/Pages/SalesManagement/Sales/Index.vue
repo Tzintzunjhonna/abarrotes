@@ -1,62 +1,60 @@
 <script setup>
 
 // IMPORTS --------------------------
-import {  getCurrentInstance, onMounted, ref } from "vue";
+import { getCurrentInstance, onMounted, ref, reactive } from "vue";
 import { Head, Link, router } from '@inertiajs/vue3';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
-
+import TableProductsSales from '@/Components/helps/TableProductsSales.vue';
 import Footer from '@/Layouts/Footer.vue';
-import TablePagination from '@/Components/helps/TablePagination.vue';
 import Search from './Search.vue';
+import Totals from './Totals.vue';
 
 // VARIABLES --------------------------
 const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
 const alert = app.appContext.config.globalProperties.alert
 
-const title = ref('Categoria de productos')
+const title = ref('Caja')
 const prevPageName = ref('Dashboard')
-const pageNowName = ref('Lista de categorias')
-const prevPageUrl = ref('')
+const pageNowName = ref('Caja')
+const prevPageUrl = ref('dashboard')
 
 
 // TABLAS --------------------------
-let endpoint = ref(`v1/app-category-products/collection`)
+let endpoint = ref(`v1/app-providers/collection`)
 
-const getList = ref([])
-const tableHeaders = ['Nombre','Estatus', 'Fecha de registro', 'Opciones'];
-const tableTitle = ref('Lista de categorias')
+const products = ref([])
+
+// Totales
+const amountImport = ref(0)
+const amountDiscount = ref(0)
+const amountTotal = ref(0)
+
+const tableHeaders = ['Código de barras', 'Nombre', 'Precio Venta', 'Descuento', 'Cantidad', 'Importe', 'Inventario' , 'Opciones'];
+const tableTitle = ref('Lista de productos de caja')
 
 const tbody = [
+    'barcode',
     'name',
-    'is_active',
-    'created_at',
+    'price',
+    'discount',
+    'quantity',
+    'import',
+    'stock',
 ];
 
 
 const actions = [
-    {
-        name: 'edit',
-        class: 'btn btn-warning btn-sm',
-        class_icon: 'mdi mdi-image-edit',
-        tooltip: 'Editar'
-    },
     {
         name: 'delete',
         class: 'btn btn-danger btn-sm m-1',
         class_icon: 'mdi mdi-delete',
         tooltip: 'Eliminar'
     },
-    {
-        name: 'change_status',
-        class: 'btn btn-primary btn-sm',
-        class_icon: 'mdi mdi-account-reactivate',
-        tooltip: 'Estatus'
-    },
 ]
 
-let searchForm = ref()
+let searchForm = ref([])
 
 let reloadPage = ref(false)
 
@@ -86,8 +84,8 @@ function action(value) {
         add: function (item) {
             onAdd(item)
         },
-        delete: function (item) {
-            onDelete(item)
+        delete: function (item, key) {
+            onDelete(item, key)
         },
         change_status: function (item) {
             onChangeStatus(item)
@@ -95,7 +93,7 @@ function action(value) {
     }
 
     if (actions.hasOwnProperty(value.action)) {
-        actions[value.action](value.value)
+        actions[value.action](value.value, value.key)
     }
 }
 
@@ -107,58 +105,54 @@ function onEdit(data) {
 
     let ids = data.id.toString();
     ids = btoa(ids);
-    router.visit(`/admin/categorias-de-producto/${ids}/editar`);
+    router.visit(`/admin/proveedores/${ids}/editar`);
 }
 
-function onSearch(data) {
-    searchForm.value = { ...data };
+function onSearch() {
+    products.value.push(
+        {
+            barcode: '123456789012',
+            name: 'Producto 1',
+            price: 50.00,
+            discount: 5.00,
+            quantity: 2,
+            import: 100.00,
+            stock: 20
+        }
+    )
+
+    onGetTotal();
+}
+
+function onGetTotal() {
+    
+    amountImport.value = 0;
+    amountDiscount.value = 0;
+    amountImport.value = 0;
+
+    products.value.forEach((element) => {
+        const importAmount = element.price * element.quantity;
+
+        amountImport.value = (amountImport.value + parseFloat(importAmount));
+        amountDiscount.value = (amountDiscount.value + parseFloat(element.discount));
+
+    })
+
+    amountTotal.value = parseFloat(amountImport.value - amountDiscount.value);
+
 }
 
 function onAdd(data) {
-    router.visit(`/admin/categorias-de-producto/nuevo`);
+    router.visit(`/admin/proveedores/nuevo`);
 }
 
-function onDelete(data) {
-    
-    alert
-        .deleteConfirmation({
-            title: 'Eliminar registro',
-            text: `Ingresar la palabra "Confirmar" para eliminar el registro ${data.name}`,
-            options: {
-                cancelButtonText: 'Cancelar',
-                confirmButtonText: 'Eliminar',
-                inputPlaceholder: 'Ingresar',
-                showCancelButton: true,
-                reverseButtons: true
-            }
-        })
-        .then((result) => {
-            if (result.value == 'Confirmar') {
-                api
-                    .delete(`v1/app-category-products/${data.id}/destroy`)
-                    .then((response) => {
-                        alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
-                            if (result.isConfirmed) {
-                                reloadPage.value = true
-                            }
-                        })
-                    })
-                    .catch((error) => {
-                        console.log(error)
-                        if (error.message) {
-                            alert.apiError({
-                                title: 'Error en la operación',
-                                error: error.message
-                            });
-                        } else {
-                            alert.apiError({
-                                title: 'Error en la operación',
-                                error: error.errors.message
-                            });
-                        }
-                    })
-            }
-        })
+function onDelete(data, key) {
+
+    if (key !== -1) {
+        products.value.splice(key, 1);
+    }
+
+    onGetTotal()
 }
 
 function onChangeStatus(data) {
@@ -178,7 +172,7 @@ function onChangeStatus(data) {
         .then((result) => {
             if (result.value == 'Confirmar') {
                 api
-                    .post(`v1/app-category-products/${data.id}/change-status`)
+                    .post(`v1/app-providers/${data.id}/change-status`)
                     .then((response) => {
                         alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
                             if (result.isConfirmed) {
@@ -210,7 +204,6 @@ function onChangeStatus(data) {
 
 <template>
     <MenuPage />
-
     <div class="content">
         <div class="container-fluid">
 
@@ -219,10 +212,14 @@ function onChangeStatus(data) {
                 :pageNowName="pageNowName" />
             <div class="row">
                 <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
+                <Totals
+                :amountImport="amountImport"
+                :amountDiscount="amountDiscount"
+                :amountTotal="amountTotal"
+                />
 
-                <table-pagination :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
-                    @btnAction="action" :endpoint="endpoint" :title="tableTitle" :searchPost="searchForm"
-                    :labelBtnNew="'Nueva categoría'" :showBtnNew="true" :reload="reloadPage" @reload="reload" />
+                <table-products-sales :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
+                    @btnAction="action" :title="tableTitle" :collectionData="products" />
             </div>
         </div>
     </div>

@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
             'isLoggedIn' => auth()->check(),
             'user.roles' => $request->user() ? $request->user()->roles->pluck('name') : [],
             'user.permissions' => $request->user() ? $request->user()->getPermissionsViaRoles()->pluck('name') : [],
+            'user' => $request->user() ? $request->user() : [],
             'company' => Company::first(),
         ]);
     }

@@ -35,6 +35,7 @@ createInertiaApp({
         };
         
         app.config.globalProperties.company = props.initialPage.props.company;
+        app.config.globalProperties.user = props.initialPage.props.user;
 
 
         app.component("Multiselect", Multiselect);

@@ -32,6 +32,9 @@
     <!-- sb-admin-2 CSS -->
     <link href="{{ URL('css/sb-admin-2.css') }}" rel="stylesheet" type="text/css" id="app-style" />
 
+    <!-- style_2 CSS -->
+    <link href="{{ URL('css/style_2.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
+
 
     <!-- Scripts -->
     @routes

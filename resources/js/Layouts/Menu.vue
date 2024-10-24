@@ -1,217 +1,138 @@
 <template>
     <div>
-        <!-- ========== Topbar Start ========== -->
-        <div class="navbar-custom">
-            <div class="topbar container-fluid">
-                <div class="d-flex align-items-center gap-1">
+        <nav class="navbar navbar-expand-md navbar-light top-menu-important shadow-sm">
+            <div class="logo-box ml-3">
+                <a href="/admin/mi-empresa" class="logo-light">
+                    <template v-if="company != null">
+                        <span>
+                            <img :src="BaseUrl + company.path_logo" alt="logo" class="logo-lg rounded" height="28">
+                        </span>
+                    </template>
 
-                    <!-- Topbar Brand Logo -->
-                    <div class="logo-topbar">
-                        <!-- Logo light -->
-                        <a href="index.php" class="logo-light">
-                            <span class="logo-lg">
-                                <!-- <img src="assets/images/logo.png" alt="logo"> -->
-                            </span>
-                            <span class="logo-sm">
-                                <!-- <img src="assets/images/logo-sm.png" alt="small logo"> -->
-                            </span>
-                        </a>
+                    <template v-else>
+                        <span>
+                            <img :src="BaseUrl + '/images/abarrotes/logo_1.png'" alt="logo" class="logo-lg rounded"
+                                height="28">
+                        </span>
+                    </template>
+                    <br>
+                    <p>{{ company == null ? 'CONTRERAS CORP' : company.business_name }}</p>
+                </a>
 
-                        <!-- Logo Dark -->
-                        <a href="index.php" class="logo-dark">
-                            <span class="logo-lg">
-                                <!-- <img src="assets/images/logo-dark.png" alt="dark logo"> -->
-                            </span>
-                            <span class="logo-sm">
-                                <!-- <img src="assets/images/logo-sm.png" alt="small logo"> -->
-                            </span>
-                        </a>
-                    </div>
-
-                    <!-- Sidebar Menu Toggle Button -->
-                    <button class="button-toggle-menu">
-                        <i class="ri-menu-line"></i>
-                    </button>
-
-                    <!-- Horizontal Menu Toggle Button -->
-                    <button class="navbar-toggle" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
-                        <div class="lines">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </button>
-
-                    <!-- Topbar Search Form -->
-                    <div class="app-search d-none d-lg-block">
-                        <form>
-                            <div class="input-group">
-                                <input type="search" class="form-control" placeholder="Search...">
-                                <span class="ri-search-line search-icon text-muted"></span>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <ul class="topbar-menu d-flex align-items-center gap-3">
-                    <li class="dropdown d-lg-none">
-                        <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
-                            aria-haspopup="false" aria-expanded="false">
-                            <i class="ri-search-line fs-22"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-animated dropdown-lg p-0">
-                            <form class="p-3">
-                                <input type="search" class="form-control" placeholder="Search ..."
-                                    aria-label="Recipient's username">
-                            </form>
-                        </div>
-                    </li>
-
-
-                    <li class="dropdown notification-list">
-                        <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
-                            aria-haspopup="false" aria-expanded="false">
-                            <i class="ri-notification-3-line fs-22"></i>
-                            <span class="noti-icon-badge badge text-bg-pink">3</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg py-0">
-                            <div class="p-2 border-top-0 border-start-0 border-end-0 border-dashed border">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <h6 class="m-0 fs-16 fw-semibold"> Notification</h6>
-                                    </div>
-                                    <div class="col-auto">
-                                        <a href="javascript: void(0);" class="text-dark text-decoration-underline">
-                                            <small>Clear All</small>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="max-height: 300px;" data-simplebar>
-                                <!-- item-->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-primary-subtle">
-                                        <i class="mdi mdi-comment-account-outline text-primary"></i>
-                                    </div>
-                                    <p class="notify-details">Caleb Flakelar commented on Admin
-                                        <small class="noti-time">1 min ago</small>
-                                    </p>
-                                </a>
-
-                                <!-- item-->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-warning-subtle">
-                                        <i class="mdi mdi-account-plus text-warning"></i>
-                                    </div>
-                                    <p class="notify-details">New user registered.
-                                        <small class="noti-time">5 hours ago</small>
-                                    </p>
-                                </a>
-
-                                <!-- item-->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-danger-subtle">
-                                        <i class="mdi mdi-heart text-danger"></i>
-                                    </div>
-                                    <p class="notify-details">Carlos Crouch liked
-                                        <small class="noti-time">3 days ago</small>
-                                    </p>
-                                </a>
-
-                                <!-- item-->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-pink-subtle">
-                                        <i class="mdi mdi-comment-account-outline text-pink"></i>
-                                    </div>
-                                    <p class="notify-details">Caleb Flakelar commented on Admi
-                                        <small class="noti-time">4 days ago</small>
-                                    </p>
-                                </a>
-
-                                <!-- item-->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-purple-subtle">
-                                        <i class="mdi mdi-account-plus text-purple"></i>
-                                    </div>
-                                    <p class="notify-details">New user registered.
-                                        <small class="noti-time">7 days ago</small>
-                                    </p>
-                                </a>
-
-                                <!-- item-->
-                                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-success-subtle">
-                                        <i class="mdi mdi-heart text-success"></i>
-                                    </div>
-                                    <p class="notify-details">Carlos Crouch liked <b>Admin</b>.
-                                        <small class="noti-time">Carlos Crouch liked</small>
-                                    </p>
-                                </a>
-                            </div>
-
-                            <!-- All-->
-                            <a href="javascript:void(0);"
-                                class="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2">
-                                View All
-                            </a>
-
-                        </div>
-                    </li>
-
-                    <li class="dropdown">
-                        <a class="nav-link dropdown-toggle arrow-none nav-user" data-bs-toggle="dropdown" href="#"
-                            role="button" aria-haspopup="false" aria-expanded="false">
-                            <span class="account-user-avatar">
-                                <!-- <img src="assets/images/users/avatar-1.jpg" alt="user-image" width="32"
-                                    class="rounded-circle"> -->
-                            </span>
-                            <span class="d-lg-block d-none">
-                                <h5 class="my-0 fw-normal">Thomson <i
-                                        class="ri-arrow-down-s-line d-none d-sm-inline-block align-middle"></i></h5>
-                            </span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
-                            <!-- item-->
-                            <div class=" dropdown-header noti-title">
-                                <h6 class="text-overflow m-0">Welcome !</h6>
-                            </div>
-
-                            <!-- item-->
-                            <a href="pages-profile.php" class="dropdown-item">
-                                <i class="ri-account-circle-line fs-18 align-middle me-1"></i>
-                                <span>My Account</span>
-                            </a>
-
-                            <!-- item-->
-                            <a href="pages-profile.php" class="dropdown-item">
-                                <i class="ri-settings-4-line fs-18 align-middle me-1"></i>
-                                <span>Settings</span>
-                            </a>
-
-                            <!-- item-->
-                            <a href="pages-faq.php" class="dropdown-item">
-                                <i class="ri-customer-service-2-line fs-18 align-middle me-1"></i>
-                                <span>Support</span>
-                            </a>
-
-                            <!-- item-->
-                            <a href="auth-lock-screen.php" class="dropdown-item">
-                                <i class="ri-lock-password-line fs-18 align-middle me-1"></i>
-                                <span>Lock Screen</span>
-                            </a>
-
-                            <!-- item-->
-                            <a href="#" class="dropdown-item" @click="logout">
-                                <i class="ri-logout-box-line fs-18 align-middle me-1"></i>
-                                <span>Cerrar sesión</span>
-                            </a>
-                        </div>
-                    </li>
-                </ul>
             </div>
-        </div>
-        <!-- ========== Topbar End ========== -->
+            <div class="container">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a href="/dashboard" class="side-nav-link">
+                                    <i class="ri-dashboard-3-line"></i>
+                                    <span class="ml-1"> Dashboard </span>
+                                </a>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a id="navbarSistem" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="ri-briefcase-line"></i>
+
+                                    <span class="ml-1"> Sistema </span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarSistem">
+                                    <a class="side-nav-item dropdown-item" href="/admin/mi-empresa">Empresa</a>
+                                    <a class="side-nav-item dropdown-item" href="/admin/roles">Roles</a>
+                                    <a class="side-nav-item dropdown-item" href="/admin/permisos">Permisos</a>
+                                    <a class="side-nav-item dropdown-item" href="/admin/usuarios">Usuarios</a>
+                                </div>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a href="/admin/proveedores" class="side-nav-link">
+                                    <i class="mdi mdi-truck-delivery"></i>
+                                    <span class="ml-1"> Proveedores </span>
+                                </a>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a href="/admin/clientes" class="side-nav-link">
+                                    <i class="mdi mdi-account-group"></i>
+                                    <span class="ml-1"> Clientes </span>
+                                </a>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a id="navbarProducts" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="ri-briefcase-line"></i>
+                                    <span class="ml-1"> Productos </span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProducts">
+                                    <a class="side-nav-item dropdown-item"
+                                        href="/admin/categorias-de-producto">Categoría de productos</a>
+                                    <a class="side-nav-item dropdown-item" href="/admin/productos">Productos</a>
+                                </div>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a id="navbarSales" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="mdi mdi-point-of-sale"></i>
+                                    <span class="ml-1"> Gestión de ventas</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarSales">
+                                    <a class="side-nav-item dropdown-item" href="/admin/gestion-de-ventas/caja">Caja</a>
+                                </div>
+                            </li>
+                        </div>
+                    </ul>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                    <ul class="navbar-nav ms-auto" v-if="user != null">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a id="navbarPerfil" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="mdi mdi-account"></i>
+                                    {{ user.name }}
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarPerfil">
+                                    <button class="side-nav-item dropdown-item">
+                                        Profile
+                                    </button>
+                                    <button type="button" class="side-nav-item dropdown-item" method="post"
+                                        @click="logout">
+                                        Cerrar sesion
+                                    </button>
+                                </div>
+                            </li>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </div>
 </template>
 <script setup>
@@ -221,7 +142,10 @@ import { computed, getCurrentInstance, onMounted, ref } from "vue";
 const app = getCurrentInstance()
 const api = app.appContext.config.globalProperties.api
 const alert = app.appContext.config.globalProperties.alert
+const company = app.appContext.config.globalProperties.company;
+const user = app.appContext.config.globalProperties.user;
 
+const BaseUrl = window.location.origin
 
 const logout = () => {
 
@@ -251,11 +175,25 @@ const logout = () => {
             }
         })
 };
-function deleteCookie(name, path) {
-    // Configura el valor de la cookie y establece su fecha de expiración en el pasado
-    document.cookie = `${name}=; Max-Age=0; path=${path || '/'};`;
-}
 
 
 
 </script>
+
+
+
+
+<style scoped>
+.top-menu-important{
+    background-color: #1a2942;
+}
+.side-nav-link{
+    color: #70809a;
+}
+.side-nav-link:hover,
+.side-nav-link:focus,
+.side-nav-link:active {
+    color: #3bc0c3;
+    text-decoration: none;
+}
+</style>

@@ -117,6 +117,21 @@
                             </ul>
                         </div>
                     </li>
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarVentas" aria-expanded="false"
+                            aria-controls="sidebarVentas" class="side-nav-link">
+                            <i class="mdi mdi-point-of-sale"></i>
+                            <span> Gestión de ventas </span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarVentas">
+                            <ul class="side-nav-second-level">
+                                <li>
+                                    <a href="/admin/categorias-de-producto">Ventas</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
                 </ul>
                 <!--- End Sidemenu -->

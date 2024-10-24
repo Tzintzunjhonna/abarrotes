@@ -299,206 +299,197 @@ function getZipCode(code) {
 <template>
 
     <MenuPage />
-    <LeftSideBar />
+    <div class="content">
+        <div class="container-fluid">
 
-    <div class="content-page">
-        <div class="content">
-            <div class="container-fluid">
+            <Head :title="title" />
+            <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                :pageNowName="pageNowName" />
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Mi empresa</h4>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button :class="class_button_disabled" type="button" @click="btnEdit()">
+                                    <i :class="icon_disabled"></i>
+                                    {{ text_disabled }}
+                                </button>
+                            </div>
 
-                <Head :title="title" />
-                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
-                    :pageNowName="pageNowName" />
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="header-title">Mi empresa</h4>
-                                <div class="col-12 d-flex justify-content-end">
-                                    <button :class="class_button_disabled" type="button" @click="btnEdit()">
-                                        <i :class="icon_disabled"></i>
-                                        {{text_disabled}}
-                                    </button>
-                                </div>
-
-                                    <form class="needs-validation" @submit.prevent="onSubmit">
-                                        <div class="row">
-                                            <div class="mb-2 col-md-6">
-                                                <label for="rfc" class="form-label">RFC</label>
-                                                <input :disabled="is_disabled" v-model="form.rfc" type="text" class="form-control" id="rfc"
-                                                    name="rfc" placeholder="RFC" maxlength="13">
-                                                <div class="input-errors" v-for="error of f$.rfc.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-2 col-md-6">
-                                                <label for="business_name" class="form-label">Razón social</label>
-                                                <input :disabled="is_disabled" v-model="form.business_name" type="text" class="form-control"
-                                                    id="business_name" name="business_name" placeholder="Razón social">
-                                                <div class="input-errors" v-for="error of f$.business_name.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-2 col-md-6">
-                                                <label for="zip_code" class="form-label">Código postal
-                                                    (Timbrado)</label>
-                                                <input :disabled="is_disabled" v-model="form.zip_code" type="number" class="form-control"
-                                                    id="zip_code" placeholder="Código postal (Timbrado)" step="1"
-                                                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                                    maxlength="5">
-                                                <div class="input-errors" v-for="error of f$.zip_code.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
+                            <form class="needs-validation" @submit.prevent="onSubmit">
+                                <div class="row">
+                                    <div class="mb-2 col-md-6">
+                                        <label for="rfc" class="form-label">RFC</label>
+                                        <input :disabled="is_disabled" v-model="form.rfc" type="text"
+                                            class="form-control" id="rfc" name="rfc" placeholder="RFC" maxlength="13">
+                                        <div class="input-errors" v-for="error of f$.rfc.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
                                         </div>
-                                        <div class="row col-sm-12 col-md-4 col-lg-4 d-flex justify-content-center">
-                                            <div class="">
-                                                <div class="ml-5">
-                                                    <label class="text-input">Logo de la Empresa</label>
-                                                    <input :disabled="is_disabled" type="file" name="path_logo" id="path_logo"
-                                                        @change="uploadFile($event, 'path_logo')"
-                                                        class="inputfile inputfile-2" accept="image/png, image/jpeg" />
-                                                    <label for="path_logo" class="p-0">
-                                                        <div style="width: 100%; height: 130px">
-                                                            <img id="imgPreview"
-                                                                :src="form.photo ? form.photo : BaseUrl + '/images/users/avatar-1.jpg'"
-                                                                style="
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="business_name" class="form-label">Razón social</label>
+                                        <input :disabled="is_disabled" v-model="form.business_name" type="text"
+                                            class="form-control" id="business_name" name="business_name"
+                                            placeholder="Razón social">
+                                        <div class="input-errors" v-for="error of f$.business_name.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="zip_code" class="form-label">Código postal
+                                            (Timbrado)</label>
+                                        <input :disabled="is_disabled" v-model="form.zip_code" type="number"
+                                            class="form-control" id="zip_code" placeholder="Código postal (Timbrado)"
+                                            step="1"
+                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                            maxlength="5">
+                                        <div class="input-errors" v-for="error of f$.zip_code.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row col-sm-12 col-md-4 col-lg-4 d-flex justify-content-center">
+                                    <div class="">
+                                        <div class="ml-5">
+                                            <label class="text-input">Logo de la Empresa</label>
+                                            <input :disabled="is_disabled" type="file" name="path_logo" id="path_logo"
+                                                @change="uploadFile($event, 'path_logo')" class="inputfile inputfile-2"
+                                                accept="image/png, image/jpeg" />
+                                            <label for="path_logo" class="p-0">
+                                                <div style="width: 100%; height: 130px">
+                                                    <img id="imgPreview"
+                                                        :src="form.photo ? form.photo : BaseUrl + '/images/users/avatar-1.jpg'"
+                                                        style="
                                       width: 100%;
                                       height: 100%;
                                       display: block;
                                       margin-left: auto;
                                       margin-right: auto;
                                   " alt="Imagen previa" />
-                                                        </div>
-                                                    </label>
-                                                    <label style="color: #6d6d6d; font-size: 10px">Formato recomendado:
-                                                        JPG,
-                                                        PNG. Máximo 1MB</label>
                                                 </div>
-                                            </div>
+                                            </label>
+                                            <label style="color: #6d6d6d; font-size: 10px">Formato recomendado:
+                                                JPG,
+                                                PNG. Máximo 1MB</label>
                                         </div>
-                                        <Divider label="Datos de dirección de mi empresa" />
+                                    </div>
+                                </div>
+                                <Divider label="Datos de dirección de mi empresa" />
 
-                                        <div class="row">
+                                <div class="row">
 
-                                            <div class="mb-2 col-md-6">
-                                                <label for="pais_id" class="form-label">País</label>
-                                                <Multiselect :disabled="is_disabled" v-model="form.pais_id" track-by="nombre" label="nombre"
-                                                    placeholder="Selecciona un país" :show-labels="false"
-                                                    deselectLabel=" " :block-keys="['Tab', 'Enter']"
-                                                    :options="cat_paises" :searchable="true" :allow-empty="true"
-                                                    :showNoOptions="false">
-                                                    <template v-slot:noResult>
-                                                        <span>Opción no encontrada</span>
-                                                    </template>
-                                                </Multiselect>
-                                                <div class="input-errors" v-for="error of f$.pais_id.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-2 col-md-6">
-                                                <label for="codigo_postal_id" class="form-label">Código postal</label>
-                                                <input :disabled="is_disabled" v-model="form.codigo_postal_id" type="text" class="form-control"
-                                                    id="codigo_postal_id" placeholder="Código postal" step="1"
-                                                    maxlength="6">
-                                                <div class="input-errors" v-for="error of f$.codigo_postal_id.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-2 col-md-6">
-                                                <label for="estado_id" class="form-label">Estado</label>
-                                                <Multiselect :disabled="is_disabled" v-model="form.estado_id" track-by="nombre" label="nombre"
-                                                    placeholder="Selecciona un estado" :show-labels="false"
-                                                    deselectLabel=" " :block-keys="['Tab', 'Enter']"
-                                                    :options="cat_estado" :searchable="true" :allow-empty="true"
-                                                    :showNoOptions="false">
-                                                    <template v-slot:noResult>
-                                                        <span>Opción no encontrada</span>
-                                                    </template>
-                                                </Multiselect>
-                                                <div class="input-errors" v-for="error of f$.estado_id.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-2 col-md-6">
-                                                <label for="municipio_id" class="form-label">Municipio</label>
-                                                <Multiselect :disabled="is_disabled" v-model="form.municipio_id" track-by="nombre"
-                                                    label="nombre" placeholder="Selecciona un municipio"
-                                                    :show-labels="false" deselectLabel=" "
-                                                    :block-keys="['Tab', 'Enter']" :options="cat_municipio"
-                                                    :searchable="true" :allow-empty="true" :showNoOptions="false">
-                                                    <template v-slot:noResult>
-                                                        <span>Opción no encontrada</span>
-                                                    </template>
-                                                </Multiselect>
-                                                <div class="input-errors" v-for="error of f$.municipio_id.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-2 col-md-6">
-                                                <label for="localidad_id" class="form-label">Localidad</label>
-                                                <Multiselect :disabled="is_disabled" v-model="form.localidad_id" track-by="nombre"
-                                                    label="nombre" placeholder="Selecciona un localidad"
-                                                    :show-labels="false" deselectLabel=" "
-                                                    :block-keys="['Tab', 'Enter']" :options="cat_localidad"
-                                                    :searchable="true" :allow-empty="true" :showNoOptions="false">
-                                                    <template v-slot:noResult>
-                                                        <span>Opción no encontrada</span>
-                                                    </template>
-                                                </Multiselect>
-                                                <div class="input-errors" v-for="error of f$.localidad_id.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-2 col-md-6">
-                                                <label for="street" class="form-label">Calle</label>
-                                                <input :disabled="is_disabled" v-model="form.street" type="text" class="form-control"
-                                                    id="street" name="street" placeholder="Calle">
-                                                <div class="input-errors" v-for="error of f$.street.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-2 col-md-6">
-                                                <label for="number" class="form-label">Número</label>
-                                                <input :disabled="is_disabled" v-model="form.number" type="number" class="form-control"
-                                                    id="number" placeholder="Número" step="1"
-                                                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                                    maxlength="9">
-                                                <div class="input-errors" v-for="error of f$.number.$errors"
-                                                    :key="error.$uid">
-                                                    <div class="text-danger">{{ error.$message }}</div>
-                                                </div>
-                                            </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="pais_id" class="form-label">País</label>
+                                        <Multiselect :disabled="is_disabled" v-model="form.pais_id" track-by="nombre"
+                                            label="nombre" placeholder="Selecciona un país" :show-labels="false"
+                                            deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_paises"
+                                            :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                            <template v-slot:noResult>
+                                                <span>Opción no encontrada</span>
+                                            </template>
+                                        </Multiselect>
+                                        <div class="input-errors" v-for="error of f$.pais_id.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
                                         </div>
+                                    </div>
+
+                                    <div class="mb-2 col-md-6">
+                                        <label for="codigo_postal_id" class="form-label">Código postal</label>
+                                        <input :disabled="is_disabled" v-model="form.codigo_postal_id" type="text"
+                                            class="form-control" id="codigo_postal_id" placeholder="Código postal"
+                                            step="1" maxlength="6">
+                                        <div class="input-errors" v-for="error of f$.codigo_postal_id.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2 col-md-6">
+                                        <label for="estado_id" class="form-label">Estado</label>
+                                        <Multiselect :disabled="is_disabled" v-model="form.estado_id" track-by="nombre"
+                                            label="nombre" placeholder="Selecciona un estado" :show-labels="false"
+                                            deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_estado"
+                                            :searchable="true" :allow-empty="true" :showNoOptions="false">
+                                            <template v-slot:noResult>
+                                                <span>Opción no encontrada</span>
+                                            </template>
+                                        </Multiselect>
+                                        <div class="input-errors" v-for="error of f$.estado_id.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="municipio_id" class="form-label">Municipio</label>
+                                        <Multiselect :disabled="is_disabled" v-model="form.municipio_id"
+                                            track-by="nombre" label="nombre" placeholder="Selecciona un municipio"
+                                            :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                            :options="cat_municipio" :searchable="true" :allow-empty="true"
+                                            :showNoOptions="false">
+                                            <template v-slot:noResult>
+                                                <span>Opción no encontrada</span>
+                                            </template>
+                                        </Multiselect>
+                                        <div class="input-errors" v-for="error of f$.municipio_id.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="localidad_id" class="form-label">Localidad</label>
+                                        <Multiselect :disabled="is_disabled" v-model="form.localidad_id"
+                                            track-by="nombre" label="nombre" placeholder="Selecciona un localidad"
+                                            :show-labels="false" deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                            :options="cat_localidad" :searchable="true" :allow-empty="true"
+                                            :showNoOptions="false">
+                                            <template v-slot:noResult>
+                                                <span>Opción no encontrada</span>
+                                            </template>
+                                        </Multiselect>
+                                        <div class="input-errors" v-for="error of f$.localidad_id.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2 col-md-6">
+                                        <label for="street" class="form-label">Calle</label>
+                                        <input :disabled="is_disabled" v-model="form.street" type="text"
+                                            class="form-control" id="street" name="street" placeholder="Calle">
+                                        <div class="input-errors" v-for="error of f$.street.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2 col-md-6">
+                                        <label for="number" class="form-label">Número</label>
+                                        <input :disabled="is_disabled" v-model="form.number" type="number"
+                                            class="form-control" id="number" placeholder="Número" step="1"
+                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                            maxlength="9">
+                                        <div class="input-errors" v-for="error of f$.number.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                </div>
 
 
-                                        <button class="btn btn-primary" type="submit" v-if="!is_disabled">
-                                            <i class="mdi mdi-content-save"></i>
-                                            Guardar
-                                        </button>
-                                    </form>
+                                <button class="btn btn-primary" type="submit" v-if="!is_disabled">
+                                    <i class="mdi mdi-content-save"></i>
+                                    Guardar
+                                </button>
+                            </form>
 
-                                </div> <!-- end card-body-->
-                            </div> <!-- end card-->
-                        </div>
-                    </div>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
                 </div>
             </div>
         </div>
-
-        <Footer />
+    </div>
+    <Footer />
 
 </template>
 

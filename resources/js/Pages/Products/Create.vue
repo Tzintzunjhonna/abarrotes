@@ -7,7 +7,7 @@ import { useVuelidate } from '@vuelidate/core';
 import { helpers, required, email } from '@vuelidate/validators';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
-import LeftSideBar from '@/Layouts/LeftSideBar.vue';
+
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
@@ -194,146 +194,138 @@ function btnIndex() {
 <template>
 
     <MenuPage />
-    <LeftSideBar />
+    <div class="content">
+        <div class="container-fluid">
 
-    <div class="content-page">
-        <div class="content">
-            <div class="container-fluid">
+            <Head :title="title" />
+            <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                :pageNowName="pageNowName" />
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">
+                                <a ref="#" type="button" title="Regresar" class="m-2" @click="btnIndex()">
+                                    <i class="mdi mdi-page-previous-outline"></i>
+                                </a>
+                                Crear producto
+                            </h4>
 
-                <Head :title="title" />
-                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
-                    :pageNowName="pageNowName" />
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="header-title">
-                                    <a ref="#" type="button" title="Regresar" class="m-2" @click="btnIndex()">
-                                        <i class="mdi mdi-page-previous-outline"></i>
-                                    </a>
-                                    Crear producto
-                                </h4>
+                            <form class="needs-validation" @submit.prevent="onSubmit">
+                                <div class="row">
 
-                                <form class="needs-validation" @submit.prevent="onSubmit">
-                                    <div class="row">
-
-                                        <div class="mb-2 col-md-6">
-                                            <label for="name" class="form-label">Nombre</label>
-                                            <input v-model="form.name" type="text" class="form-control" id="name"
-                                                name="name" placeholder="Nombre">
-                                            <div class="input-errors" v-for="error of f$.name.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="description" class="form-label">Descripción</label>
-                                            <input v-model="form.description" type="text" class="form-control"
-                                                id="description" name="description" placeholder="Descripción">
-                                            <div class="input-errors" v-for="error of f$.description.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="barcode" class="form-label">Código de barra</label>
-                                            <input v-model="form.barcode" type="text" class="form-control" id="barcode"
-                                                name="barcode" placeholder="Código de barra">
-                                            <div class="input-errors" v-for="error of f$.barcode.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="price" class="form-label">Precio</label>
-                                            <input v-model="form.price" type="number" class="form-control" id="price"
-                                                placeholder="Precio" step="1"
-                                                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                                maxlength="10">
-                                            <div class="input-errors" v-for="error of f$.price.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="discount" class="form-label">Descuento</label>
-                                            <input v-model="form.discount" type="number" class="form-control" id="discount"
-                                                placeholder="Descuento" step="1"
-                                                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                                maxlength="10">
-                                            <div class="input-errors" v-for="error of f$.discount.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="stock" class="form-label">Stock</label>
-                                            <input v-model="form.stock" type="number" class="form-control" id="stock"
-                                                placeholder="Stock" step="1"
-                                                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                                maxlength="10">
-                                            <div class="input-errors" v-for="error of f$.stock.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="rol" class="form-label">Unidad de medida</label>
-                                            <Multiselect v-model="form.unit_of_measurement" track-by="name" label="name"
-                                                placeholder="Selecciona una unidad de medida" :show-labels="false"
-                                                deselectLabel=" " :block-keys="['Tab', 'Enter']"
-                                                :options="unit_of_measurement" :searchable="true" :allow-empty="true"
-                                                :showNoOptions="false">
-                                                <template v-slot:noResult>
-                                                    <span>Opción no encontrada</span>
-                                                </template>
-                                            </Multiselect>
-                                            <div class="input-errors" v-for="error of f$.unit_of_measurement.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="rol" class="form-label">Proveedor</label>
-                                            <Multiselect v-model="form.provider_id" track-by="name" label="name"
-                                                placeholder="Selecciona un proveedor" :show-labels="false"
-                                                deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_provider"
-                                                :searchable="true" :allow-empty="true" :showNoOptions="false">
-                                                <template v-slot:noResult>
-                                                    <span>Opción no encontrada</span>
-                                                </template>
-                                            </Multiselect>
-                                            <div class="input-errors" v-for="error of f$.provider_id.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 col-md-6">
-                                            <label for="rol" class="form-label">Categoría</label>
-                                            <Multiselect v-model="form.category_id" track-by="name" label="name"
-                                                placeholder="Selecciona un categoría" :show-labels="false"
-                                                deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_category"
-                                                :searchable="true" :allow-empty="true" :showNoOptions="false">
-                                                <template v-slot:noResult>
-                                                    <span>Opción no encontrada</span>
-                                                </template>
-                                            </Multiselect>
-                                            <div class="input-errors" v-for="error of f$.category_id.$errors"
-                                                :key="error.$uid">
-                                                <div class="text-danger">{{ error.$message }}</div>
-                                            </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="name" class="form-label">Nombre</label>
+                                        <input v-model="form.name" type="text" class="form-control" id="name"
+                                            name="name" placeholder="Nombre">
+                                        <div class="input-errors" v-for="error of f$.name.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
                                         </div>
                                     </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="description" class="form-label">Descripción</label>
+                                        <input v-model="form.description" type="text" class="form-control"
+                                            id="description" name="description" placeholder="Descripción">
+                                        <div class="input-errors" v-for="error of f$.description.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="barcode" class="form-label">Código de barra</label>
+                                        <input v-model="form.barcode" type="text" class="form-control" id="barcode"
+                                            name="barcode" placeholder="Código de barra">
+                                        <div class="input-errors" v-for="error of f$.barcode.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="price" class="form-label">Precio</label>
+                                        <input v-model="form.price" type="number" class="form-control" id="price"
+                                            placeholder="Precio" step="1"
+                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                            maxlength="10">
+                                        <div class="input-errors" v-for="error of f$.price.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="discount" class="form-label">Descuento</label>
+                                        <input v-model="form.discount" type="number" class="form-control" id="discount"
+                                            placeholder="Descuento" step="1"
+                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                            maxlength="10">
+                                        <div class="input-errors" v-for="error of f$.discount.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="stock" class="form-label">Stock</label>
+                                        <input v-model="form.stock" type="number" class="form-control" id="stock"
+                                            placeholder="Stock" step="1"
+                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                            maxlength="10">
+                                        <div class="input-errors" v-for="error of f$.stock.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="rol" class="form-label">Unidad de medida</label>
+                                        <Multiselect v-model="form.unit_of_measurement" track-by="name" label="name"
+                                            placeholder="Selecciona una unidad de medida" :show-labels="false"
+                                            deselectLabel=" " :block-keys="['Tab', 'Enter']"
+                                            :options="unit_of_measurement" :searchable="true" :allow-empty="true"
+                                            :showNoOptions="false">
+                                            <template v-slot:noResult>
+                                                <span>Opción no encontrada</span>
+                                            </template>
+                                        </Multiselect>
+                                        <div class="input-errors" v-for="error of f$.unit_of_measurement.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="rol" class="form-label">Proveedor</label>
+                                        <Multiselect v-model="form.provider_id" track-by="name" label="name"
+                                            placeholder="Selecciona un proveedor" :show-labels="false" deselectLabel=" "
+                                            :block-keys="['Tab', 'Enter']" :options="cat_provider" :searchable="true"
+                                            :allow-empty="true" :showNoOptions="false">
+                                            <template v-slot:noResult>
+                                                <span>Opción no encontrada</span>
+                                            </template>
+                                        </Multiselect>
+                                        <div class="input-errors" v-for="error of f$.provider_id.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+                                        <label for="rol" class="form-label">Categoría</label>
+                                        <Multiselect v-model="form.category_id" track-by="name" label="name"
+                                            placeholder="Selecciona un categoría" :show-labels="false" deselectLabel=" "
+                                            :block-keys="['Tab', 'Enter']" :options="cat_category" :searchable="true"
+                                            :allow-empty="true" :showNoOptions="false">
+                                            <template v-slot:noResult>
+                                                <span>Opción no encontrada</span>
+                                            </template>
+                                        </Multiselect>
+                                        <div class="input-errors" v-for="error of f$.category_id.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="mdi mdi-content-save"></i>
-                                        Guardar
-                                    </button>
-                                </form>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="mdi mdi-content-save"></i>
+                                    Guardar
+                                </button>
+                            </form>
 
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
                 </div>
             </div>
         </div>

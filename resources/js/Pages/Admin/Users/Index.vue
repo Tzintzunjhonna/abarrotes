@@ -5,7 +5,7 @@ import {  getCurrentInstance, onMounted, ref } from "vue";
 import { Head, Link, router } from '@inertiajs/vue3';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
-import LeftSideBar from '@/Layouts/LeftSideBar.vue';
+
 import Footer from '@/Layouts/Footer.vue';
 import TablePagination from '@/Components/helps/TablePagination.vue';
 import Search from './Search.vue';
@@ -160,21 +160,18 @@ function onDelete(data) {
 
 <template>
     <MenuPage />
-    <LeftSideBar />
-    <div class="content-page">
-        <div class="content">
-            <div class="container-fluid">
+    <div class="content">
+        <div class="container-fluid">
 
-                <Head :title="title" />
-                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
-                    :pageNowName="pageNowName" />
-                <div class="row">
-                    <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
+            <Head :title="title" />
+            <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                :pageNowName="pageNowName" />
+            <div class="row">
+                <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
 
-                    <table-pagination :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
-                        @btnAction="action" :endpoint="endpoint" :title="tableTitle" :searchPost="searchForm"
-                        :labelBtnNew="'Nuevo usuario'" :showBtnNew="true" :reload="reloadPage" @reload="reload"/>
-                </div>
+                <table-pagination :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
+                    @btnAction="action" :endpoint="endpoint" :title="tableTitle" :searchPost="searchForm"
+                    :labelBtnNew="'Nuevo usuario'" :showBtnNew="true" :reload="reloadPage" @reload="reload" />
             </div>
         </div>
     </div>

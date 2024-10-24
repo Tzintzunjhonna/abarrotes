@@ -7,7 +7,7 @@ import { useVuelidate } from '@vuelidate/core';
 import { helpers, required, email } from '@vuelidate/validators';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
-import LeftSideBar from '@/Layouts/LeftSideBar.vue';
+
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
@@ -131,72 +131,68 @@ async function onSubmit() {
 <template>
 
     <MenuPage />
-    <LeftSideBar />
+    <div class="content">
+        <div class="container-fluid">
 
-    <div class="content-page">
-        <div class="content">
-            <div class="container-fluid">
+            <Head :title="title" />
+            <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
+                :pageNowName="pageNowName" />
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">
+                                Asignar rol
+                                <span class="badge bg-danger">
+                                    {{ role.name }}
+                                </span>
+                            </h4>
 
-                <Head :title="title" />
-                <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
-                    :pageNowName="pageNowName" />
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="header-title">
-                                    Asignar rol
-                                    <span class="badge bg-danger">
-                                        {{ role.name }}
-                                    </span>
-                                </h4>
-
-                                <form class="needs-validation" @submit.prevent="onSubmit">
-                                    <div class="responsive-table-plugin">
-                                        <div class="table-rep-plugin">
-                                            <div class="table-responsive" data-pattern="priority-columns">
-                                                <table class="table table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>Nombre</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody v-if="props.lista_permission?.length > 0">
-                                                        <tr v-for="(item, i )  in props.lista_permission" :key="i">
-                                                            <td>
-                                                                {{ item.id }}
-                                                                <label>
-                                                                    <input type="checkbox" v-model="item.rol" />
-                                                                    <span></span>
-                                                                </label>
-                                                            </td>
-                                                            <td>{{ item.name }}</td>
-                                                        </tr>
-                                                    </tbody>
-                                                    <tbody v-else>
-                                                        <tr>
-                                                            <td colspan="2">
-                                                                <p>No se encontrarón resultados</p>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                            <form class="needs-validation" @submit.prevent="onSubmit">
+                                <div class="responsive-table-plugin">
+                                    <div class="table-rep-plugin">
+                                        <div class="table-responsive" data-pattern="priority-columns">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Nombre</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody v-if="props.lista_permission?.length > 0">
+                                                    <tr v-for="(item, i )  in props.lista_permission" :key="i">
+                                                        <td>
+                                                            {{ item.id }}
+                                                            <label>
+                                                                <input type="checkbox" v-model="item.rol" />
+                                                                <span></span>
+                                                            </label>
+                                                        </td>
+                                                        <td>{{ item.name }}</td>
+                                                    </tr>
+                                                </tbody>
+                                                <tbody v-else>
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <p>No se encontrarón resultados</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="row mt-2">
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="mdi mdi-content-save"></i>
-                                            Guardar
-                                        </button>
-                                    </div>
-                                </form>
+                                <div class="row mt-2">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="mdi mdi-content-save"></i>
+                                        Guardar
+                                    </button>
+                                </div>
+                            </form>
 
-                            </div> <!-- end card-body-->
-                        </div> <!-- end card-->
-                    </div>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
                 </div>
             </div>
         </div>

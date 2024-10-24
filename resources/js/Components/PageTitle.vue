@@ -9,7 +9,7 @@
                         <li class="breadcrumb-item active" v-if="pageNowName">{{ pageNowName }}</li>
                     </ol>
                 </div>
-                <h4 class="page-title">{{ title }} </h4>
+                <h4 class="page-title  ml-5">{{ title }} </h4>
             </div>
         </div>
     </div>
