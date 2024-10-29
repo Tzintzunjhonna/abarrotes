@@ -45,7 +45,7 @@ const alert = {
             timeout: 4000
         });
     },
-    message: ({ title, text, imageUrl, options }) => {
+    message: ({ title, text, imageUrl, options, icon }) => {
 
         if (imageUrl) {
             config.imageUrl = `${API_URL}/${imageUrl}`
@@ -57,6 +57,11 @@ const alert = {
             delete config.imageWidth
             delete config.imageHeight
             delete config.imageAlt
+        }
+        if (icon) {
+            config.icon = icon;
+        } else {
+            config.icon = "warning";
         }
 
         config.title = title

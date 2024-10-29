@@ -1,13 +1,15 @@
 <?php
 
-use App\Http\Controllers\CategoriesProductsController;
-use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\Products\CategoriesProductsController;
+use App\Http\Controllers\Products\ProductsController;
 use Illuminate\Support\Facades\Route;
 
 $endpointCategoryProducts = 'categorias-de-producto';
 $endpointProducts = 'productos';
 
-Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointCategoryProducts, $endpointProducts) {
+Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use (
+    $endpointCategoryProducts,
+    $endpointProducts) {
 
     // CATEGORIA DE PRODUCTOS
     Route::group(['prefix' => $endpointCategoryProducts], function () use ($endpointCategoryProducts) {

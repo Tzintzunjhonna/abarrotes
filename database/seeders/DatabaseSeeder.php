@@ -11,8 +11,10 @@ use Database\Seeders\Catalogues\Sat\Address\CatSatMunicipalitySeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatStateSeeder;
 use Database\Seeders\Catalogues\Sat\Address\CatSatZipCodeSeeder;
 use Database\Seeders\Catalogues\Sat\CatSatClaveUnidadSeeder;
-
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\Catalogues\Sat\CatSatImpuestoSeeder;
+use Database\Seeders\Catalogues\Sat\CatSatObjetoImpuestoSeeder;
+use Database\Seeders\Catalogues\Sat\CatSatTasaOCuotaSeeder;
+use Database\Seeders\Catalogues\Sat\CatSatTipoFactorSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -43,6 +45,11 @@ class DatabaseSeeder extends Seeder
         $this->call(\Database\Seeders\Catalogues\Sat\CatSatRegimenFiscalSeeder::class);
         $this->call(\Database\Seeders\Catalogues\Sat\CatSatUsoCfdiSeeder::class);
         $this->call(\Database\Seeders\Catalogues\Sat\CatStatusCfdiCancelSeeder::class);
+
+        $this->call(CatSatImpuestoSeeder::class);
+        $this->call(CatSatObjetoImpuestoSeeder::class);
+        $this->call(CatSatTipoFactorSeeder::class);
+        $this->call(CatSatTasaOCuotaSeeder::class);
 
         // CATALOGOS PRODUCTOS
         $this->call(CatCategoriesProductSeeder::class);

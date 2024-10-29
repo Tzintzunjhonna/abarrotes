@@ -44,6 +44,21 @@
                             <li class="nav-item dropdown">
                                 <a id="navbarSistem" class="side-nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="mdi mdi-cog-outline"></i>
+
+                                    <span class="ml-1"> Configuración </span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarSistem">
+                                    <a class="side-nav-item dropdown-item" href="/admin/configuracion/catalogo-impuestos">Impuestos</a>
+                                </div>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a id="navbarSistem" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="ri-briefcase-line"></i>
 
                                     <span class="ml-1"> Sistema </span>

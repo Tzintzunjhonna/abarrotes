@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
 use App\Models\CategorieProducts;
-use App\Models\Products;
-use App\Models\Providers;
-use App\Models\UnitOfMeasurement;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class ProductsController extends Controller
+class CategoriesProductsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Products/Index', []);
+        return Inertia::render('CategoriesProducts/Index', []);
     }
 
     /**
@@ -26,16 +23,8 @@ class ProductsController extends Controller
     public function create()
     {       
 
-        $cat_provider = Providers::all();
-        $cat_category = CategorieProducts::all();
-        $unit_of_measurement = UnitOfMeasurement::all();
-
-        return Inertia::render('Products/Create', 
-        [
-            'cat_provider' => $cat_provider,
-            'cat_category' => $cat_category,
-            'unit_of_measurement' => $unit_of_measurement,
-        ]);
+        return Inertia::render('CategoriesProducts/Create', 
+        []);
     }
 
     /**
@@ -60,25 +49,20 @@ class ProductsController extends Controller
     public function edit(string $token)
     {
         $id = base64_decode($token);
+        // $ids = explode(',', $ids);
 
-        $item_info = Products::find($id);
+        $item_info = CategorieProducts::find($id);
 
         if($item_info == null){
-            return redirect('/admin/productos');
+            return redirect('/admin/categorias-de-producto');
         }
 
-        $cat_provider = Providers::all();
-        $cat_category = CategorieProducts::all();
-        $unit_of_measurement = UnitOfMeasurement::all();
         
         $data = [
             'item_info'             => $item_info,
-            'cat_provider'          => $cat_provider,
-            'cat_category'          => $cat_category,
-            'unit_of_measurement'   => $unit_of_measurement,
         ];
         
-        return Inertia::render('Products/Edit', $data);
+        return Inertia::render('CategoriesProducts/Edit', $data);
     }
 
     /**
