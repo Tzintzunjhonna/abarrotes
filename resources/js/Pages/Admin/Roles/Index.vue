@@ -11,9 +11,7 @@ import TablePagination from '@/Components/helps/TablePagination.vue';
 import Search from './Search.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const title = ref('Roles')
 const prevPageName = ref('Dashboard')
@@ -127,24 +125,24 @@ function onPermissions(data) {
 
 function onDelete(data) {
     
-    alert
+    proxy.alert
         .deleteConfirmation({
             title: 'Eliminar registro',
             text: `Ingresar la palabra "Confirmar" para eliminar el registro ${data.name}`,
             options: {
                 cancelButtonText: 'Cancelar',
                 confirmButtonText: 'Eliminar',
-                inputPlaceholder: 'Ingresar',
+                inputPlaceholder: 'Confirmar',
                 showCancelButton: true,
                 reverseButtons: true
             }
         })
         .then((result) => {
             if (result.value == 'Confirmar') {
-                api
+                proxy.api
                     .delete(`v1/app-roles/${data.id}/destroy`)
                     .then((response) => {
-                        alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
+                        proxy.alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
                             if (result.isConfirmed) {
                                 reloadPage.value = true
                             }
@@ -153,12 +151,12 @@ function onDelete(data) {
                     .catch((error) => {
                         console.log(error)
                         if (error.message) {
-                            alert.apiError({
+                            proxy.alert.apiError({
                                 title: 'Error en la operación',
                                 error: error.message
                             });
                         } else {
-                            alert.apiError({
+                            proxy.alert.apiError({
                                 title: 'Error en la operación',
                                 error: error.errors.message
                             });

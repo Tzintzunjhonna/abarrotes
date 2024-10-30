@@ -56,9 +56,7 @@
 <script setup>
 import { getCurrentInstance, onMounted, watch, ref, reactive } from 'vue';
 
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const props = defineProps({
     headers: {

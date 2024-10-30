@@ -11,9 +11,7 @@ import MenuPage from '@/Layouts/Menu.vue';
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const title = ref('Editar rol')
 const prevPageName = ref('Roles')
@@ -83,10 +81,10 @@ async function onSubmit() {
     formData.append('name', form.value.name);
     formData.append('guard_name', form.value.guard_name);
 
-    api
+    proxy.api
         .put(`v1/app-roles/${props.role.id}/update`, formData)
         .then((response) => {
-            alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
+            proxy.alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
                     router.visit(`/admin/roles`);
                 }
@@ -95,12 +93,12 @@ async function onSubmit() {
         .catch((error) => {
             console.log(error)
             if (error.message) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });

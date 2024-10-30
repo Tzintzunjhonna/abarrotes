@@ -11,10 +11,9 @@ import MenuPage from '@/Layouts/Menu.vue';
 import Footer from '@/Layouts/Footer.vue';
 import Divider from '@/Components/helps/Divider.vue';
 
+const { proxy } = getCurrentInstance();
+ 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
 
 const title = ref('Crear impuesto')
 const prevPageName = ref('Impuestos')
@@ -39,11 +38,12 @@ let cat_tasa_cuota = ref([])
 let is_submit = ref(false)
 
 const form = ref({
-    tipo_impuesto_id: null,
-    tipo_factor_id: null,
+    tipo_impuesto_id: '',
+    tipo_factor_id: '',
     is_retencion: false,
     is_traslado: false,
-    tasa_cuota_porcentage: false,
+    tasa_cuota_porcentage: '',
+    is_products_new: false,
 })
 
 
@@ -119,16 +119,13 @@ const b$ = useVuelidate(validateRulesTasaOCuota, form);
 
 async function onSubmit() {
 
-    console.log('onsubmit')
     const isFormCorrect = await f$.value.$validate();
-    console.log(isFormCorrect)
-    console.log(f$.value)
     if (!isFormCorrect) return;
 
-    let formData = setForm(form.value);
+    let formData = proxy.setFormData(form.value);
 
-    api
-        .post(`v1/app-customers/store`, formData,
+    proxy.api
+        .post(`v1/app-configuration/tax-settings/store`, formData,
             {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -136,7 +133,7 @@ async function onSubmit() {
             }
         )
         .then((response) => {
-            alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
+            proxy.alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
                 if (result.isConfirmed) {
                     router.visit(`/admin/configuracion/catalogo-impuestos`);
                 }
@@ -145,12 +142,12 @@ async function onSubmit() {
         .catch((error) => {
             console.log(error)
             if (error.errors) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
@@ -167,7 +164,11 @@ function setForm(form){
             if(key == 'photo_input'){
                 formData.append(key, value);
 
-            }else{
+            }
+            else if (key == 'tasa_cuota_porcentage'){
+                formData.append(key, value.codigo);
+            }
+            else{
                 formData.append(key, value.id);
             }
         }else {
@@ -192,7 +193,7 @@ async function btnSearchTasaCuota() {
     if (!isFormCorrect) return;
 
     if (form.value.is_retencion == false && form.value.is_traslado == false){
-        alert.message({
+        proxy.alert.message({
             title: 'Advertencia',
             text: 'Debes de elegir una opción, si es retencion o traslado.'
         });
@@ -200,7 +201,7 @@ async function btnSearchTasaCuota() {
     }
 
     const formData = setForm(form.value);
-    api
+    proxy.api
         .post(`v1/app-configuration/tax-settings/info-tasa-cuota`, formData)
         .then((response) => {
             const data = response.data
@@ -210,12 +211,12 @@ async function btnSearchTasaCuota() {
         .catch((error) => {
             console.log(error)
             if (error.errors) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
@@ -317,8 +318,8 @@ function btnIndex() {
                                         </button>
                                     </div>
                                 </div>
-                                <div class="mb-2 col-md-6" v-if="cat_tasa_cuota.length > 0">
-                                    <label for="rol" class="form-label">Tipo factor</label>
+                                <div class="mb-2 col-md-6">
+                                    <label for="rol" class="form-label">Tasa o cuota %</label>
                                     <Multiselect v-model="form.tasa_cuota_porcentage" track-by="codigo" label="codigo"
                                         placeholder="Selecciona un tipo factor" :show-labels="false" deselectLabel=" "
                                         :block-keys="['Tab', 'Enter']" :options="cat_tasa_cuota" :searchable="true"
@@ -332,9 +333,16 @@ function btnIndex() {
                                         <div class="text-danger">{{ error.$message }}</div>
                                     </div>
                                 </div>
+                                <div class="mb-2 col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input v-model="form.is_products_new" class="form-check-input" type="checkbox"
+                                            id="flexSwitchCheckRetencion">
+                                        <label class="form-check-label"
+                                            for="flexSwitchCheckRetencion">Incluir a productos nuevos automaticamente</label>
+                                    </div>
+                                </div>
 
-
-                                <button class="btn btn-primary" type="submit" v-if="is_submit">
+                                <button class="btn btn-primary" type="submit">
                                     <i class="mdi mdi-content-save"></i>
                                     Guardar
                                 </button>

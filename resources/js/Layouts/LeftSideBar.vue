@@ -150,10 +150,7 @@ import { computed, getCurrentInstance, onMounted, ref } from "vue";
 import { Head, Link, router } from '@inertiajs/vue3';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const can = app.appContext.config.globalProperties.can;
-const company = app.appContext.config.globalProperties.company;
+const { proxy } = getCurrentInstance();
 
 
 const BaseUrl = window.location.origin

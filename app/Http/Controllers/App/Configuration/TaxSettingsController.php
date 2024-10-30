@@ -4,8 +4,7 @@ namespace App\Http\Controllers\App\Configuration;
 
 
 use App\Http\Controllers\Controller;
-use App\Models\Products;
-use App\Models\Providers;
+use App\Models\Configuration\TaxSettings;
 use App\Models\Sat\CatSatImpuesto;
 use App\Models\Sat\CatSatTasaOCuota;
 use App\Models\Sat\CatSatTipoFactor;
@@ -13,10 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Log;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 
@@ -29,28 +25,20 @@ class TaxSettingsController extends Controller
     public function collection(Request $request)
     {
         try {
-            $query = Products::query();
+            $query = TaxSettings::query();
 
-            if($request->name){
-                $query = $query->whereRaw('LOWER(name) LIKE (?) ',["%{$request->name}%"]);
+            if($request->tipo_impuesto_id){
+                $query = $query->whereRaw('LOWER(tipo_impuesto_id) LIKE (?) ',["%{$request->tipo_impuesto_id}%"]);
             }
             
-            if($request->description){
-                $query = $query->whereRaw('LOWER(description) LIKE (?) ',["%{$request->description}%"]);
+            if($request->percentage){
+                $query = $query->whereRaw('LOWER(tasa_cuota_porcentage) LIKE (?) ',["%{$request->percentage}%"]);
             }
             
-            if($request->name_provider){
-
-                $query = $query->whereHas('has_provider', function ($query) use ($request) {
-
-                    $query = $query->whereRaw('LOWER(name) LIKE (?) ', ["%{$request->name_provider}%"]);
-                });
-            }
-
             
             $list = $query->orderBy('id', 'desc')->paginate($request->pageSize);
 
-            return response()->success($list, 'Se consulto correctamnete la lista de productos.');
+            return response()->success($list, 'Se consulto correctamnete la lista de configuración de impuestos.');
 
 
         } catch (\Exception $exception) {
@@ -65,7 +53,7 @@ class TaxSettingsController extends Controller
             if ($exception->getCode()) {
                 $code = $exception->getCode();
             }
-            return response()->error('Error conusltar la lista de productos', $response, $code);
+            return response()->error('Error conusltar la lista de configuración de impuestos', $response, $code);
         }
     }
 
@@ -86,48 +74,51 @@ class TaxSettingsController extends Controller
         try {
 
             $request->validate([
-                'name' => 'required',
-                'description' => 'required',
-                'barcode' => 'required|unique:products,barcode',
-                'price' => 'required',
-                'discount' => 'required',
-                'stock' => 'required',
-                'category_id' => 'required',
-                'provider_id' => 'required',
-                'unit_of_measurement' => 'required',
+                'tipo_impuesto_id' => 'required',
+                'tipo_factor_id' => 'required',
+                'is_retencion' => 'required',
+                'is_traslado' => 'required',
+                'tasa_cuota_porcentage' => 'required',
+                'is_products_new' => 'required',
             ], [
-                'name.required' => 'El nombre es obligatorio.',
-                'description.required' => 'El descripción es obligatorio.',
-                'barcode.required' => 'El código de barras es obligatorio.',
-                'price.required' => 'El precio es obligatorio.',
-                'discount.required' => 'El descuento es obligatorio.',
-                'stock.required' => 'El stock es obligatorio.',
-                'category_id.required' => 'La categoría es obligatorio.',
-                'provider_id.required' => 'El proveedor es obligatorio.',
-                'unit_of_measurement.required' => 'La unidad de medida es obligatorio.',
-                'barcode.unique' => 'El código del producto ha sido registrado previamente.',
+                'tipo_impuesto_id.required' => 'El tipo de impuesto es obligatorio.',
+                'tipo_factor_id.required' => 'El tipo de factor es obligatorio.',
+                'is_retencion.required' => 'Si es retencion es obligatorio.',
+                'is_traslado.required' => 'Si es traslado es obligatorio.',
+                'tasa_cuota_porcentage.required' => 'El porcentaje de tasa o cuota es obligatoria es obligatorio.',
+                'is_products_new.required' => 'Aplica para todos los productos nuevos es obligatorio.',
             ]);
 
-            $product = new Products();
+            $request['is_retencion']    = $request['is_retencion'] === "true";
+            $request['is_traslado']     = $request['is_traslado'] === "true";
+            $request['is_products_new'] = $request['is_products_new'] === "true";
 
-            $product->name                  = $request->name;
-            $product->description           = $request->description;
-            $product->barcode               = $request->barcode;
-            $product->price                 = $request->price;
-            $product->discount              = $request->discount;
-            $product->stock                 = $request->stock;
-            $product->category_id           = $request->category_id;
-            $product->provider_id           = $request->provider_id;
-            $product->unit_of_measurement   = $request->unit_of_measurement;
+            $find_item = TaxSettings::where([
+                ['is_retencion', $request['is_retencion']],
+                ['is_traslado', $request['is_traslado']],
+                ['tipo_impuesto_id', $request['tipo_impuesto_id']],
+                ['tipo_factor_id', $request['tipo_factor_id']],
+                ['tasa_cuota_porcentage', number_format($request['tasa_cuota_porcentage'], 2, '.')],
+            ])->first();
 
-            $product->name       = $request->name;
-            $product->created_at = Carbon::now();
-            $product->updated_at = Carbon::now();
-            $product->save();
+            if($find_item != null){
+                throw new \Exception('La configuración que seleccionó ya esta guardado.');
+            }
+            $new_item = new TaxSettings();
+
+            $new_item->tipo_impuesto_id         = $request->tipo_impuesto_id;
+            $new_item->tipo_factor_id           = $request->tipo_factor_id;
+            $new_item->is_retencion             = $request->is_retencion;
+            $new_item->is_traslado              = $request->is_traslado;
+            $new_item->tasa_cuota_porcentage    = $request->tasa_cuota_porcentage;
+            $new_item->is_products_new          = $request->is_products_new;
+            $new_item->created_at = Carbon::now();
+            $new_item->updated_at = Carbon::now();
+            $new_item->save();
             DB::commit();
             
 
-            return response()->success($product, 'Se dio de alta el producto.');
+            return response()->success($new_item, 'Se dio de alta la configuración del impuesto.');
         } catch (ValidationException $exception) {
             DB::rollBack();
             $response = [
@@ -145,7 +136,7 @@ class TaxSettingsController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($response);
-            return response()->error('Error al crear el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al crear la configuración del impuesto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -173,52 +164,57 @@ class TaxSettingsController extends Controller
         DB::beginTransaction();
         try {
             $request->validate([
-                'name' => 'required',
-                'description' => 'required',
-                'barcode' => 'required',
-                'price' => 'required',
-                'discount' => 'required',
-                'stock' => 'required',
-                'category_id' => 'required',
-                'provider_id' => 'required',
-                'unit_of_measurement' => 'required',
+                'tipo_impuesto_id' => 'required',
+                'tipo_factor_id' => 'required',
+                'is_retencion' => 'required',
+                'is_traslado' => 'required',
+                'tasa_cuota_porcentage' => 'required',
+                'is_products_new' => 'required',
             ], [
-                'name.required' => 'El nombre es obligatorio.',
-                'description.required' => 'El descripción es obligatorio.',
-                'barcode.required' => 'El código de barras es obligatorio.',
-                'price.required' => 'El precio es obligatorio.',
-                'discount.required' => 'El descuento es obligatorio.',
-                'stock.required' => 'El stock es obligatorio.',
-                'category_id.required' => 'La categoría es obligatorio.',
-                'provider_id.required' => 'El proveedor es obligatorio.',
-                'unit_of_measurement.required' => 'La unidad de medida es obligatorio.',
+                'tipo_impuesto_id.required' => 'El tipo de impuesto es obligatorio.',
+                'tipo_factor_id.required' => 'El tipo de factor es obligatorio.',
+                'is_retencion.required' => 'Si es retencion es obligatorio.',
+                'is_traslado.required' => 'Si es traslado es obligatorio.',
+                'tasa_cuota_porcentage.required' => 'El porcentaje de tasa o cuota es obligatoria es obligatorio.',
+                'is_products_new.required' => 'Aplica para todos los productos nuevos es obligatorio.',
             ]);
 
-            $product = Products::where('id', $id)->whereNull('deleted_at')->first();
+            $request['is_retencion']    = $request['is_retencion'] === "true";
+            $request['is_traslado']     = $request['is_traslado'] === "true";
+            $request['is_products_new'] = $request['is_products_new'] === "true";
 
-            if ($product == null) {
-                throw new \Exception('No se encuentra el producto.');
+            $tax_settings = TaxSettings::find($id);
+
+            if ($tax_settings == null) {
+                throw new \Exception('No se encuentra la configuración del impuesto.');
             }
 
-            if ($product->barcode != $request->barcode && Products::where('barcode', $request->barcode)->exists()) {
-                throw new \Exception('El código del producto ha sido registrado previamente.');
-            }
+            $find_item = TaxSettings::where([
+                ['is_retencion', $request['is_retencion']],
+                ['is_traslado', $request['is_traslado']],
+                ['tipo_impuesto_id', $request['tipo_impuesto_id']],
+                ['tipo_factor_id', $request['tipo_factor_id']],
+                ['tasa_cuota_porcentage', number_format($request['tasa_cuota_porcentage'], 2, '.')],
+            ])->first();
 
-            $product->name                  = $request->name;
-            $product->description           = $request->description;
-            $product->barcode               = $request->barcode;
-            $product->price                 = $request->price;
-            $product->discount              = $request->discount;
-            $product->stock                 = $request->stock;
-            $product->category_id           = $request->category_id;
-            $product->provider_id           = $request->provider_id;
-            $product->unit_of_measurement   = $request->unit_of_measurement;
-            $product->updated_at = Carbon::now();
-            $product->save();
+            if ($find_item != null) {
+                throw new \Exception('La configuración que seleccionó ya esta guardado.');
+            }
+            
+
+            $tax_settings->tipo_impuesto_id         = $request->tipo_impuesto_id;
+            $tax_settings->tipo_factor_id           = $request->tipo_factor_id;
+            $tax_settings->is_retencion             = $request->is_retencion;
+            $tax_settings->is_traslado              = $request->is_traslado;
+            $tax_settings->tasa_cuota_porcentage    = $request->tasa_cuota_porcentage;
+            $tax_settings->is_products_new          = $request->is_products_new;
+            $tax_settings->created_at = Carbon::now();
+            $tax_settings->updated_at = Carbon::now();
+            $tax_settings->save();
 
             DB::commit();
             
-            return response()->success($product, 'Se actualizó el producto.');
+            return response()->success($tax_settings, 'Se actualizó la configuración del impuesto.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -227,7 +223,7 @@ class TaxSettingsController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($response);
-            return response()->error('Error al actualizar el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al actualizar la configuración del impuesto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -239,16 +235,16 @@ class TaxSettingsController extends Controller
         DB::beginTransaction();
         try {
 
-            $products = Products::find($id);
+            $tax_settings = TaxSettings::find($id);
 
-            if($products == null){
-                throw new \Exception('No se encuentra el producto.');
+            if($tax_settings == null){
+                throw new \Exception('No se encuentra la configuración del impuesto.');
             }
 
-            $products->delete();
+            $tax_settings->delete();
             DB::commit();
 
-            return response()->success($products, 'Se eliminó el producto.');
+            return response()->success($tax_settings, 'Se eliminó la configuración del impuesto.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -257,7 +253,7 @@ class TaxSettingsController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($response);
-            return response()->error('Error al eliminar el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al eliminar la configuración del impuesto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     /**
@@ -268,18 +264,18 @@ class TaxSettingsController extends Controller
         DB::beginTransaction();
         try {
 
-            $products = Products::find($id);
+            $tax_settings = TaxSettings::find($id);
 
-            if($products == null){
-                throw new \Exception('No se encuentra el producto.');
+            if($tax_settings == null){
+                throw new \Exception('No se encuentra la configuración del impuesto.');
             }
 
-            $products->is_active = !$products->is_active;
-            $products->save();
+            $tax_settings->is_active = !$tax_settings->is_active;
+            $tax_settings->save();
 
             DB::commit();
 
-            return response()->success($products, 'Se cambio de estatus el producto.');
+            return response()->success($tax_settings, 'Se cambio de estatus la configuración del impuesto.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -288,7 +284,7 @@ class TaxSettingsController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($response);
-            return response()->error('Error al cambiar de estatus el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al cambiar de estatus la configuración del impuesto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -349,7 +345,7 @@ class TaxSettingsController extends Controller
             $catalogue_tasa_cuota = $catalogue_rango->merge($catalogue_fijo)->unique('codigo')->values();
             
 
-            return response()->success($catalogue_tasa_cuota, 'Se cambio de estatus el producto.');
+            return response()->success($catalogue_tasa_cuota, 'Se cambio de estatus la configuración del impuesto.');
         } catch (\Exception $exception) {
             $response = [
                 "file"    => $exception->getFile(),
@@ -357,14 +353,14 @@ class TaxSettingsController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($response);
-            return response()->error('Error al cambiar de estatus el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al cambiar de estatus la configuración del impuesto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
      * Generar catalogo de tasa o cuota
      */
-    private function generate_catalogue_range($max)
+    public function generate_catalogue_range($max)
     {
         return collect(range(0, $max))
             ->map(function ($numero) {

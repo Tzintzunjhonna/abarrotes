@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Configuration;
 
 use App\Http\Controllers\Controller;
-use App\Models\CategorieProducts;
+use App\Models\Configuration\TaxSettings;
 use App\Models\Sat\CatSatImpuesto;
 use App\Models\Sat\CatSatTipoFactor;
 use Illuminate\Http\Request;
@@ -16,7 +16,12 @@ class TaxSettingsController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Configuration/Taxes/Index', []);
+        $cat_impuesto = CatSatImpuesto::all();
+        
+        return Inertia::render('Configuration/Taxes/Index', 
+        [
+            'cat_impuesto' => $cat_impuesto
+        ]);
     }
 
     /**
@@ -57,17 +62,23 @@ class TaxSettingsController extends Controller
     public function edit(string $token)
     {
         $id = base64_decode($token);
-        // $ids = explode(',', $ids);
 
-        $item_info = CategorieProducts::find($id);
+        $cat_sat_impuesto = CatSatImpuesto::all();
+        $cat_sat_tipo_factor = CatSatTipoFactor::all();
+
+        $item_info = TaxSettings::find($id);
 
         if($item_info == null){
             return redirect('/admin/categorias-de-producto');
         }
-
+        $cat_tasa_cuota_prop = collect();
+        $cat_tasa_cuota_prop->push(['codigo'=> $item_info->tasa_cuota_porcentage]);
         
         $data = [
-            'item_info'             => $item_info,
+            'item_info' => $item_info,
+            'cat_sat_impuesto' => $cat_sat_impuesto,
+            'cat_sat_tipo_factor' => $cat_sat_tipo_factor,
+            'cat_tasa_cuota_prop' => $cat_tasa_cuota_prop,
         ];
         
         return Inertia::render('Configuration/Taxes/Edit', $data);

@@ -11,9 +11,7 @@ import MenuPage from '@/Layouts/Menu.vue';
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 
 const title = ref('Editar producto')
@@ -150,13 +148,13 @@ async function onSubmit() {
 
     let formData = setForm(form.value);
 
-    api
+    proxy.api
         .post(`v1/app-products/${props.item_info.id}/update`, formData, {
           headers: {
             'Content-Type': `multipart/form-data`,
           },})
         .then((response) => {
-            alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
+            proxy.alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
                     router.visit(`/admin/productos`);
                 }
@@ -165,12 +163,12 @@ async function onSubmit() {
         .catch((error) => {
            console.log(error)
             if (error.errors) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });

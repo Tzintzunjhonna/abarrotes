@@ -47,6 +47,22 @@
                                                     <span class="badge bg-danger">Inactivo</span>
                                                 </template>
                                             </template>
+                                            <template v-else-if="['is_traslado'].includes(attribute)">
+                                                <template v-if="item.is_traslado == 1">
+                                                    <span class="badge bg-primary">Sí aplica</span>
+                                                </template>
+                                                <template v-else>
+                                                    <span class="badge bg-danger">No aplica</span>
+                                                </template>
+                                            </template>
+                                            <template v-else-if="['is_retencion'].includes(attribute)">
+                                                <template v-if="item.is_retencion == 1">
+                                                    <span class="badge bg-primary">Sí aplica</span>
+                                                </template>
+                                                <template v-else>
+                                                    <span class="badge bg-danger">No aplica</span>
+                                                </template>
+                                            </template>
                                             <template v-else-if="['path_logo'].includes(attribute)">
                                                 <img id="logo" class="avatar-md rounded-circle"
                                                     :src="item.path_logo ? BaseUrl + item.path_logo : BaseUrl + '/images/users/avatar-1.jpg'" />
@@ -97,10 +113,7 @@
 
 <script setup>
 import {getCurrentInstance, onMounted, watch, ref} from 'vue';
-
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const props = defineProps({
     headers: {
@@ -353,13 +366,15 @@ function getData(page = 1, pageSize = 10) {
             'email',
             'name_provider',
             'description',
+            'tipo_impuesto_id',
+            'percentage',
         ]
 
         properties.forEach((property) => addParameter(parameters, props.searchPost, property))
 
     }
 
-    api
+    proxy.api
         .get(`${props.endpoint}`, parameters)
         .then(({ data }) => {
             response.value = data
@@ -368,12 +383,12 @@ function getData(page = 1, pageSize = 10) {
         .catch((error) => {
             console.log(error)
             if (error.message) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });

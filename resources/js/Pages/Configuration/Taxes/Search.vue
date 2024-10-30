@@ -9,16 +9,24 @@ const props = defineProps({
   method: {
     type: String
   },
+  cat_impuesto: {
+    type: Object,
+    required: true,
+  },
 })
 
 let search = ref({
-  name: '',
-  email: '',
+  tipo_impuesto_id: '',
+  percentage: '',
 })
 
 
 async function submitForm() {
-  btnAction({ action: props.method, value: search.value })
+  const search_form = {
+    tipo_impuesto_id: search.value.tipo_impuesto_id?.id,
+    percentage: search.value.percentage,
+  }
+  btnAction({ action: props.method, value: search_form })
 }
 
 function btnAction(value) {
@@ -36,13 +44,22 @@ function btnAction(value) {
           <div class="row">
 
             <div class="mb-2 col-md-6">
-              <label for="name" class="form-label">Nombre</label>
-              <input v-model="search.name" type="text" class="form-control" id="name" placeholder="Nombre">
+              <label for="name" class="form-label">Impuesto</label>
+              <Multiselect v-model="search.tipo_impuesto_id" track-by="nombre" label="nombre"
+                placeholder="Selecciona un tipo de impuesto" :show-labels="false" deselectLabel=" "
+                :block-keys="['Tab', 'Enter']" :options="cat_impuesto" :searchable="true" :allow-empty="true"
+                :showNoOptions="false">
+                <template v-slot:noResult>
+                  <span>Opción no encontrada</span>
+                </template>
+              </Multiselect>
             </div>
             <div class="mb-2 col-md-6">
-              <label for="email" class="form-label">Correo electrónico</label>
-              <input v-model="search.email" type="text" class="form-control" id="email"
-                placeholder="Correo electrónico">
+              <label for="percentage" class="form-label">Porcentaje %</label>
+              <input v-model="search.percentage" type="number" class="form-control" id="percentage"
+              placeholder="Porcentaje" step="0.01"
+              oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+              maxlength="5">
             </div>
           </div>
 

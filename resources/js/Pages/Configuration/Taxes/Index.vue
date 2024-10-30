@@ -11,9 +11,7 @@ import TablePagination from '@/Components/helps/TablePagination.vue';
 import Search from './Search.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const title = ref('Configuración de impuestos')
 const prevPageName = ref('Dashboard')
@@ -21,18 +19,25 @@ const pageNowName = ref('Configuración de impuestos')
 const prevPageUrl = ref('')
 
 
+const props = defineProps({
+    cat_impuesto: {
+        type: Object,
+        required: true,
+    },
+});
+
 // TABLAS --------------------------
-let endpoint = ref(`v1/app-customers/collection`)
+let endpoint = ref(`v1/app-configuration/tax-settings/collection`)
 
 const getList = ref([])
-const tableHeaders = ['Logo', 'Nombre', 'Email', 'Nombre de contacto','Estatus', 'Fecha de registro', 'Opciones'];
+const tableHeaders = ['Impuesto', 'Porcentaje %', 'Traslado', 'Retención','Estatus', 'Fecha de registro', 'Opciones'];
 const tableTitle = ref('Lista de impuestos')
 
 const tbody = [
-    'path_logo',
-    'name',
-    'email',
-    'name_contact',
+    'has_tipo_impuesto.nombre',
+    'tasa_cuota_porcentage',
+    'is_traslado',
+    'is_retencion',
     'is_active',
     'created_at',
 ];
@@ -123,24 +128,24 @@ function onAdd(data) {
 
 function onDelete(data) {
     
-    alert
+    proxy.alert
         .deleteConfirmation({
             title: 'Eliminar registro',
-            text: `Ingresar la palabra "Confirmar" para eliminar el registro ${data.name}`,
+            text: `Ingresar la palabra "Confirmar" para eliminar el registro`,
             options: {
                 cancelButtonText: 'Cancelar',
                 confirmButtonText: 'Eliminar',
-                inputPlaceholder: 'Ingresar',
+                inputPlaceholder: 'Confirmar',
                 showCancelButton: true,
                 reverseButtons: true
             }
         })
         .then((result) => {
             if (result.value == 'Confirmar') {
-                api
-                    .delete(`v1/app-customers/${data.id}/destroy`)
+                proxy.api
+                    .delete(`v1/app-configuration/tax-settings/${data.id}/destroy`)
                     .then((response) => {
-                        alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
+                        proxy.alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
                             if (result.isConfirmed) {
                                 reloadPage.value = true
                             }
@@ -149,12 +154,12 @@ function onDelete(data) {
                     .catch((error) => {
                         console.log(error)
                         if (error.message) {
-                            alert.apiError({
+                            proxy.alert.apiError({
                                 title: 'Error en la operación',
                                 error: error.message
                             });
                         } else {
-                            alert.apiError({
+                            proxy.alert.apiError({
                                 title: 'Error en la operación',
                                 error: error.errors.message
                             });
@@ -166,24 +171,24 @@ function onDelete(data) {
 
 function onChangeStatus(data) {
     
-    alert
+    proxy.alert
         .deleteConfirmation({
             title: 'Cambiar estatus de registro',
-            text: `Ingresar la palabra "Confirmar" para cambiar de estado el registro ${data.name}`,
+            text: `Ingresar la palabra "Confirmar" para cambiar de estado el registro`,
             options: {
                 cancelButtonText: 'Cancelar',
                 confirmButtonText: 'Cambiar estatus',
-                inputPlaceholder: 'Ingresar',
+                inputPlaceholder: 'Confirmar',
                 showCancelButton: true,
                 reverseButtons: true
             }
         })
         .then((result) => {
             if (result.value == 'Confirmar') {
-                api
-                    .post(`v1/app-customers/${data.id}/change-status`)
+                proxy.api
+                    .post(`v1/app-configuration/tax-settings/${data.id}/change-status`)
                     .then((response) => {
-                        alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
+                        proxy.alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
                             if (result.isConfirmed) {
                                 reloadPage.value = true
                             }
@@ -192,12 +197,12 @@ function onChangeStatus(data) {
                     .catch((error) => {
                         console.log(error)
                         if (error.message) {
-                            alert.apiError({
+                            proxy.alert.apiError({
                                 title: 'Error en la operación',
                                 error: error.message
                             });
                         } else {
-                            alert.apiError({
+                            proxy.alert.apiError({
                                 title: 'Error en la operación',
                                 error: error.errors.message
                             });
@@ -220,7 +225,7 @@ function onChangeStatus(data) {
             <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
                 :pageNowName="pageNowName" />
             <div class="row">
-                <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
+                <Search :title="'Buscar'" :method="'search'" @btnAction="action" :cat_impuesto="cat_impuesto"/>
 
                 <table-pagination :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
                     @btnAction="action" :endpoint="endpoint" :title="tableTitle" :searchPost="searchForm"

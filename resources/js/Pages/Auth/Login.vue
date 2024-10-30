@@ -10,9 +10,7 @@ import TextInput from '@/Components/TextInput.vue';
 import {computed, getCurrentInstance, onMounted, ref} from "vue";
 
 
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 defineProps({
     canResetPassword: Boolean,
@@ -27,7 +25,7 @@ const form = useForm({
 
 const submit = () => {
 
-    api
+    proxy.api
         .post(`login`, form, {
             headers: {
                 'Content-Type': `multipart/form-data`,
@@ -44,12 +42,12 @@ const submit = () => {
         .catch((error) => {
             console.log(error)
             if (error.message) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });

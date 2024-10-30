@@ -3,9 +3,9 @@
         <nav class="navbar navbar-expand-md navbar-light top-menu-important shadow-sm">
             <div class="logo-box ml-3">
                 <a href="/admin/mi-empresa" class="logo-light">
-                    <template v-if="company != null">
+                    <template v-if="proxy.company != null">
                         <span>
-                            <img :src="BaseUrl + company.path_logo" alt="logo" class="logo-lg rounded" height="28">
+                            <img :src="BaseUrl + proxy.company.path_logo" alt="logo" class="logo-lg rounded" height="28">
                         </span>
                     </template>
 
@@ -16,7 +16,7 @@
                         </span>
                     </template>
                     <br>
-                    <p>{{ company == null ? 'CONTRERAS CORP' : company.business_name }}</p>
+                    <p>{{ proxy.company == null ? 'CONTRERAS CORP' : proxy.company.business_name }}</p>
                 </a>
 
             </div>
@@ -125,13 +125,13 @@
                 </div>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                    <ul class="navbar-nav ms-auto" v-if="user != null">
+                    <ul class="navbar-nav ms-auto" v-if="proxy.user != null">
                         <div>
                             <li class="nav-item dropdown">
                                 <a id="navbarPerfil" class="side-nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="mdi mdi-account"></i>
-                                    {{ user.name }}
+                                    {{ proxy.user.name }}
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarPerfil">
                                     <button class="side-nav-item dropdown-item">
@@ -154,17 +154,12 @@
 import { computed, getCurrentInstance, onMounted, ref } from "vue";
 
 
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
-const company = app.appContext.config.globalProperties.company;
-const user = app.appContext.config.globalProperties.user;
-
+const { proxy } = getCurrentInstance();
 const BaseUrl = window.location.origin
 
 const logout = () => {
 
-    api
+    proxy.api
         .post(`logout-in`, {
             headers: {
                 'Content-Type': `multipart/form-data`,
@@ -178,12 +173,12 @@ const logout = () => {
         .catch((error) => {
             console.log(error)
             if (error.message) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });

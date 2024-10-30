@@ -11,9 +11,7 @@ import MenuPage from '@/Layouts/Menu.vue';
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const title = ref('Crear usuario')
 const prevPageName = ref('Usuarios')
@@ -106,10 +104,10 @@ async function onSubmit() {
     formData.append('password', form.value.password);
     formData.append('email', form.value.email);
 
-    api
+    proxy.api
         .post(`v1/app-users/store`, formData)
         .then((response) => {
-            alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
+            proxy.alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
                     router.visit(`/admin/usuarios`);
                 }
@@ -118,12 +116,12 @@ async function onSubmit() {
         .catch((error) => {
             console.log(error)
             if (error.message) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });

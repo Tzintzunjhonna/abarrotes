@@ -12,9 +12,7 @@ import Footer from '@/Layouts/Footer.vue';
 import Divider from '@/Components/helps/Divider.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const title = ref('Editar cliente')
 const prevPageName = ref('Clientes')
@@ -290,13 +288,13 @@ async function onSubmit() {
 
     let formData = setForm(form.value);
 
-    api
+    proxy.api
         .post(`v1/app-customers/${props.item_info.id}/update`, formData, {
           headers: {
             'Content-Type': `multipart/form-data`,
           },})
         .then((response) => {
-            alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
+            proxy.alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
                     router.visit(`/admin/clientes`);
                 }
@@ -305,12 +303,12 @@ async function onSubmit() {
         .catch((error) => {
            console.log(error)
             if (error.errors) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
@@ -368,7 +366,7 @@ function uploadFile(event, name) {
 
 function getZipCode(code) {
 
-    api
+    proxy.api
         .get(`v1/sat/addresses/zip_code/${code}`)
         .then((response) => {
             const data = response.data
@@ -380,12 +378,12 @@ function getZipCode(code) {
         .catch((error) => {
             console.log(error)
             if (error.errors) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });

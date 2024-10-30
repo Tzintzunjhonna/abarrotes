@@ -11,9 +11,7 @@ import MenuPage from '@/Layouts/Menu.vue';
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 const title = ref('Asignar rol')
 const prevPageName = ref('Roles')
@@ -97,10 +95,10 @@ async function onSubmit() {
     };
     
 
-    api
+    proxy.api
         .put(`v1/app-roles/${props.role.id}/assing/permissions`, formAsignar)
         .then((response) => {
-            alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
+            proxy.alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
                     //router.visit(`/admin/roles`);
                     window.location.href = window.location.origin + '/admin/roles';
@@ -111,12 +109,12 @@ async function onSubmit() {
         .catch((error) => {
             console.log(error)
             if (error.message) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });

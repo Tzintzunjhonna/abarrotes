@@ -12,6 +12,7 @@ import { Bootstrap4Pagination } from "laravel-vue-pagination";
 import api from "./Helps/api.js";
 import { formatDate } from "./Helps/format_date.js";
 import alert from "@/Helps/alert.js";
+import setFormData from "@/Helps/setFormData.js";
 
 
 const appName = import.meta.env.VITE_APP_NAME || 'ABARROTES';
@@ -26,6 +27,7 @@ createInertiaApp({
         app.config.globalProperties.api = api;
         app.config.globalProperties.formatDate = formatDate;
         app.config.globalProperties.alert = alert;
+        app.config.globalProperties.setFormData = setFormData;
 
         // Añadir la función can para verificar permisos
         app.config.globalProperties.can = (permission) => {

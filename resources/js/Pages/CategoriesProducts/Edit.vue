@@ -11,9 +11,7 @@ import MenuPage from '@/Layouts/Menu.vue';
 import Footer from '@/Layouts/Footer.vue';
 
 // VARIABLES --------------------------
-const app = getCurrentInstance()
-const api = app.appContext.config.globalProperties.api
-const alert = app.appContext.config.globalProperties.alert
+const { proxy } = getCurrentInstance();
 
 
 const title = ref('Editar categoría')
@@ -72,13 +70,13 @@ async function onSubmit() {
     console.log(isFormCorrect)
     if (!isFormCorrect) return;
 
-    api
+    proxy.api
         .post(`v1/app-category-products/${props.item_info.id}/update`, form.value, {
           headers: {
             'Content-Type': `multipart/form-data`,
           },})
         .then((response) => {
-            alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
+            proxy.alert.apiSuccess({ title: response.message, description: ''}, config).then((result) => {
                 if (result.isConfirmed) {
                     router.visit(`/admin/categorias-de-producto`);
                 }
@@ -87,12 +85,12 @@ async function onSubmit() {
         .catch((error) => {
            console.log(error)
             if (error.errors) {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.errors.message
                 });
             } else {
-                alert.apiError({
+                proxy.alert.apiError({
                     title: 'Error en la operación',
                     error: error.message
                 });
