@@ -51,6 +51,7 @@ let is_submit = ref(false)
 
 const form = ref({
     tipo_impuesto_id: '',
+    name: '',
     tipo_factor_id: '',
     is_retencion: false,
     is_traslado: false,
@@ -84,6 +85,12 @@ watch(() => form.value.tasa_cuota_porcentage, (newValue, oldValue) => {
 
 const validateRulesForm = {
     
+    name: {
+        required: helpers.withMessage(
+            'El campo nombre del impuesto es requerido.',
+            required,
+        )
+    },
     tipo_impuesto_id: {
         required: helpers.withMessage(
             'El campo tipo impuesto es requerido.',
@@ -132,6 +139,7 @@ const b$ = useVuelidate(validateRulesTasaOCuota, form);
 function getData() {
 
     console.log(props.item_info)
+    form.value.name                     = props.item_info.name;
     form.value.tipo_impuesto_id         = props.item_info.has_tipo_impuesto;
     form.value.tipo_factor_id           = props.item_info.has_tipo_factor;
     form.value.is_retencion             = props.item_info.is_retencion == 1 ? true : false;
@@ -302,6 +310,14 @@ function btnIndex() {
                             <form class="needs-validation" @submit.prevent="onSubmit">
                                 <div class="row">
                                     <div class="mb-2 col-md-6">
+                                        <label for="name" class="form-label">Nombre</label>
+                                        <input :disabled="is_disabled" v-model="form.name" type="text" class="form-control" id="name"
+                                            name="name" placeholder="Nombre">
+                                        <div class="input-errors" v-for="error of f$.name.$errors" :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
                                         <label for="rol" class="form-label">Tipo de impuesto</label>
                                         <Multiselect :disabled="is_disabled" v-model="form.tipo_impuesto_id" track-by="nombre" label="nombre"
                                             placeholder="Selecciona un tipo de impuesto" :show-labels="false"
@@ -341,6 +357,7 @@ function btnIndex() {
                                         </div>
                                     </div>
                                     <div class="mb-2 col-md-6">
+                                        <label for="rol" class="form-label"></label>
                                         <div class="form-check form-switch">
                                             <input :disabled="is_disabled" v-model="form.is_retencion" class="form-check-input" type="checkbox"
                                                 id="flexSwitchCheckRetencion">

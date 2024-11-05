@@ -18,6 +18,7 @@ const props = defineProps({
 let search = ref({
   tipo_impuesto_id: '',
   percentage: '',
+  name: '',
 })
 
 
@@ -25,6 +26,7 @@ async function submitForm() {
   const search_form = {
     tipo_impuesto_id: search.value.tipo_impuesto_id?.id,
     percentage: search.value.percentage,
+    name: search.value.name,
   }
   btnAction({ action: props.method, value: search_form })
 }
@@ -60,6 +62,11 @@ function btnAction(value) {
               placeholder="Porcentaje" step="0.01"
               oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
               maxlength="5">
+            </div>
+            <div class="mb-2 col-md-6">
+              <label for="name" class="form-label">Nombre</label>
+              <input v-model="search.name" type="text" class="form-control" id="name"
+              placeholder="Nombre">
             </div>
           </div>
 

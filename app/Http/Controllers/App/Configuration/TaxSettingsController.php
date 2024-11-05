@@ -27,6 +27,9 @@ class TaxSettingsController extends Controller
         try {
             $query = TaxSettings::query();
 
+            if($request->name){
+                $query = $query->whereRaw('LOWER(name) LIKE (?) ',["%{$request->name}%"]);
+            }
             if($request->tipo_impuesto_id){
                 $query = $query->whereRaw('LOWER(tipo_impuesto_id) LIKE (?) ',["%{$request->tipo_impuesto_id}%"]);
             }
@@ -74,6 +77,7 @@ class TaxSettingsController extends Controller
         try {
 
             $request->validate([
+                'name' => 'required',
                 'tipo_impuesto_id' => 'required',
                 'tipo_factor_id' => 'required',
                 'is_retencion' => 'required',
@@ -81,6 +85,7 @@ class TaxSettingsController extends Controller
                 'tasa_cuota_porcentage' => 'required',
                 'is_products_new' => 'required',
             ], [
+                'name.required' => 'El nombre del impuesto es obligatorio.',
                 'tipo_impuesto_id.required' => 'El tipo de impuesto es obligatorio.',
                 'tipo_factor_id.required' => 'El tipo de factor es obligatorio.',
                 'is_retencion.required' => 'Si es retencion es obligatorio.',
@@ -106,6 +111,7 @@ class TaxSettingsController extends Controller
             }
             $new_item = new TaxSettings();
 
+            $new_item->name                     = $request->name;
             $new_item->tipo_impuesto_id         = $request->tipo_impuesto_id;
             $new_item->tipo_factor_id           = $request->tipo_factor_id;
             $new_item->is_retencion             = $request->is_retencion;
@@ -164,6 +170,7 @@ class TaxSettingsController extends Controller
         DB::beginTransaction();
         try {
             $request->validate([
+                'name' => 'required',
                 'tipo_impuesto_id' => 'required',
                 'tipo_factor_id' => 'required',
                 'is_retencion' => 'required',
@@ -171,6 +178,7 @@ class TaxSettingsController extends Controller
                 'tasa_cuota_porcentage' => 'required',
                 'is_products_new' => 'required',
             ], [
+                'name.required' => 'El nombre del impuesto es obligatorio.',
                 'tipo_impuesto_id.required' => 'El tipo de impuesto es obligatorio.',
                 'tipo_factor_id.required' => 'El tipo de factor es obligatorio.',
                 'is_retencion.required' => 'Si es retencion es obligatorio.',
@@ -197,11 +205,12 @@ class TaxSettingsController extends Controller
                 ['tasa_cuota_porcentage', number_format($request['tasa_cuota_porcentage'], 2, '.')],
             ])->first();
 
-            if ($find_item != null) {
+            if ($find_item != null && $find_item->id != $tax_settings->id) {
                 throw new \Exception('La configuración que seleccionó ya esta guardado.');
             }
-            
 
+
+            $tax_settings->name                     = $request->name;
             $tax_settings->tipo_impuesto_id         = $request->tipo_impuesto_id;
             $tax_settings->tipo_factor_id           = $request->tipo_factor_id;
             $tax_settings->is_retencion             = $request->is_retencion;

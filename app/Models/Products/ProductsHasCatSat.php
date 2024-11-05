@@ -2,6 +2,8 @@
 
 namespace App\Models\Products;
 
+use App\Models\Sat\CatSatClaveProducto;
+use App\Models\Sat\CatSatClaveUnidad;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -35,34 +37,24 @@ class ProductsHasCatSat extends Model
     );
 
     protected $with = [
-        'has_categorie_products',
-        'has_provider',
-        'has_unit_of_measurement',
+        'has_clave_producto',
+        'has_clave_unidad'
     ];
 
-    public function has_categorie_products(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function has_clave_producto(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(
-            CategorieProducts::class,
-            CategorieProducts::ID,
-            self::CATEGORY_ID,
+            CatSatClaveProducto::class,
+            'id',
+            self::CLAVE_PRODUCTO_ID,
         );
     }
-
-    public function has_provider(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function has_clave_unidad(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(
-            Providers::class,
-            Providers::ID,
-            self::PROVIDER_ID,
-        );
-    }
-    public function has_unit_of_measurement(): \Illuminate\Database\Eloquent\Relations\HasOne
-    {
-        return $this->hasOne(
-            UnitOfMeasurement::class,
-            UnitOfMeasurement::ID,
-            self::UNIT_OF_MEASUREMENT,
+            CatSatClaveUnidad::class,
+            'id',
+            self::CLAVE_UNIDAD_ID,
         );
     }
 }

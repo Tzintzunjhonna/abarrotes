@@ -73,12 +73,26 @@ class ProductsController extends Controller
         $cat_provider = Providers::all();
         $cat_category = CategorieProducts::all();
         $unit_of_measurement = UnitOfMeasurement::all();
+        $cat_tax_settings = TaxSettings::where(TaxSettings::IS_ACTIVE, 1)->get();
+
+        // Colocar seleccionado de tax para vista.
+        $has_taxes = $item_info->has_taxes;
+
+        foreach ($has_taxes as $key => $tax) {
+            foreach ($cat_tax_settings as $key => $tax_setting) {
+                if($tax->tax_settings_id == $tax_setting->id){
+                    $tax_setting->select_tax = true;
+                }
+            }
+        }
         
+
         $data = [
             'item_info'             => $item_info,
             'cat_provider'          => $cat_provider,
             'cat_category'          => $cat_category,
             'unit_of_measurement'   => $unit_of_measurement,
+            'cat_tax_settings'      => $cat_tax_settings,
         ];
         
         return Inertia::render('Products/Edit', $data);

@@ -10,6 +10,7 @@ import MenuPage from '@/Layouts/Menu.vue';
 
 import Footer from '@/Layouts/Footer.vue';
 import Divider from '@/Components/helps/Divider.vue';
+import SelectCatalog from '@/Components/helps/SelectCatalog.vue';
 
 // VARIABLES --------------------------
 const { proxy } = getCurrentInstance();
@@ -56,9 +57,6 @@ const form = ref({
     is_with_discount : false,
     sale_price : '',
     wholesale_price : '',
-
-    // PARA IVA
-    tax_settings_id : '',
 
     // PARA FACTURACIÓN
     clave_producto_id: '',
@@ -151,11 +149,11 @@ const validateRulesForm = {
     },
     wholesale_price: {
         required: helpers.withMessage(
-            'El campo precio venta es requerido.',
+            'El campo precio venta mayoreo es requerido.',
             required,
         )
     },
-    tax_settings_id: {
+    wholesale_price: {
         required: helpers.withMessage(
             'El campo precio mayoreo es requerido.',
             required,
@@ -190,7 +188,7 @@ async function onSubmit() {
     
     let formData = proxy.setFormData(form.value);
 
-    formData.append("userData", JSON.stringify(list_taxes.value));
+    formData.append("has_taxes", JSON.stringify(list_taxes.value));
 
     proxy.api
         .post(`v1/app-products/store`, formData)
@@ -552,8 +550,9 @@ function onPriceWithTaxs(price){
                                             <div class="text-danger">{{ error.$message }}</div>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input v-model="form.is_with_discount" class="form-check-input" @change="handleInputPrice"
-                                                type="checkbox" id="flexSwitchCheckis_with_discount">
+                                            <input v-model="form.is_with_discount" class="form-check-input"
+                                                @change="handleInputPrice" type="checkbox"
+                                                id="flexSwitchCheckis_with_discount">
                                             <label class="form-check-label" for="flexSwitchCheckis_with_discount">¿El
                                                 descuento se aplicará al precio?</label>
                                         </div>
@@ -565,6 +564,7 @@ function onPriceWithTaxs(price){
                                                     <thead>
                                                         <tr>
                                                             <th>#</th>
+                                                            <th>Nombre</th>
                                                             <th>Impuesto</th>
                                                             <th>Tipo factor</th>
                                                             <th>Porcentaje %</th>
@@ -582,16 +582,25 @@ function onPriceWithTaxs(price){
                                                                     <span></span>
                                                                 </label>
                                                             </td>
+                                                            <td>{{ item.name }}</td>
                                                             <td>{{ item.has_tipo_impuesto.nombre }}</td>
                                                             <td>{{ item.has_tipo_factor.nombre }}</td>
                                                             <td>{{ item.tasa_cuota_porcentage }}</td>
-                                                            <td>{{ item.is_traslado }}</td>
-                                                            <td>{{ item.is_retencion }}</td>
+                                                            <td>
+                                                                <span :class="item.is_traslado == 1 ? 'badge bg-primary' : 'badge bg-danger'">
+                                                                    {{ item.is_traslado == 1 ? 'Sí aplica' : 'No aplica' }}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span :class="item.is_retencion == 1 ? 'badge bg-primary' : 'badge bg-danger'">
+                                                                    {{ item.is_retencion == 1 ? 'Sí aplica' : 'No aplica' }}
+                                                                </span>
+                                                            </td>
                                                         </tr>
                                                     </tbody>
                                                     <tbody v-else>
                                                         <tr>
-                                                            <td colspan="2">
+                                                            <td colspan="8">
                                                                 <p>No se encontrarón resultados</p>
                                                             </td>
                                                         </tr>
@@ -603,8 +612,9 @@ function onPriceWithTaxs(price){
 
                                     <div class="mb-2 col-md-6" :class="form.is_with_tax == true ? 'mt-5' : ''">
                                         <label for="sale_price" class="form-label">Precio Venta</label>
-                                        <input v-model="form.sale_price" disabled type="number" class="form-control" :class="no_valid_price == true ? 'border-danger': ''"
-                                            id="sale_price" placeholder="Precio Venta" step="1"
+                                        <input v-model="form.sale_price" disabled type="number" class="form-control"
+                                            :class="no_valid_price == true ? 'border-danger': ''" id="sale_price"
+                                            placeholder="Precio Venta" step="1"
                                             oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                                             maxlength="10">
                                         <div class="input-errors" v-for="error of f$.sale_price.$errors"
@@ -619,14 +629,9 @@ function onPriceWithTaxs(price){
                                 <div class="row">
                                     <div class="mb-2 col-md-6">
                                         <label for="rol" class="form-label">Clave de producto</label>
-                                        <Multiselect v-model="form.clave_producto_id" track-by="nombre" label="nombre"
-                                            placeholder="Selecciona un clave de producto" :show-labels="false"
-                                            deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_category"
-                                            :searchable="true" :allow-empty="true" :showNoOptions="false">
-                                            <template v-slot:noResult>
-                                                <span>Opción no encontrada</span>
-                                            </template>
-                                        </Multiselect>
+                                        <SelectCatalog v-model="form.clave_producto_id" class="mb-0" :isDisabled="false"
+                                            :itemLabel="'nombre'" :endpoint="'v1/sat/search-cat-sat-producto-servicio'"
+                                            :placeholder="'Seleccione una clave producto'" :searchable="true" />
                                         <div class="input-errors" v-for="error of f$.clave_producto_id.$errors"
                                             :key="error.$uid">
                                             <div class="text-danger">{{ error.$message }}</div>
@@ -634,14 +639,9 @@ function onPriceWithTaxs(price){
                                     </div>
                                     <div class="mb-2 col-md-6">
                                         <label for="rol" class="form-label">Clave de unidad</label>
-                                        <Multiselect v-model="form.clave_unidad_id" track-by="nombre" label="nombre"
-                                            placeholder="Selecciona un clave de unidad" :show-labels="false"
-                                            deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_category"
-                                            :searchable="true" :allow-empty="true" :showNoOptions="false">
-                                            <template v-slot:noResult>
-                                                <span>Opción no encontrada</span>
-                                            </template>
-                                        </Multiselect>
+                                        <SelectCatalog v-model="form.clave_unidad_id" class="mb-0" :isDisabled="false"
+                                            :itemLabel="'nombre'" :endpoint="'v1/sat/search-cat-sat-clave-unidad'"
+                                            :placeholder="'Selecciona un clave de unidad'" :searchable="true" />
                                         <div class="input-errors" v-for="error of f$.clave_unidad_id.$errors"
                                             :key="error.$uid">
                                             <div class="text-danger">{{ error.$message }}</div>

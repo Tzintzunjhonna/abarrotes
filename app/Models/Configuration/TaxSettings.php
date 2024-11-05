@@ -14,6 +14,7 @@ class TaxSettings extends Model
     const CLASS_NAME = __CLASS__;
 
     const ID = 'id';
+    const NAME = 'name';
     const TIPO_IMPUESTO_ID = 'tipo_impuesto_id';
     const TIPO_FACTOR_ID = 'tipo_factor_id';
     const TASA_CUOTA_PORCENTAGE = 'tasa_cuota_porcentage';
@@ -32,6 +33,7 @@ class TaxSettings extends Model
 
     protected $fillable = array(
         self::ID,
+        self::NAME,
         self::TIPO_IMPUESTO_ID,
         self::TIPO_FACTOR_ID,
         self::TASA_CUOTA_PORCENTAGE,

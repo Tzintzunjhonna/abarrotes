@@ -4,6 +4,8 @@ namespace App\Http\Controllers\App\Products;
 
 use App\Http\Controllers\Controller;
 use App\Models\Products\Products;
+use App\Models\Products\ProductsHasCatSat;
+use App\Models\Products\ProductsHasTaxes;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -86,6 +88,9 @@ class ProductsController extends Controller
                 'category_id' => 'required',
                 'provider_id' => 'required',
                 'unit_of_measurement' => 'required',
+                'revenue' => 'required',
+                'sale_price' => 'required',
+                'wholesale_price' => 'required',
             ], [
                 'name.required' => 'El nombre es obligatorio.',
                 'description.required' => 'El descripción es obligatorio.',
@@ -97,9 +102,11 @@ class ProductsController extends Controller
                 'provider_id.required' => 'El proveedor es obligatorio.',
                 'unit_of_measurement.required' => 'La unidad de medida es obligatorio.',
                 'barcode.unique' => 'El código del producto ha sido registrado previamente.',
+                'revenue.required' => 'La ganancia es obligatorio.',
+                'sale_price.required' => 'El precio venta es obligatorio.',
+                'wholesale_price.required' => 'El precio mayoreo es obligatorio.',
             ]);
 
-            dd($request->all());
             $product = new Products();
 
             $product->name                  = $request->name;
@@ -111,11 +118,41 @@ class ProductsController extends Controller
             $product->category_id           = $request->category_id;
             $product->provider_id           = $request->provider_id;
             $product->unit_of_measurement   = $request->unit_of_measurement;
+            $product->revenue               = $request->revenue;
+            $product->sale_price            = $request->sale_price;
+            $product->wholesale_price       = $request->wholesale_price;
+            $product->is_with_tax           = $request['is_with_tax'] === "true";
+            $product->is_with_discount      = $request['is_with_discount'] === "true";
 
-            $product->name       = $request->name;
             $product->created_at = Carbon::now();
             $product->updated_at = Carbon::now();
             $product->save();
+
+            $has_taxes = json_decode($request->has_taxes, true);
+
+            //Guardar el IVA
+            foreach ($has_taxes as $key => $value) {
+                $products_has_taxes = new ProductsHasTaxes();
+                $products_has_taxes->products_id        = $product->id;
+                $products_has_taxes->tax_settings_id    = $value['id'];
+
+                $products_has_taxes->created_at = Carbon::now();
+                $products_has_taxes->updated_at = Carbon::now();
+                $products_has_taxes->save();
+            }
+
+            //Guardar catalogo del SAT para cada producto
+            $products_has_cat_sat = new ProductsHasCatSat();
+
+            $products_has_cat_sat->products_id          = $product->id;
+            $products_has_cat_sat->clave_producto_id    = $request->clave_producto_id;
+            $products_has_cat_sat->clave_unidad_id      = $request->clave_unidad_id;
+
+            $products_has_cat_sat->created_at = Carbon::now();
+            $products_has_cat_sat->updated_at = Carbon::now();
+            $products_has_cat_sat->save();
+
+
             DB::commit();
             
 
@@ -136,7 +173,7 @@ class ProductsController extends Controller
                 "line"    => $exception->getLine(),
                 "message" => $exception->getMessage(),
             ];
-            log::debug($response);
+            log::debug($exception);
             return response()->error('Error al crear el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -174,6 +211,9 @@ class ProductsController extends Controller
                 'category_id' => 'required',
                 'provider_id' => 'required',
                 'unit_of_measurement' => 'required',
+                'revenue' => 'required',
+                'sale_price' => 'required',
+                'wholesale_price' => 'required',
             ], [
                 'name.required' => 'El nombre es obligatorio.',
                 'description.required' => 'El descripción es obligatorio.',
@@ -184,6 +224,9 @@ class ProductsController extends Controller
                 'category_id.required' => 'La categoría es obligatorio.',
                 'provider_id.required' => 'El proveedor es obligatorio.',
                 'unit_of_measurement.required' => 'La unidad de medida es obligatorio.',
+                'revenue.required' => 'La ganancia es obligatorio.',
+                'sale_price.required' => 'El precio venta es obligatorio.',
+                'wholesale_price.required' => 'El precio mayoreo es obligatorio.',
             ]);
 
             $product = Products::where('id', $id)->whereNull('deleted_at')->first();
@@ -205,8 +248,46 @@ class ProductsController extends Controller
             $product->category_id           = $request->category_id;
             $product->provider_id           = $request->provider_id;
             $product->unit_of_measurement   = $request->unit_of_measurement;
+
+            $product->revenue               = $request->revenue;
+            $product->sale_price            = $request->sale_price;
+            $product->wholesale_price       = $request->wholesale_price;
+            $product->is_with_tax           = $request['is_with_tax'] === "true";
+            $product->is_with_discount      = $request['is_with_discount'] === "true";
+
             $product->updated_at = Carbon::now();
             $product->save();
+
+            $has_taxes = json_decode($request->has_taxes, true);
+
+            foreach ($product->has_taxes as $key => $value) {
+                $value->forceDelete();
+            }
+
+            //Guardar el IVA
+            foreach ($has_taxes as $key => $value) {
+                $products_has_taxes = new ProductsHasTaxes();
+                $products_has_taxes->products_id        = $product->id;
+                $products_has_taxes->tax_settings_id    = $value['id'];
+
+                $products_has_taxes->created_at = Carbon::now();
+                $products_has_taxes->updated_at = Carbon::now();
+                $products_has_taxes->save();
+            }
+
+            //Guardar catalogo del SAT para cada producto
+
+            $product->has_cat_sat->forceDelete();
+            
+            $products_has_cat_sat = new ProductsHasCatSat();
+
+            $products_has_cat_sat->products_id          = $product->id;
+            $products_has_cat_sat->clave_producto_id    = $request->clave_producto_id;
+            $products_has_cat_sat->clave_unidad_id      = $request->clave_unidad_id;
+
+            $products_has_cat_sat->created_at = Carbon::now();
+            $products_has_cat_sat->updated_at = Carbon::now();
+            $products_has_cat_sat->save();
 
             DB::commit();
             
@@ -218,7 +299,7 @@ class ProductsController extends Controller
                 "line"    => $exception->getLine(),
                 "message" => $exception->getMessage(),
             ];
-            log::debug($response);
+            log::debug($exception);
             return response()->error('Error al actualizar el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -248,7 +329,7 @@ class ProductsController extends Controller
                 "line"    => $exception->getLine(),
                 "message" => $exception->getMessage(),
             ];
-            log::debug($response);
+            log::debug($exception);
             return response()->error('Error al eliminar el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -279,7 +360,7 @@ class ProductsController extends Controller
                 "line"    => $exception->getLine(),
                 "message" => $exception->getMessage(),
             ];
-            log::debug($response);
+            log::debug($exception);
             return response()->error('Error al cambiar de estatus el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

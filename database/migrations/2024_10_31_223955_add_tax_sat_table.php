@@ -11,31 +11,43 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products_has_taxes', function (Blueprint $table) {
+        Schema::create('products_has_taxes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('products_id')->nullable();
-            $table->integer('tipo_impuesto_id')->nullable();
-            $table->integer('tipo_factor_id')->nullable();
-            $table->decimal('tasa_cuota_porcentage', 10, 2)->nullable();
-            $table->boolean('is_retencion')->default(false);
-            $table->boolean('is_traslado')->default(false);
+            $table->unsignedBigInteger('tax_settings_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            // Llaves foráneas
+            $table->foreign('tax_settings_id')->references('id')->on('tax_settings');
+            $table->foreign('products_id')->references('id')->on('products');
         });
-        Schema::table('products_has_cat_sat', function (Blueprint $table) {
+        Schema::create('products_has_cat_sat', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('products_id')->nullable();
             $table->unsignedBigInteger('clave_producto_id')->nullable();
             $table->unsignedBigInteger('clave_unidad_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            // Llaves foráneas
+            $table->foreign('clave_producto_id')->references('id')->on('cat_sat_clave_producto');
+            $table->foreign('clave_unidad_id')->references('id')->on('cat_sat_clave_unidad');
+            $table->foreign('products_id')->references('id')->on('products');
         });
 
         Schema::table('products', function (Blueprint $table) {
             $table->unsignedBigInteger('revenue')->nullable();
             $table->unsignedBigInteger('sale_price')->nullable();
             $table->unsignedBigInteger('wholesale_price')->nullable();
+            $table->boolean('is_with_tax')->default(false);
+            $table->boolean('is_with_discount')->default(false);
         });
+
+        Schema::table('tax_settings', function (Blueprint $table) {
+            $table->string('name');
+        });
+        
     }
 
     /**
@@ -48,6 +60,10 @@ return new class extends Migration
 
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn(['revenue', 'sale_price', 'wholesale_price']);
+        });
+
+        Schema::table('tax_settings', function (Blueprint $table) {
+            $table->dropColumn(['name']);
         });
     }
 };

@@ -60,6 +60,8 @@ class Products extends Model
         'has_categorie_products',
         'has_provider',
         'has_unit_of_measurement',
+        'has_taxes',
+        'has_cat_sat',
     ];
 
     public function has_categorie_products(): \Illuminate\Database\Eloquent\Relations\HasOne
@@ -86,5 +88,23 @@ class Products extends Model
             UnitOfMeasurement::ID,
             self::UNIT_OF_MEASUREMENT,
         );
+    }
+    public function has_cat_sat(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            ProductsHasCatSat::class,
+            ProductsHasCatSat::PRODUCTS_ID,
+            self::ID,
+        );
+    }
+    public function has_taxes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(
+            ProductsHasTaxes::class,
+            ProductsHasTaxes::PRODUCTS_ID,
+            self::ID
+        );
+
+
     }
 }
