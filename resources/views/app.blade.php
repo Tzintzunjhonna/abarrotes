@@ -3,6 +3,20 @@
     @include('template.header')
     
     <body>
+        <!-- Loader -->
+        <div id="preloader">
+            <div id="status">
+                <div class="spinner">
+                    <div class="spinner-wrapper">
+                        <div class="rotator">
+                            <div class="inner-spin"></div>
+                            <div class="inner-spin"></div>
+                        </div>
+                        {{--  <img src="{{ asset('images/abarrotes/logo.png') }}" alt="Loader Image" class="loader-image">  --}}
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="wrapper">
             @inertia

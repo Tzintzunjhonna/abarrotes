@@ -115,4 +115,17 @@ class CustomersController extends Controller
     {
         //
     }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function python()
+    {
+        $data = "data";
+        $comando = 'python ' . base_path('storage/app/public/print_ticket.py') . ' ' . escapeshellarg($data);
+        $resultado = shell_exec($comando);
+
+        dd($resultado);
+        return response()->json(['output' => $resultado]);
+    }
 }

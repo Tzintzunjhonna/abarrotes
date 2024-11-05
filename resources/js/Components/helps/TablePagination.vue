@@ -97,8 +97,16 @@
                                     <tr>
                                         <td :colspan="props.options ? props.headers.length + 1 : props.options"
                                             class="pt-5">
-                                            <pagination :showDisabled="true" :limit="5" align="right" :data="response"
-                                                @pagination-change-page="getData" />
+                                            <pagination :showDisabled="true" align="right" :data="response"
+                                                :size="'small'" :limit="5" :keep-length="true"
+                                                @pagination-change-page="getData">
+                                                <template v-slot:prev-nav>
+                                                    <span>&laquo; Anterior</span>
+                                                </template>
+                                                <template v-slot:next-nav>
+                                                    <span>Siguiente &raquo;</span>
+                                                </template>
+                                            </pagination>
                                         </td>
                                     </tr>
                                 </tfoot>

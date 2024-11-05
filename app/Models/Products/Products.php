@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Products;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Providers;
+use App\Models\UnitOfMeasurement;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Products\CategorieProducts;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Products extends Model
 {
@@ -12,17 +15,19 @@ class Products extends Model
     const CLASS_NAME = __CLASS__;
 
     const ID = 'id';
-    CONST NAME                  = 'name';
-    CONST DESCRIPTION           = 'description';
-    CONST BARCODE               = 'barcode';
-    CONST PRICE                 = 'price';
-    CONST DISCOUNT              = 'discount';
-    CONST STOCK                 = 'stock';
-    CONST CATEGORY_ID           = 'category_id';
-    CONST PROVIDER_ID           = 'provider_id';
-    CONST UNIT_OF_MEASUREMENT   = 'unit_of_measurement';
-    CONST IS_ACTIVE             = 'is_active';
-
+    const NAME                  = 'name';
+    const DESCRIPTION           = 'description';
+    const BARCODE               = 'barcode';
+    const PRICE                 = 'price';
+    const DISCOUNT              = 'discount';
+    const STOCK                 = 'stock';
+    const CATEGORY_ID           = 'category_id';
+    const PROVIDER_ID           = 'provider_id';
+    const UNIT_OF_MEASUREMENT   = 'unit_of_measurement';
+    const IS_ACTIVE             = 'is_active';
+    const REVENUE               = 'revenue';
+    const SALE_PRICE            = 'sale_price';
+    const WHOLESALE_PRICE       = 'wholesale_price';
     const CREATED_AT  = 'created_at';
     const UPDATED_AT  = 'updated_at';
     const DELETED_AT  = 'deleted_at';
@@ -43,6 +48,9 @@ class Products extends Model
         self::PROVIDER_ID,
         self::UNIT_OF_MEASUREMENT,
         self::IS_ACTIVE,
+        self::REVENUE,
+        self::SALE_PRICE,
+        self::WHOLESALE_PRICE,
         self::CREATED_AT,
         self::UPDATED_AT,
         self::DELETED_AT,

@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\App\CategoriesProductsController;
-use App\Http\Controllers\App\ProductsController;
+use App\Http\Controllers\App\Products\CategoriesProductsController;
+use App\Http\Controllers\App\Products\ProductsController;
 use Illuminate\Support\Facades\Route;
 
 $endpointCategoryProducts = "app-category-products";

@@ -30,11 +30,12 @@ const props = defineProps({
 let endpoint = ref(`v1/app-configuration/tax-settings/collection`)
 
 const getList = ref([])
-const tableHeaders = ['Impuesto', 'Porcentaje %', 'Traslado', 'Retención','Estatus', 'Fecha de registro', 'Opciones'];
+const tableHeaders = ['Impuesto', 'Tipo factor', 'Porcentaje %', 'Traslado', 'Retención','Estatus', 'Fecha de registro', 'Opciones'];
 const tableTitle = ref('Lista de impuestos')
 
 const tbody = [
     'has_tipo_impuesto.nombre',
+    'has_tipo_factor.nombre',
     'tasa_cuota_porcentage',
     'is_traslado',
     'is_retencion',

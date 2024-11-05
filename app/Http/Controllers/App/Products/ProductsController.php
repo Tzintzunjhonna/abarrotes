@@ -1,18 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\App;
+namespace App\Http\Controllers\App\Products;
 
 use App\Http\Controllers\Controller;
-use App\Models\Products;
-use App\Models\Providers;
+use App\Models\Products\Products;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Log;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 
@@ -103,6 +99,7 @@ class ProductsController extends Controller
                 'barcode.unique' => 'El código del producto ha sido registrado previamente.',
             ]);
 
+            dd($request->all());
             $product = new Products();
 
             $product->name                  = $request->name;

@@ -20,7 +20,11 @@ const prevPageName = ref('Impuestos')
 const pageNowName = ref('Editar impuesto')
 const prevPageUrl = ref('admin/configuracion/catalogo-impuestos')
 
-const BaseUrl = window.location.origin
+const is_disabled = ref(true);
+const text_disabled = ref('Editar');
+const class_button_disabled = ref('btn btn-primary');
+const icon_disabled = ref('mdi mdi-content-save');
+
 
 const props = defineProps({
     item_info: {
@@ -145,7 +149,7 @@ async function onSubmit() {
     let formData = proxy.setFormData(form.value);
 
     proxy.api
-        .post(`v1/app-configuration/tax-settings/store`, formData,
+        .post(`v1/app-configuration/tax-settings/${props.item_info.id}/update`, formData,
             {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -245,6 +249,22 @@ async function btnSearchTasaCuota() {
 }
 
 
+
+function btnEdit() {
+
+    is_disabled.value = !is_disabled.value;
+    if (is_disabled.value == false) {
+        text_disabled.value = 'Cancelar edicion';
+        class_button_disabled.value = 'btn btn-danger';
+        icon_disabled.value = 'mdi mdi-book-cancel';
+    } else {
+        text_disabled.value = 'Editar';
+        class_button_disabled.value = 'btn btn-primary';
+        icon_disabled.value = 'mdi mdi-content-save';
+    }
+
+}
+
 function btnIndex() {
 
     router.visit(`/${prevPageUrl.value}`);
@@ -271,14 +291,19 @@ function btnIndex() {
                                     <i class="mdi mdi-page-previous-outline"></i>
                                 </a>
                                 Editar impuesto
-
                             </h4>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button :class="class_button_disabled" type="button" @click="btnEdit()">
+                                    <i :class="icon_disabled"></i>
+                                    {{ text_disabled }}
+                                </button>
+                            </div>
 
                             <form class="needs-validation" @submit.prevent="onSubmit">
                                 <div class="row">
                                     <div class="mb-2 col-md-6">
                                         <label for="rol" class="form-label">Tipo de impuesto</label>
-                                        <Multiselect v-model="form.tipo_impuesto_id" track-by="nombre" label="nombre"
+                                        <Multiselect :disabled="is_disabled" v-model="form.tipo_impuesto_id" track-by="nombre" label="nombre"
                                             placeholder="Selecciona un tipo de impuesto" :show-labels="false"
                                             deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_sat_impuesto"
                                             :searchable="true" :allow-empty="true" :showNoOptions="false">
@@ -297,7 +322,7 @@ function btnIndex() {
                                     </div>
                                     <div class="mb-2 col-md-6">
                                         <label for="rol" class="form-label">Tipo factor</label>
-                                        <Multiselect v-model="form.tipo_factor_id" track-by="nombre" label="nombre"
+                                        <Multiselect :disabled="is_disabled" v-model="form.tipo_factor_id" track-by="nombre" label="nombre"
                                             placeholder="Selecciona un tipo factor" :show-labels="false"
                                             deselectLabel=" " :block-keys="['Tab', 'Enter']"
                                             :options="cat_sat_tipo_factor" :searchable="true" :allow-empty="true"
@@ -317,13 +342,13 @@ function btnIndex() {
                                     </div>
                                     <div class="mb-2 col-md-6">
                                         <div class="form-check form-switch">
-                                            <input v-model="form.is_retencion" class="form-check-input" type="checkbox"
+                                            <input :disabled="is_disabled" v-model="form.is_retencion" class="form-check-input" type="checkbox"
                                                 id="flexSwitchCheckRetencion">
                                             <label class="form-check-label"
                                                 for="flexSwitchCheckRetencion">Retención</label>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input v-model="form.is_traslado" class="form-check-input" type="checkbox"
+                                            <input :disabled="is_disabled" v-model="form.is_traslado" class="form-check-input" type="checkbox"
                                                 id="flexSwitchCheckTraslado">
                                             <label class="form-check-label"
                                                 for="flexSwitchCheckTraslado">Traslado</label>
@@ -332,7 +357,7 @@ function btnIndex() {
                                 </div>
                                 <div class="row">
                                     <div class="mb-2 col-md-6">
-                                        <button class="btn btn-warning" type="button" @click="btnSearchTasaCuota">
+                                        <button :disabled="is_disabled" class="btn btn-warning" type="button" @click="btnSearchTasaCuota">
                                             <i class="mdi mdi-cloud-search-outline mdi-18px"></i>
                                             Buscar rango de Tasa o Cuota
                                         </button>
@@ -340,7 +365,7 @@ function btnIndex() {
                                 </div>
                                 <div class="mb-2 col-md-6">
                                     <label for="rol" class="form-label">Tasa o cuota %</label>
-                                    <Multiselect v-model="form.tasa_cuota_porcentage" track-by="codigo" label="codigo"
+                                    <Multiselect :disabled="is_disabled" v-model="form.tasa_cuota_porcentage" track-by="codigo" label="codigo"
                                         placeholder="Selecciona un tipo factor" :show-labels="false" deselectLabel=" "
                                         :block-keys="['Tab', 'Enter']" :options="cat_tasa_cuota" :searchable="true"
                                         :allow-empty="true" :showNoOptions="false">
@@ -355,16 +380,16 @@ function btnIndex() {
                                 </div>
                                 <div class="mb-2 col-md-6">
                                     <div class="form-check form-switch">
-                                        <input v-model="form.is_products_new" class="form-check-input" type="checkbox"
+                                        <input :disabled="is_disabled" v-model="form.is_products_new" class="form-check-input" type="checkbox"
                                             id="flexSwitchCheckRetencion">
                                         <label class="form-check-label"
                                             for="flexSwitchCheckRetencion">Incluir a productos nuevos automaticamente</label>
                                     </div>
                                 </div>
 
-                                <button class="btn btn-primary" type="submit">
+                                <button class="btn btn-primary" type="submit" v-if="!is_disabled">
                                     <i class="mdi mdi-content-save"></i>
-                                    Guardar
+                                    Actualizar
                                 </button>
                             </form>
 

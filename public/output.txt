@@ -1,0 +1,2 @@
+Imprimiendo ticket con datos: data
+Añadiendo una segunda línea.

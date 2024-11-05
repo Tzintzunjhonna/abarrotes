@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
-use App\Models\CategorieProducts;
-use App\Models\Products;
+use App\Models\Configuration\TaxSettings;
+use App\Models\Products\CategorieProducts;
+use App\Models\Products\Products;
 use App\Models\Providers;
 use App\Models\UnitOfMeasurement;
 use Illuminate\Http\Request;
@@ -29,12 +30,14 @@ class ProductsController extends Controller
         $cat_provider = Providers::all();
         $cat_category = CategorieProducts::all();
         $unit_of_measurement = UnitOfMeasurement::all();
+        $cat_tax_settings = TaxSettings::where(TaxSettings::IS_ACTIVE, 1)->get();
 
         return Inertia::render('Products/Create', 
         [
             'cat_provider' => $cat_provider,
             'cat_category' => $cat_category,
             'unit_of_measurement' => $unit_of_measurement,
+            'cat_tax_settings' => $cat_tax_settings,
         ]);
     }
 

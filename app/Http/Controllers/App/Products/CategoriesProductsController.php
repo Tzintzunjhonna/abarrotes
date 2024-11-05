@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\App;
+namespace App\Http\Controllers\App\Products;
 
 use App\Http\Controllers\Controller;
-use App\Models\CategorieProducts;
-use App\Models\Providers;
+use App\Models\Products\CategorieProducts;
+use App\Models\Products\Providers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
