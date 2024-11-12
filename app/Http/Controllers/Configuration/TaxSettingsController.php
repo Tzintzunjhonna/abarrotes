@@ -80,7 +80,10 @@ class TaxSettingsController extends Controller
             'cat_sat_tipo_factor' => $cat_sat_tipo_factor,
             'cat_tasa_cuota_prop' => $cat_tasa_cuota_prop,
         ];
-        
+
+        session()->flash('message', 'Recuerda que al editar un registro, se modificaran todos los productos que tienen aplicado el Impuesto.');
+        session()->flash('status', 301);
+
         return Inertia::render('Configuration/Taxes/Edit', $data);
     }
 

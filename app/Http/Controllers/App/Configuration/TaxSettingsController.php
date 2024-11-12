@@ -5,6 +5,8 @@ namespace App\Http\Controllers\App\Configuration;
 
 use App\Http\Controllers\Controller;
 use App\Models\Configuration\TaxSettings;
+use App\Models\Products\Products;
+use App\Models\Products\ProductsHasTaxes;
 use App\Models\Sat\CatSatImpuesto;
 use App\Models\Sat\CatSatTasaOCuota;
 use App\Models\Sat\CatSatTipoFactor;
@@ -122,7 +124,7 @@ class TaxSettingsController extends Controller
             $new_item->updated_at = Carbon::now();
             $new_item->save();
             DB::commit();
-            
+
 
             return response()->success($new_item, 'Se dio de alta la configuración del impuesto.');
         } catch (ValidationException $exception) {
@@ -221,6 +223,11 @@ class TaxSettingsController extends Controller
             $tax_settings->updated_at = Carbon::now();
             $tax_settings->save();
 
+            $update_product = self::updateProductsTax($tax_settings);
+
+            if($update_product['code'] != 200){
+                return response()->error('Error al actualizar la configuración del impuesto.', $update_product, Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
             DB::commit();
             
             return response()->success($tax_settings, 'Se actualizó la configuración del impuesto.');
@@ -251,6 +258,38 @@ class TaxSettingsController extends Controller
             }
 
             $tax_settings->delete();
+
+            $products_with_taxes = ProductsHasTaxes::where(ProductsHasTaxes::TAX_SETTINGS_ID, $tax_settings->id);
+
+            $products_ids = $products_with_taxes->pluck(ProductsHasTaxes::PRODUCTS_ID);
+
+            $products_with_taxes->delete();
+
+            $products = Products::whereIn(Products::ID, $products_ids)->get();
+
+            foreach ($products as $key => $product) {
+
+                $has_taxes_id  = $product->has_taxes->pluck(ProductsHasTaxes::TAX_SETTINGS_ID);
+
+                $tax_settings = TaxSettings::whereIn(TaxSettings::ID, $has_taxes_id)->get();
+
+                $price = $product->price;
+                if ($product->is_with_discount == 1) {
+                    $price = $product->price - $product->discount;
+                }
+                if ($product->id == 10) {
+                    $price_product = self::onPriceWithTaxs($tax_settings, $price);
+
+                    if ($price_product == null) {
+                        throw new \Exception('Ocurrio un error al generar el precio total de un producto.');
+                    }
+
+                    $product->sale_price = $price_product;
+                    $product->updated_at = Carbon::now();
+                    $product->save();
+                }
+            }
+
             DB::commit();
 
             return response()->success($tax_settings, 'Se eliminó la configuración del impuesto.');
@@ -378,6 +417,92 @@ class TaxSettingsController extends Controller
                 ];
                 return $data;
             });
+    }
+    
+    /**
+     * Actualizar productos de acuerdo al impuesto editado
+     */
+    public function updateProductsTax(TaxSettings $tax_setting)
+    {
+        try {
+
+            $products_with_taxes = Products::whereHas('has_taxes', function ($query) use ($tax_setting) {
+
+                $query->where(ProductsHasTaxes::TAX_SETTINGS_ID, $tax_setting->id);
+            })->get();
+            
+
+            // ! NO OLVIDES QUE EL IMPORTE SEA CERO
+
+            foreach ($products_with_taxes as $key => $product) {
+
+                $has_taxes_id  = $product->has_taxes->pluck(ProductsHasTaxes::TAX_SETTINGS_ID);
+
+                $tax_settings = TaxSettings::whereIn(TaxSettings::ID, $has_taxes_id)->get();
+
+                $price = $product->price;
+                if($product->is_with_discount == 1){
+                    $price = $product->price - $product->discount;
+                }
+                if($product->id == 10){
+                    $price_product = self::onPriceWithTaxs($tax_settings, $price);
+
+                    if ($price_product == null) {
+                        throw new \Exception('Ocurrio un error al generar el precio total de un producto.');
+                    }
+
+                    $product->sale_price = $price_product;
+                    $product->updated_at = Carbon::now();
+                    $product->save();
+                }
+
+            }
+
+            $response = [
+                "code"    => 200,
+                "message" => 'Se actualizaron los productos de forma correcta.',
+            ];
+            return $response;
+        } catch (\Exception $exception) {
+            $response = [
+                "code"    => 500,
+                "file"    => $exception->getFile(),
+                "line"    => $exception->getLine(),
+                "message" => $exception->getMessage(),
+            ];
+            return $response;
+        }
+    }
+
+    /**
+     * Retorna el precio de un producto con Impuesto
+     */
+    public function onPriceWithTaxs($tax_settings, $price)
+    {
+        try {
+            
+            $price_with_tax = $price;
+            
+            foreach ($tax_settings as $key => $tax) {
+                $tasa_cuota_porcentage = $tax->tasa_cuota_porcentage / 100;
+                $tasa_cuota = $tasa_cuota_porcentage * $price;
+
+                if ($tax->is_traslado == 1 && $tax->is_retencion === 0) {
+                    
+                    $price_with_tax += $tasa_cuota;
+                }
+                if ($tax->is_traslado == 0 && $tax->is_retencion === 1) {
+                    
+                    $price_with_tax -= $tasa_cuota;
+                }
+            }
+
+            return $price_with_tax;
+            
+        } catch (\Exception $exception) {
+            log::debug($exception);
+            return null;
+        }
     }
 
 }

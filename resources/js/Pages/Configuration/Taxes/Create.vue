@@ -348,14 +348,14 @@ function btnIndex() {
                                         <div class="text-danger">{{ error.$message }}</div>
                                     </div>
                                 </div>
-                                <div class="mb-2 col-md-6">
+                                <!-- <div class="mb-2 col-md-6">
                                     <div class="form-check form-switch">
                                         <input v-model="form.is_products_new" class="form-check-input" type="checkbox"
                                             id="flexSwitchCheckRetencion">
                                         <label class="form-check-label"
                                             for="flexSwitchCheckRetencion">Incluir a productos nuevos automaticamente</label>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <button class="btn btn-primary" type="submit">
                                     <i class="mdi mdi-content-save"></i>

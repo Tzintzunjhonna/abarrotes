@@ -276,8 +276,10 @@ class ProductsController extends Controller
             }
 
             //Guardar catalogo del SAT para cada producto
-
-            $product->has_cat_sat->forceDelete();
+            
+            if($product->has_cat_sat != null) {
+                $product->has_cat_sat->forceDelete();
+            }
             
             $products_has_cat_sat = new ProductsHasCatSat();
 

@@ -15,7 +15,7 @@ import alert from "@/Helps/alert.js";
 import setFormData from "@/Helps/setFormData.js";
 
 
-const appName = import.meta.env.VITE_APP_NAME || 'ABARROTES';
+const appName = import.meta.env.VITE_APP_NAME || 'Contreras Corp';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

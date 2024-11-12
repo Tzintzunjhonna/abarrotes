@@ -36,4 +36,13 @@ class ProductsHasTaxes extends Model
     protected $with = [
     ];
 
+
+    public function has_product(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            Products::class,
+            Products::ID,
+            self::PRODUCTS_ID,
+        );
+    }
 }

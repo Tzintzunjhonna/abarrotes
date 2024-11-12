@@ -9,7 +9,7 @@ import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
 
 import Footer from '@/Layouts/Footer.vue';
-import Divider from '@/Components/helps/Divider.vue';
+import FlashMessage from '@/Components/helps/FlashMessage.vue';
 
 const { proxy } = getCurrentInstance();
  
@@ -290,6 +290,8 @@ function btnIndex() {
             <Head :title="title" />
             <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
                 :pageNowName="pageNowName" />
+
+            <FlashMessage/>
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card">
@@ -396,12 +398,12 @@ function btnIndex() {
                                     </div>
                                 </div>
                                 <div class="mb-2 col-md-6">
-                                    <div class="form-check form-switch">
+                                    <!-- <div class="form-check form-switch">
                                         <input :disabled="is_disabled" v-model="form.is_products_new" class="form-check-input" type="checkbox"
                                             id="flexSwitchCheckRetencion">
                                         <label class="form-check-label"
                                             for="flexSwitchCheckRetencion">Incluir a productos nuevos automaticamente</label>
-                                    </div>
+                                    </div> -->
                                 </div>
 
                                 <button class="btn btn-primary" type="submit" v-if="!is_disabled">

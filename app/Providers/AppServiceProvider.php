@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Response as HttpResponse;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->descriptiveResponseMethods();
+
+        Inertia::share([
+            'flash' => function () {
+                return [
+                    'message' => session('message'),
+                    'status' => session('status'),
+                    'info' => session('info'),
+                ];
+            },
+        ]);
 
     }
 
