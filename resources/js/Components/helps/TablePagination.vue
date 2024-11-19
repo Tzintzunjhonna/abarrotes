@@ -3,8 +3,8 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="header-title">{{ props.title }}</h4>
-                <template v-if="props.showBtnNew">
-                    <div class="col-12 d-flex justify-content-end">
+                <div class="col-12 d-flex justify-content-end">
+                    <template v-if="props.showBtnNew">
                         <div class="col-auto">
                             <button @click="btnAction({ action: 'add', value: null })" type="button"
                                 class="btn btn-danger mb-2 mr-1">
@@ -12,8 +12,17 @@
                                 {{ props.labelBtnNew }}
                             </button>
                         </div>
-                    </div>
-                </template>
+                    </template>
+                    <template v-if="props.showBtnExport">
+                        <div class="col-auto">
+                            <button @click="btnAction({ action: 'export', value: null })" type="button"
+                                class="btn btn-success mb-2 mr-1">
+                                <i :class="props.btnExportIcon" />
+                                {{ props.labelBtnExport }}
+                            </button>
+                        </div>
+                    </template>
+                </div>
                 <div class="responsive-table-plugin">
                     <div class="table-rep-plugin">
                         <div class="table-responsive" data-pattern="priority-columns">
@@ -156,6 +165,16 @@ const props = defineProps({
     btnNewIcon: {
         type: String,
         default: 'mdi mdi-content-save'
+    },
+    labelBtnExport: {
+        type: String
+    },
+    showBtnExport: {
+        type: Boolean
+    },
+    btnExportIcon: {
+        type: String,
+        default: 'mdi mdi-export'
     },
     reload: {
         type: Boolean
@@ -376,6 +395,8 @@ function getData(page = 1, pageSize = 10) {
             'description',
             'tipo_impuesto_id',
             'percentage',
+            'barcode',
+            'category_id',
         ]
 
         properties.forEach((property) => addParameter(parameters, props.searchPost, property))

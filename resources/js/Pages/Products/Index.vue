@@ -13,6 +13,14 @@ import Search from './Search.vue';
 // VARIABLES --------------------------
 const { proxy } = getCurrentInstance();
 
+
+const props = defineProps({
+    cat_category: {
+        type: Object,
+        required: true,
+    }
+});
+
 const title = ref('Productos')
 const prevPageName = ref('Dashboard')
 const pageNowName = ref('Lista de productos')
@@ -67,6 +75,9 @@ const config = {
     showCancelButton: false
 }
 
+const searchRef = ref(null);
+
+
 // MOUNTED  --------------------------
 onMounted(() => {
 });
@@ -91,6 +102,9 @@ function action(value) {
         },
         change_status: function (item) {
             onChangeStatus(item)
+        },
+        export: function (item) {
+            onExport(item)
         },
     }
 
@@ -203,6 +217,26 @@ function onChangeStatus(data) {
             }
         })
 }
+function onExport(data) {
+    
+    const data_copy = searchRef.value.submitFormExport()
+
+    const baseUrl = window.location.origin;
+
+    let queryParams = [];
+
+    for (let key in data_copy) {
+        if (data_copy.hasOwnProperty(key)) {
+            queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(data_copy[key])}`);
+        }
+    }
+    const exportUrl = `${baseUrl}/api/v1/app-products/export-products?${queryParams.join('&')}`;
+    
+    window.open(exportUrl, "_blank");
+
+
+    
+}
 
 
 
@@ -218,11 +252,13 @@ function onChangeStatus(data) {
             <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
                 :pageNowName="pageNowName" />
             <div class="row">
-                <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
+                <Search ref="searchRef" :title="'Buscar'" :method="'search'" @btnAction="action"
+                    :cat_category="props.cat_category" />
 
                 <table-pagination :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
                     @btnAction="action" :endpoint="endpoint" :title="tableTitle" :searchPost="searchForm"
-                    :labelBtnNew="'Nuevo producto'" :showBtnNew="true" :reload="reloadPage" @reload="reload" />
+                    :labelBtnNew="'Nuevo producto'" :showBtnNew="true" :labelBtnExport="'Exportar productos'"
+                    :showBtnExport="true" :reload="reloadPage" @reload="reload" />
             </div>
         </div>
     </div>

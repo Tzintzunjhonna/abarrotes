@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\App\Products;
 
+use App\Exports\ProductsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Products\Products;
 use App\Models\Products\ProductsHasCatSat;
@@ -12,7 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Log;
 use Illuminate\Validation\ValidationException;
-
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductsController extends Controller
 {
@@ -30,6 +31,14 @@ class ProductsController extends Controller
             
             if($request->description){
                 $query = $query->whereRaw('LOWER(description) LIKE (?) ',["%{$request->description}%"]);
+            }
+
+            if($request->barcode){
+                $query = $query->whereRaw('LOWER(barcode) LIKE (?) ',["%{$request->barcode}%"]);
+            }
+
+            if($request->category_id){
+                $query = $query->whereRaw('LOWER(category_id) LIKE (?) ',["%{$request->category_id}%"]);
             }
             
             if($request->name_provider){
@@ -357,6 +366,26 @@ class ProductsController extends Controller
             return response()->success($products, 'Se cambio de estatus el producto.');
         } catch (\Exception $exception) {
             DB::rollBack();
+            $response = [
+                "file"    => $exception->getFile(),
+                "line"    => $exception->getLine(),
+                "message" => $exception->getMessage(),
+            ];
+            log::debug($exception);
+            return response()->error('Error al cambiar de estatus el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    /**
+     * Exportar reporte de productos
+     */
+    public function export_products(Request $request)
+    {
+        try {
+            $fileNme    = 'productos_' . Carbon::now()->toDateString(). '.xlsx';
+            return (new ProductsExport($request))->download($fileNme);
+
+        } catch (\Exception $exception) {
+            
             $response = [
                 "file"    => $exception->getFile(),
                 "line"    => $exception->getLine(),

@@ -328,7 +328,7 @@ function btnIndex() {
                                 <div class="row">
                                     <div class="mb-2 col-md-6">
                                         <button class="btn btn-warning" type="button" @click="btnSearchTasaCuota">
-                                            <i class="mdi mdi-cloud-search-outline mdi-18px"></i>
+                                            <i class="mdi mdi-text-search mdi-18px"></i>
                                             Buscar rango de Tasa o Cuota
                                         </button>
                                     </div>

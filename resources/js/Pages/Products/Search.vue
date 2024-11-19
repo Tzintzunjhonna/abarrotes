@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, defineExpose } from 'vue'
 
 const emit = defineEmits(['btnAction'])
 const props = defineProps({
@@ -9,22 +9,59 @@ const props = defineProps({
   method: {
     type: String
   },
+  cat_category: {
+    type: Object,
+    required: true,
+  }
 })
 
 let search = ref({
   name: '',
   description: '',
   name_provider: '',
+  barcode: '',
+  category_id: '',
 })
 
 
 async function submitForm() {
-  btnAction({ action: props.method, value: search.value })
+
+  const search_form = formData()
+
+  btnAction({ action: props.method, value: search_form })
 }
+
+const submitFormExport = () => {
+  
+
+  return formData()
+};
+
+
+
+
+function formData(value) {
+
+  const search_form = {
+
+    name: search.value.name,
+    description: search.value.description,
+    name_provider: search.value.name_provider,
+    barcode: search.value.barcode,
+    category_id: (search.value.category_id != undefined && search.value.category_id != '') ? search.value.category_id?.id : '',
+  }
+
+  return search_form
+}
+
 
 function btnAction(value) {
   emit('btnAction', value)
 }
+
+defineExpose({
+  submitFormExport
+});
 </script>
 
 <template>
@@ -46,12 +83,29 @@ function btnAction(value) {
             </div>
             <div class="mb-2 col-md-6">
               <label for="name_provider" class="form-label">Nombre de proveedor</label>
-              <input v-model="search.name_provider" type="text" class="form-control" id="name" placeholder="Nombre de proveedor">
+              <input v-model="search.name_provider" type="text" class="form-control" id="name"
+                placeholder="Nombre de proveedor">
+            </div>
+            <div class="mb-2 col-md-6">
+              <label for="barcode" class="form-label">Código de producto</label>
+              <input v-model="search.barcode" type="text" class="form-control" id="name"
+                placeholder="Código de producto">
+            </div>
+            <div class="mb-2 col-md-6">
+              <label for="barcode" class="form-label">Categoría</label>
+              <Multiselect v-model="search.category_id" track-by="name" label="name"
+                placeholder="Selecciona un categoría" :show-labels="false" deselectLabel=" "
+                :block-keys="['Tab', 'Enter']" :options="cat_category" :searchable="true" :allow-empty="true"
+                :showNoOptions="false">
+                <template v-slot:noResult>
+                  <span>Opción no encontrada</span>
+                </template>
+              </Multiselect>
             </div>
           </div>
 
           <button class="btn btn-primary" type="submit">
-            <i class="mdi mdi-cloud-search-outline"></i>
+            <i class="mdi mdi-text-search"></i>
             Buscar
           </button>
         </form>

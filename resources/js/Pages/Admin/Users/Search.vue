@@ -47,7 +47,7 @@ function btnAction(value) {
           </div>
 
           <button class="btn btn-primary" type="submit">
-            <i class="mdi mdi-cloud-search-outline"></i>
+            <i class="mdi mdi-text-search"></i>
             Buscar
           </button>
         </form>

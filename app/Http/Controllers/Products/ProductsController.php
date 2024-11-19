@@ -18,7 +18,11 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Products/Index', []);
+        $cat_category = CategorieProducts::all();
+
+        return Inertia::render('Products/Index', [
+            'cat_category' => $cat_category,
+        ]);
     }
 
     /**

@@ -8,7 +8,7 @@ $endpointCategoryProducts = "app-category-products";
 $endpointProducts = "app-products";
 
 
-Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointCategoryProducts, $endpointProducts) {
+// Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointCategoryProducts, $endpointProducts) {
 
     // CATEGORIAS DE PRODUCTOS
 
@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')-
         Route::post('/{id_token}/update', [ProductsController::class, 'update'])->name("$endpointProducts.update");
         Route::delete('/{id_token}/destroy', [ProductsController::class, 'destroy'])->name("$endpointProducts.destroy");
         Route::post('/{id_token}/change-status', [ProductsController::class, 'change_status'])->name("$endpointProducts.change_status");
+        Route::get('/export-products', [ProductsController::class, 'export_products'])->name("$endpointProducts.export.products");
 
     });
-});
+// });

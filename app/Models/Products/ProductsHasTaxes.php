@@ -2,6 +2,7 @@
 
 namespace App\Models\Products;
 
+use App\Models\Configuration\TaxSettings;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,6 +44,15 @@ class ProductsHasTaxes extends Model
             Products::class,
             Products::ID,
             self::PRODUCTS_ID,
+        );
+    }
+
+    public function tax_setting(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            TaxSettings::class,
+            TaxSettings::ID,
+            self::TAX_SETTINGS_ID,
         );
     }
 }
