@@ -6,7 +6,7 @@
                 <div class="col-12 d-flex justify-content-end">
                     <template v-if="props.showBtnNew">
                         <div class="col-auto">
-                            <button @click="btnAction({ action: 'add', value: null })" type="button"
+                            <button @click="btnAction({ action: 'add', value: null })" type="button" :title="props.labelBtnNew"
                                 class="btn btn-danger mb-2 mr-1">
                                 <i :class="props.btnNewIcon" />
                                 {{ props.labelBtnNew }}
@@ -15,7 +15,7 @@
                     </template>
                     <template v-if="props.showBtnExport">
                         <div class="col-auto">
-                            <button @click="btnAction({ action: 'export', value: null })" type="button"
+                            <button @click="btnAction({ action: 'export', value: null })" type="button" :title="props.labelBtnExport"
                                 class="btn btn-success mb-2 mr-1">
                                 <i :class="props.btnExportIcon" />
                                 {{ props.labelBtnExport }}

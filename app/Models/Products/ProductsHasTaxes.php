@@ -35,6 +35,7 @@ class ProductsHasTaxes extends Model
     );
 
     protected $with = [
+        'tax_setting'
     ];
 
 

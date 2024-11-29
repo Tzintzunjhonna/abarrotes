@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, defineExpose } from 'vue'
 
 const emit = defineEmits(['btnAction'])
 const props = defineProps({
@@ -24,6 +24,28 @@ async function submitForm() {
 function btnAction(value) {
   emit('btnAction', value)
 }
+
+const submitFormExport = () => {
+
+
+  return formData()
+};
+
+
+function formData(value) {
+
+  const search_form = {
+
+    name: search.value.name,
+    email: search.value.email
+  }
+
+  return search_form
+}
+
+defineExpose({
+  submitFormExport
+});
 </script>
 
 <template>

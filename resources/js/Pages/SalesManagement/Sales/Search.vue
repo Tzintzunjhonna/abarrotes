@@ -12,12 +12,14 @@ const props = defineProps({
 })
 
 let search = ref({
+  // barcode: '7501557140162',
   barcode: '',
 })
 
 
 async function submitForm() {
-  btnAction({ action: props.method, value: search.value })
+  btnAction({ action: props.method, value: search.value.barcode })
+  search.value.barcode = '';
 }
 
 function btnAction(value) {

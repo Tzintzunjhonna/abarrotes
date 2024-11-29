@@ -321,13 +321,13 @@ function handleInputPrice(){
 
                 total_precio = onPriceWithTaxs(total_precio);
 
-                form.value.sale_price = parseFloat(total_precio);
+                form.value.sale_price = roundToTwoDecimals(parseFloat(total_precio));
                 handleInputSalePrice();
             }else{
 
                 total_precio = onPriceWithTaxs(total_precio);
 
-                form.value.sale_price = parseFloat(total_precio);
+                form.value.sale_price = roundToTwoDecimals(parseFloat(total_precio));
 
             }
             
@@ -335,10 +335,10 @@ function handleInputPrice(){
             break;
     
         case false:
-            form.value.sale_price = total_precio;
+            form.value.sale_price = roundToTwoDecimals(total_precio);
 
             if (form.value.is_with_discount){
-                form.value.sale_price = total_precio - total_discount;
+                form.value.sale_price = roundToTwoDecimals(total_precio - total_discount);
                 handleInputSalePrice();
             }
             

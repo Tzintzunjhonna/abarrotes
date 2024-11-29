@@ -14,6 +14,10 @@ const props = defineProps({
   amountTotal: {
     type: Number,
     required: true,
+  }, 
+  amountTax: {
+    type: Number,
+    required: true,
   },
 })
 
@@ -30,6 +34,7 @@ const props = defineProps({
             <div class="float-center">
               <p><span class="font-weight-medium">Subtotal:</span> <span class="float-end">${{ amountImport }}</span></p>
               <p><span class="font-weight-medium">Descuento:</span> <span class="float-end">${{ amountDiscount }}</span></p>
+              <p><span class="font-weight-medium">Impuesto:</span> <span class="float-end">${{ amountTax }}</span></p>
               <h2>
                 <span class="badge badge-soft-success float-end">${{ amountTotal }} MXN</span>
               </h2>

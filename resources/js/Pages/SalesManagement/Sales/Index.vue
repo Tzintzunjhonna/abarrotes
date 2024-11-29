@@ -1,7 +1,7 @@
 <script setup>
 
 // IMPORTS --------------------------
-import { getCurrentInstance, onMounted, ref, reactive } from "vue";
+import { getCurrentInstance, onMounted, ref, reactive, watch } from "vue";
 import { Head, Link, router } from '@inertiajs/vue3';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
@@ -18,6 +18,14 @@ const prevPageName = ref('Dashboard')
 const pageNowName = ref('Caja')
 const prevPageUrl = ref('dashboard')
 
+// PROPS
+
+const props = defineProps({
+    cat_products: {
+        type: Array,
+        required: true,
+    }
+});
 
 // TABLAS --------------------------
 let endpoint = ref(`v1/app-providers/collection`)
@@ -26,6 +34,7 @@ const products = ref([])
 
 // Totales
 const amountImport = ref(0)
+const amountTax = ref(0)
 const amountDiscount = ref(0)
 const amountTotal = ref(0)
 
@@ -48,7 +57,7 @@ const actions = [
         name: 'delete',
         class: 'btn btn-danger btn-sm m-1',
         class_icon: 'mdi mdi-delete',
-        tooltip: 'Eliminar'
+        tooltip: 'Eliminar producto'
     },
 ]
 
@@ -67,6 +76,15 @@ const config = {
 onMounted(() => {
 });
 
+// WATCH  --------------------------
+watch(
+    () => reloadPage.value,
+    (newValue, oldValue) => {
+        if (reloadPage.value) {
+            reload()
+        }
+    }
+)
 
 // FUNCIONES --------------------------
 
@@ -88,6 +106,12 @@ function action(value) {
         change_status: function (item) {
             onChangeStatus(item)
         },
+        cancel_sale: function (item) {
+            onCancelSale()
+        },
+        change_quantity: function (item) {
+            onChangeQuantity(item)
+        },
     }
 
     if (actions.hasOwnProperty(value.action)) {
@@ -96,7 +120,7 @@ function action(value) {
 }
 
 const reload = (value) => {
-    reloadPage.value = value
+    window.location.reload();
 }
 
 function onEdit(data) {
@@ -106,38 +130,129 @@ function onEdit(data) {
     router.visit(`/admin/proveedores/${ids}/editar`);
 }
 
-function onSearch() {
-    products.value.push(
-        {
-            barcode: '123456789012',
-            name: 'Producto 1',
-            price: 50.00,
-            discount: 5.00,
-            quantity: 2,
-            import: 100.00,
-            stock: 20
+function onChangeQuantity(data) {
+    products.value = data
+    onGetTotal();    
+    
+}
+
+function onSearch(barcode) {
+
+    // Buscar producto
+    const productFind = props.cat_products.find(producto => producto.barcode === barcode);
+
+    // Si no se encuentra el producto, mostrar alerta y salir
+    if (!productFind) {
+        proxy.alert.apiError({
+            title: 'Advertencia',
+            error: 'No se encuentra el producto con el código escaneado'
+        });
+        return;
+    }
+
+    // Verificar si el producto ya está en la lista
+    let product = products.value.find(item => item.barcode === barcode);
+
+    if (product) {
+
+        // Si ya no tiene inventario no permite agregar producto 
+        if (product.stock == 0) {
+            proxy.alert.apiError({
+                title: 'Advertencia',
+                error: 'Ya no tiene este producto en inventario.'
+            });
+            return;
         }
-    )
+        // Si el producto ya está en la lista, aumentar la cantidad y el importe
+        product.quantity++;
+        product.discount + product.discount;
+        product.import = product.import;
+        product.stock = product.stock - 1
+    } else {
+        // Si el producto no está en la lista, agregarlo
+        products.value.push({
+            barcode: productFind.barcode,
+            name: productFind.name,
+            price: productFind.price,
+            discount: productFind.discount,
+            quantity: 1,
+            import: 1 * productFind.price,
+            stock: productFind.stock - 1,
+            is_with_tax: productFind.is_with_tax,
+            has_taxes: productFind.has_taxes, 
+        });
+    }
 
     onGetTotal();
 }
 
 function onGetTotal() {
-    
+
+    // Valores para la vista de totales
     amountImport.value = 0;
     amountDiscount.value = 0;
-    amountImport.value = 0;
+    amountTax.value = 0;
 
-    products.value.forEach((element) => {
-        const importAmount = element.price * element.quantity;
+    products.value.forEach((element, index) => {
 
-        amountImport.value = (amountImport.value + parseFloat(importAmount));
-        amountDiscount.value = (amountDiscount.value + parseFloat(element.discount));
+        const discount = element.discount * element.quantity
+        const price_of_discount = (element.price * element.quantity);
+
+        const price = (element.price * element.quantity) - discount;
+
+        const importAmount = price_of_discount;
+
+        amountImport.value      = (amountImport.value + parseFloat(importAmount));
+        amountDiscount.value    = (amountDiscount.value + parseFloat(discount));
+
+        // En caso de ser con impuesto el producto se va a iterar para sacar los totales
+        if (element.is_with_tax === 1){
+
+            const has_taxes = element.has_taxes || [];
+
+            let tax_import = 0;
+
+            has_taxes.forEach((taxe, index) => {
+                const tax_setting = taxe.tax_setting
+
+                let tasa_cuota_porcentage = tax_setting.tasa_cuota_porcentage / 100;
+                let tasa_cuota = tasa_cuota_porcentage * price;
+
+                if (tax_setting.is_traslado == 1 && tax_setting.is_retencion == 0) {
+
+                    tax_import += tasa_cuota;
+                }
+                if (tax_setting.is_traslado == 0 && tax_setting.is_retencion == 1) {
+
+                    tax_import -= tasa_cuota;
+                }
+            });
+            
+            amountTax.value = amountTax.value + tax_import;
+            
+        }
 
     })
 
-    amountTotal.value = parseFloat(amountImport.value - amountDiscount.value);
 
+    //Total
+    let total = amountImport.value - amountDiscount.value;
+    total = total + amountTax.value;
+    amountTotal.value = roundToTwoDecimals(total);
+
+    //Subtotal (Importe)
+    amountImport.value = roundToTwoDecimals(amountImport.value);
+
+    // Descuento
+    amountDiscount.value = roundToTwoDecimals(amountDiscount.value);
+
+    // Impuesto
+    amountTax.value = roundToTwoDecimals(amountTax.value);
+
+}
+
+const roundToTwoDecimals = (value) => {
+    return parseFloat(parseFloat(value).toFixed(2));
 }
 
 function onAdd(data) {
@@ -196,6 +311,27 @@ function onChangeStatus(data) {
         })
 }
 
+function onCancelSale() {
+    
+    proxy.alert
+        .deleteConfirmation({
+            title: 'Cancelar compra',
+            text: `Ingresar la palabra "Confirmar" para cancelar la compra`,
+            options: {
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Aceptar cancelar compra',
+                inputPlaceholder: 'Confirmar',
+                showCancelButton: true,
+                reverseButtons: true
+            }
+        })
+        .then((result) => {
+            if (result.value == 'Confirmar') {
+                reloadPage.value = true
+            }
+        })
+}
+
 
 
 </script>
@@ -210,14 +346,13 @@ function onChangeStatus(data) {
                 :pageNowName="pageNowName" />
             <div class="row">
                 <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
-                <Totals
-                :amountImport="amountImport"
-                :amountDiscount="amountDiscount"
-                :amountTotal="amountTotal"
-                />
+                <Totals :amountImport="amountImport" :amountDiscount="amountDiscount" :amountTotal="amountTotal" :amountTax="amountTax" />
 
                 <table-products-sales :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
-                    @btnAction="action" :title="tableTitle" :collectionData="products" />
+                    @btnAction="action" :title="tableTitle" :collectionData="products" 
+                    :labelBtnCancelSale="'Cancelar compra'"
+                    :showBtnCancelSale="true"
+                    />
             </div>
         </div>
     </div>

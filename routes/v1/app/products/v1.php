@@ -8,7 +8,7 @@ $endpointCategoryProducts = "app-category-products";
 $endpointProducts = "app-products";
 
 
-// Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointCategoryProducts, $endpointProducts) {
+Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointCategoryProducts, $endpointProducts) {
 
     // CATEGORIAS DE PRODUCTOS
 
@@ -36,4 +36,4 @@ $endpointProducts = "app-products";
         Route::get('/export-products', [ProductsController::class, 'export_products'])->name("$endpointProducts.export.products");
 
     });
-// });
+});

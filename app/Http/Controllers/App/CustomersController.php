@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\App;
 
+use App\Exports\CustomersExport;
 use App\Http\Controllers\Controller;
 use App\Models\Customers;
 use App\Models\CustomersHasAddress;
@@ -419,6 +420,27 @@ class CustomersController extends Controller
             ];
             log::debug($response);
             return response()->error('Error al cambiar de estatus cliente.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Exportar reporte de productos
+     */
+    public function export_customers(Request $request)
+    {
+        try {
+            $fileNme    = 'clientes_' . Carbon::now()->toDateString(). '.xlsx';
+            return (new CustomersExport($request))->download($fileNme);
+
+        } catch (\Exception $exception) {
+            
+            $response = [
+                "file"    => $exception->getFile(),
+                "line"    => $exception->getLine(),
+                "message" => $exception->getMessage(),
+            ];
+            log::debug($exception);
+            return response()->error('Error al cambiar de estatus el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SalesManagement;
 
 use App\Http\Controllers\Controller;
+use App\Models\Products\Products;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +14,12 @@ class SalesController extends Controller
      */
     public function index()
     {
-        return Inertia::render('SalesManagement/Sales/Index', []);
+        $products = Products::where(Products::IS_ACTIVE, 1)->get();
+        
+        return Inertia::render('SalesManagement/Sales/Index', 
+        [
+            'cat_products' => $products
+        ]);
     }
 
     /**

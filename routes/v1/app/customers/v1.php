@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 $endpointApp = "app-customers";
 
 
-Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointApp) {
+// Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')->group(function () use ($endpointApp) {
 
     // USUARIOS
 
@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')-
         Route::post('/{id_token}/update', [CustomersController::class, 'update'])->name("$endpointApp.update");
         Route::delete('/{id_token}/destroy', [CustomersController::class, 'destroy'])->name("$endpointApp.destroy");
         Route::post('/{id_token}/change-status', [CustomersController::class, 'change_status'])->name("$endpointApp.change_status");
+        Route::get('/export-customers', [CustomersController::class, 'export_customers'])->name("$endpointApp.export.customers");
 
     });
-});
+// });

@@ -3,6 +3,17 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="header-title">{{ props.title }}</h4>
+                <div class="col-12 d-flex justify-content-end">
+                    <template v-if="props.showBtnCancelSale">
+                        <div class="col-auto">
+                            <button @click="btnAction({ action: 'cancel_sale', value: null })" type="button"
+                                :title="props.labelBtnCancelSale" class="btn btn-danger mb-2 mr-1">
+                                <i :class="props.btnCancelSaleIcon" />
+                                {{ props.labelBtnCancelSale }}
+                            </button>
+                        </div>
+                    </template>
+                </div>
                 <div class="responsive-table-plugin">
                     <div class="table-rep-plugin">
                         <div class="table-responsive" data-pattern="priority-columns">
@@ -20,7 +31,18 @@
                                     </tr>
                                     <tr v-else v-for="(item, index) in collection" :key="index">
                                         <td class="text-justify" v-for="attribute in tbody" :key="attribute">
-                                            {{ getValueProperty(item, attribute) }}
+
+                                            <template v-if="attribute == 'quantity'">
+                                                <input v-model="item.quantity" type="number"
+                                                    class="form-control allow-spin" id="quantity" placeholder="Cantidad"
+                                                    step="1"
+                                                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                    maxlength="10"
+                                                    @input="btnAction({ action: 'change_quantity', value: collection, key: index })">
+                                            </template>
+                                            <template v-else>
+                                                {{ getValueProperty(item, attribute) }}
+                                            </template>
                                         </td>
                                         <td v-if="props.options">
                                             <template v-if="habilitedActions(index)">
@@ -79,6 +101,17 @@ const props = defineProps({
     },
     actions: {
         required: true
+    },
+    labelBtnCancelSale: {
+        type: String
+    },
+    showBtnCancelSale: {
+        type: Boolean,
+        default: false
+    },
+    btnCancelSaleIcon: {
+        type: String,
+        default: 'mdi mdi-cancel'
     },
 });
 

@@ -68,6 +68,8 @@ const config = {
     showCancelButton: false
 }
 
+const searchRef = ref(null);
+
 // MOUNTED  --------------------------
 onMounted(() => {
 });
@@ -92,6 +94,9 @@ function action(value) {
         },
         change_status: function (item) {
             onChangeStatus(item)
+        },
+        export: function (item) {
+            onExport(item)
         },
     }
 
@@ -205,7 +210,26 @@ function onChangeStatus(data) {
         })
 }
 
+function onExport(data) {
 
+    const data_copy = searchRef.value.submitFormExport()
+
+    const baseUrl = window.location.origin;
+
+    let queryParams = [];
+
+    for (let key in data_copy) {
+        if (data_copy.hasOwnProperty(key)) {
+            queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(data_copy[key])}`);
+        }
+    }
+    const exportUrl = `${baseUrl}/api/v1/app-customers/export-customers?${queryParams.join('&')}`;
+
+    window.open(exportUrl, "_blank");
+
+
+
+}
 
 </script>
 
@@ -218,11 +242,12 @@ function onChangeStatus(data) {
             <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
                 :pageNowName="pageNowName" />
             <div class="row">
-                <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
+                <Search ref="searchRef" :title="'Buscar'" :method="'search'" @btnAction="action" />
 
                 <table-pagination :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
                     @btnAction="action" :endpoint="endpoint" :title="tableTitle" :searchPost="searchForm"
-                    :labelBtnNew="'Nuevo cliente'" :showBtnNew="true" :reload="reloadPage" @reload="reload" />
+                    :labelBtnNew="'Nuevo cliente'" :showBtnNew="true" :reload="reloadPage" @reload="reload"
+                    :labelBtnExport="'Exportar clientes'" :showBtnExport="true" />
             </div>
         </div>
     </div>
