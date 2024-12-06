@@ -9,6 +9,8 @@ import TableProductsSales from '@/Components/helps/TableProductsSales.vue';
 import Footer from '@/Layouts/Footer.vue';
 import Search from './Search.vue';
 import Totals from './Totals.vue';
+import ModalSearchProduct from './ModalSearchProduct.vue';
+import ModalCollectingMoney from './ModalCollectingMoney.vue';
 
 // VARIABLES --------------------------
 const { proxy } = getCurrentInstance();
@@ -71,9 +73,21 @@ const config = {
     showCloseButton: false,
     showCancelButton: false
 }
+let modalSearchProductView
+let modalCollectingMoneyView
 
 // MOUNTED  --------------------------
 onMounted(() => {
+
+    modalSearchProductView = new bootstrap.Modal(document.getElementById('modalSearchProductView'), {
+        backdrop: 'static',
+        keyboard: false
+    })
+    modalCollectingMoneyView = new bootstrap.Modal(document.getElementById('modalCollectingMoneyView'), {
+        backdrop: 'static',
+        keyboard: false
+    })
+
 });
 
 // WATCH  --------------------------
@@ -111,6 +125,15 @@ function action(value) {
         },
         change_quantity: function (item) {
             onChangeQuantity(item)
+        },
+        on_view_modal_search_product: function (item) {
+            onViewModalSearchProduct(item)
+        },
+        on_search_product_modal: function (item) {
+            onModalSearchProduct(item)
+        },
+        on_collecting_money: function (item) {
+            onCollectingMoney(item)
         },
     }
 
@@ -332,6 +355,23 @@ function onCancelSale() {
         })
 }
 
+function onViewModalSearchProduct() {
+    
+    modalSearchProductView.show()
+    
+}
+
+function onModalSearchProduct(barcode) {
+    modalSearchProductView.hide()
+    onSearch(barcode);
+
+}
+
+function onCollectingMoney(barcode) {
+    modalCollectingMoneyView.show()
+
+}
+
 
 
 </script>
@@ -346,14 +386,17 @@ function onCancelSale() {
                 :pageNowName="pageNowName" />
             <div class="row">
                 <Search :title="'Buscar'" :method="'search'" @btnAction="action" />
-                <Totals :amountImport="amountImport" :amountDiscount="amountDiscount" :amountTotal="amountTotal" :amountTax="amountTax" />
+                <Totals :amountImport="amountImport" :amountDiscount="amountDiscount" :amountTotal="amountTotal"
+                    :amountTax="amountTax" :method="'on_collecting_money'" @btnAction="action" />
 
                 <table-products-sales :headers="tableHeaders" :tbody="tbody" :options="true" :actions="actions"
-                    @btnAction="action" :title="tableTitle" :collectionData="products" 
-                    :labelBtnCancelSale="'Cancelar compra'"
-                    :showBtnCancelSale="true"
-                    />
+                    @btnAction="action" :title="tableTitle" :collectionData="products"
+                    :labelBtnCancelSale="'Cancelar proceso de venta'" :showBtnCancelSale="true" />
             </div>
+            <modal-search-product :products="props.cat_products" :method="'on_search_product_modal'"
+                @btnAction="action" />
+
+            <modal-collecting-money @btnAction="action" :amountTotal="amountTotal" />
         </div>
     </div>
 

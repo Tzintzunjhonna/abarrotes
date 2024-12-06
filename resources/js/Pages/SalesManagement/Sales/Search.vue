@@ -12,7 +12,6 @@ const props = defineProps({
 })
 
 let search = ref({
-  // barcode: '7501557140162',
   barcode: '',
 })
 
@@ -25,6 +24,10 @@ async function submitForm() {
 function btnAction(value) {
   emit('btnAction', value)
 }
+
+function btnSearchBarcode() {
+  btnAction({ action: 'on_view_modal_search_product', value: true })
+}
 </script>
 
 <template>
@@ -36,19 +39,24 @@ function btnAction(value) {
         <form class="needs-validation" @submit.prevent="submitForm">
           <div class="row">
 
-            <div class="mb-2 col-md-12">
+            <div class="mb-2 col-md-12 mt-4">
               <label for="barcode" class="form-label">Código del producto</label>
-              <input v-model="search.barcode" type="text" class="form-control" id="barcode" placeholder="Código del producto">
+              <input v-model="search.barcode" type="text" class="form-control" id="barcode"
+                placeholder="Código del producto">
             </div>
           </div>
 
           <button class="btn btn-primary" type="submit">
+            <i class="mdi mdi-content-save"></i>
+            Agregar
+          </button>
+          <button class="btn btn-warning m-2" type="button" @click="btnSearchBarcode">
             <i class="mdi mdi-text-search"></i>
-            Buscar
+            Abrir buscador de código
           </button>
         </form>
 
-      </div> <!-- end card-body-->
-    </div> <!-- end card-->
+      </div>
+    </div>
   </div>
 </template>
