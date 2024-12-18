@@ -1,176 +1,76 @@
 <template>
     <div>
-        <div id="wizard-create-app" class="bs-stepper vertical mt-2 shadow-none">
-            <div class="bs-stepper-header border-0 p-1 pb-0">
-                <div class="step active" data-target="#customer">
-                    <button type="button" class="step-trigger" aria-selected="true">
-                        <span class="bs-stepper-circle"><i class="mdi mdi-account-group"></i></span>
-                        <span class="bs-stepper-label">
-                            <span class="bs-stepper-title text-uppercase">Cliente</span>
-                            <span class="bs-stepper-subtitle">Añade un cliente a la venta</span>
-                        </span>
-                    </button>
-                </div>
-                <div class="line"></div>
-                <div class="step" data-target="#billing">
-                    <button type="button" class="step-trigger" aria-selected="false">
-                        <span class="bs-stepper-circle"><i class="mdi mdi-cash"></i></span>
-                        <span class="bs-stepper-label">
-                            <span class="bs-stepper-title text-uppercase">Facturar</span>
-                            <span class="bs-stepper-subtitle">Factura para la venta</span>
-                        </span>
-                    </button>
-                </div>
-                <div class="line"></div>
+        <h5 class="header-title mb-4">
+            <div class="form-check form-switch">
+                <input v-model="form.options_sale" class="form-check-input" type="checkbox" id="switch_options">
+
+                <label class="form-check-label ml-2" for="switch_options">
+                    Opciones de venta</label>
             </div>
-            <div class="bs-stepper-content p-1 pb-0">
-                <form>
-                    <!-- customer -->
-                    <div id="customer" class="content pt-4 pt-lg-0 dstepper-block active">
-                        <div class="mb-6">
-                            <label for="exampleInputEmail1" class="form-label">Application Name</label>
-                            <input type="text" class="form-control" id="exampleInputEmail1"
-                                placeholder="Application Name">
-                        </div>
-                        <h5>Category</h5>
-                        <ul class="p-0 m-0">
-                            <li class="d-flex align-items-start mb-4">
-                                <div class="badge bg-label-info p-2 me-3 rounded"><i class="bx bx-file bx-30px"></i>
-                                </div>
-                                <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                    <div class="me-2">
-                                        <h6 class="mb-1">CRM Application</h6>
-                                        <small>Scales with any business</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input name="customer-radio" class="form-check-input" type="radio" value="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start mb-4">
-                                <div class="badge bg-label-success p-2 me-3 rounded"><i class="bx bx-cart bx-30px"></i>
-                                </div>
-                                <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                    <div class="me-2">
-                                        <h6 class="mb-1">eCommerce Platforms</h6>
-                                        <small>Grow Your Business With App</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input name="customer-radio" class="form-check-input" type="radio" value="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <div class="badge bg-label-danger p-2 me-3 rounded"><i class="bx bx-laptop bx-30px"></i>
-                                </div>
-                                <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                    <div class="me-2">
-                                        <h6 class="mb-1">Online Learning platform</h6>
-                                        <small>Start learning today</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input name="customer-radio" class="form-check-input" type="radio" value="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="col-12 d-flex justify-content-between mt-6">
-                            <button class="btn btn-label-secondary btn-prev"> <i
-                                    class="bx bx-left-arrow-alt bx-sm me-sm-2 me-0"></i>
-                                <span class="align-middle d-sm-inline-block d-none">Previous</span>
-                            </button>
-                            <button class="btn btn-primary btn-next"> <span
-                                    class="align-middle d-sm-inline-block d-none me-sm-2">Next</span> <i
-                                    class="bx bx-right-arrow-alt bx-sm"></i></button>
+        </h5>
+
+        <div class="row" v-if="form.options_sale == true">
+            <div class="col-sm-3">
+                <div class="nav flex-column nav-pills nav-pills-tab" id="v-pills-tab" role="tablist"
+                    aria-orientation="vertical">
+                    <a class="nav-link show mb-1" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home"
+                        role="tab" aria-controls="v-pills-home" aria-selected="false" tabindex="-1"
+                        :class="form.options_sale == true ? 'active' : ''">
+                        <span class="bs-stepper-title text-uppercase">Cliente</span>
+                        <span class="bs-stepper-subtitle">Añade un cliente a la venta</span>
+                    </a>
+                    <a class="nav-link mb-1" id="v-pills-profile-tab" data-bs-toggle="pill" href="#v-pills-profile"
+                        role="tab" aria-controls="v-pills-profile" aria-selected="false" tabindex="-1">
+                        <span class="bs-stepper-title text-uppercase">Facturar</span>
+                        <span class="bs-stepper-subtitle">Incluir factura para la venta</span>
+                    </a>
+                </div>
+            </div> <!-- end col-->
+            <div class="col-sm-9">
+                <div class="tab-content pt-0">
+                    <div class="tab-pane fade" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab"
+                        :class="form.options_sale == true ? 'active show' : ''">
+                        <p>
+                            Selecciona un cliente al que se le asignará la venta.
+                        </p>
+                        <div class="mb-2 col-md-12">
+                            <label for="customer" class="form-label">Cliente</label>
+                            <Multiselect v-model="form.customer" track-by="business_name" label="business_name"
+                                placeholder="Selecciona un cliente" :show-labels="false" deselectLabel=" "
+                                :block-keys="['Tab', 'Enter']" :options="cat_customer" :searchable="true"
+                                :allow-empty="true" :showNoOptions="false">
+
+                                <template v-slot:option="{ option }">
+                                    <span>{{ option.business_name }} ({{ option.rfc }})</span>
+                                </template>
+
+                                <template v-slot:noResult>
+                                    <span>Opción no encontrada</span>
+                                </template>
+                            </Multiselect>
                         </div>
                     </div>
+                    <div class="tab-pane fade" id="v-pills-profile" role="tabpanel"
+                        aria-labelledby="v-pills-profile-tab">
+                        <div class="mb-2 col-md-12">
+                            <p>
+                                Al activar este botón, la venta será facturada y el responsable de facturación
+                                deberá emitir la factura correspondiente.
+                            </p>
+                            <div class="form-check form-switch">
+                                <input v-model="form.is_invoice" class="form-check-input" type="checkbox"
+                                    id="switch_is_invoice">
 
-                    <!-- billing -->
-                    <div id="billing" class="content pt-4 pt-lg-0 dstepper-block">
-                        <h5>Select Framework</h5>
-                        <ul class="p-0 m-0">
-                            <li class="d-flex align-items-start mb-4">
-                                <div class="badge bg-label-info p-2 me-3 rounded"><i class="bx bxl-react bx-30px"></i>
-                                </div>
-                                <div class="d-flex justify-content-between w-100">
-                                    <div class="me-2">
-                                        <h6 class="mb-1">React Native</h6>
-                                        <small>Create truly native apps</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input name="billing-radio" class="form-check-input" type="radio" value="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start mb-4">
-                                <div class="badge bg-label-danger p-2 me-3 rounded"><i
-                                        class="bx bxl-angular bx-30px"></i></div>
-                                <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                    <div class="me-2">
-                                        <h6 class="mb-1">Angular</h6>
-                                        <small>Most suited for your application</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input name="billing-radio" class="form-check-input" type="radio" value="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start mb-4">
-                                <div class="badge bg-label-success p-2 me-3 rounded"><i
-                                        class="bx bxl-vuejs bx-30px"></i></div>
-                                <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                    <div class="me-2">
-                                        <h6 class="mb-1">Vue</h6>
-                                        <small>JS web billing</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input name="billing-radio" class="form-check-input" type="radio" value="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start">
-                                <div class="badge bg-label-warning p-2 me-3 rounded"><i
-                                        class="bx bxl-html5 bx-30px"></i></div>
-                                <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                    <div class="me-2">
-                                        <h6 class="mb-1">HTML</h6>
-                                        <small>Progressive Framework</small>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input name="billing-radio" class="form-check-input" type="radio" value="">
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-
-                        <div class="col-12 d-flex justify-content-between mt-6">
-                            <button class="btn btn-label-secondary btn-prev"> <i
-                                    class="bx bx-left-arrow-alt bx-sm me-sm-2 me-0"></i> <span
-                                    class="align-middle d-sm-inline-block d-none">Previous</span>
-                            </button>
-                            <button class="btn btn-primary btn-next"> <span
-                                    class="align-middle d-sm-inline-block d-none me-sm-2">Next</span> <i
-                                    class="bx bx-right-arrow-alt bx-sm"></i></button>
+                                <label class="form-check-label ml-2" for="switch_is_invoice">Facturar
+                                    venta</label>
+                            </div>
                         </div>
-                    </div>
 
-                </form>
-            </div>
-        </div>
+                    </div>
+                </div>
+            </div> <!-- end col-->
+        </div> <!-- end row-->
+
     </div>
 </template>
 <script setup>
@@ -182,16 +82,22 @@ import { getCurrentInstance, onMounted, ref, reactive, watch } from "vue";
 const emit = defineEmits(['btnAction'])
 
 const props = defineProps({
-    amountTotal: {
-        type: Number,
-        required: true,
-    },
     method: {
         type: String
+    },
+    cat_customer: {
+        type: Array,
+        required: true,
     },
 });
 
 const type_payment = ref(null);
+
+const form = ref({
+    customer: null,
+    is_invoice: false,
+    options_sale: false,
+});
 
 
 // FUNCTIONS ----------------------------

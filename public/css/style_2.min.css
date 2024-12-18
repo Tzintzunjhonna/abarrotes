@@ -1315,3 +1315,21 @@ html:not([dir=rtl]) .dark-style .bs-stepper.vertical .bs-stepper-header {
 #wizard-create-app.vertical .bs-stepper-header {
     min-width: 15rem
 }
+
+.nav-link {
+    display: flex;
+    flex-direction: column; /* Hace que los elementos hijos se coloquen en columna */
+    align-items: flex-start; /* Alinea los textos a la izquierda */
+    text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+}
+
+.bs-stepper-title {
+    font-weight: bold; /* Hace que el título resalte más */
+    font-size: 1rem; /* Tamaño de fuente del título */
+    margin-bottom: 0.2rem; /* Espacio entre el título y el subtítulo */
+}
+
+.bs-stepper-subtitle {
+    font-size: 0.875rem; /* Tamaño de fuente ligeramente más pequeño para el subtítulo */
+    color: #6c757d; /* Color gris para el subtítulo */
+}

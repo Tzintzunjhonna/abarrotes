@@ -26,7 +26,11 @@ const props = defineProps({
     cat_products: {
         type: Array,
         required: true,
-    }
+    },
+    cat_customer: {
+        type: Array,
+        required: true,
+    },
 });
 
 // TABLAS --------------------------
@@ -396,7 +400,7 @@ function onCollectingMoney(barcode) {
             <modal-search-product :products="props.cat_products" :method="'on_search_product_modal'"
                 @btnAction="action" />
 
-            <modal-collecting-money @btnAction="action" :amountTotal="amountTotal" />
+            <modal-collecting-money @btnAction="action" :amountTotal="amountTotal" :cat_customer="props.cat_customer" />
         </div>
     </div>
 

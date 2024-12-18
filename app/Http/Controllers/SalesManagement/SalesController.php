@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SalesManagement;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customers;
 use App\Models\Products\Products;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,10 +16,12 @@ class SalesController extends Controller
     public function index()
     {
         $products = Products::where(Products::IS_ACTIVE, 1)->get();
+        $customers = Customers::where(Customers::IS_ACTIVE, 1)->get();
         
         return Inertia::render('SalesManagement/Sales/Index', 
         [
-            'cat_products' => $products
+            'cat_products' => $products,
+            'cat_customer' => $customers,
         ]);
     }
 
