@@ -115,3 +115,163 @@ public function store(Request $request)
         return response()->json(['error' => 'Error al registrar la venta'], 500);
     }
 }
+
+1. Migración de la tabla ventas
+php
+Copiar código
+// database/migrations/xxxx_xx_xx_create_ventas_table.php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateVentasTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('ventas', function (Blueprint $table) {
+            $table->id();  // ID auto-incremental
+            $table->foreignId('cliente_id')->nullable()->constrained('clientes')->onDelete('set null'); // Relación con clientes (opcional)
+            $table->timestamp('fecha_venta')->useCurrent(); // Fecha de la venta
+            $table->decimal('total', 10, 2); // Monto total de la venta
+            $table->decimal('total_con_descuento', 10, 2)->default(0); // Total con descuento
+            $table->decimal('total_impuestos', 10, 2)->default(0); // Total de impuestos
+            $table->decimal('monto_pagado', 10, 2); // Monto que el cliente pagó
+            $table->decimal('cambio', 10, 2)->default(0); // Monto de cambio
+            $table->foreignId('tipo_pago')->constrained('tipos_pago'); // Tipo de pago
+            $table->enum('estado', ['completada', 'pendiente', 'cancelada'])->default('completada'); // Estado de la venta
+            $table->text('comentarios')->nullable(); // Comentarios sobre la venta
+            $table->timestamps(); // created_at y updated_at
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('ventas');
+    }
+}
+2. Migración de la tabla detalle_ventas
+php
+Copiar código
+// database/migrations/xxxx_xx_xx_create_detalle_ventas_table.php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateDetalleVentasTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('detalle_ventas', function (Blueprint $table) {
+            $table->id();  // ID auto-incremental
+            $table->foreignId('venta_id')->constrained('ventas')->onDelete('cascade'); // Relación con ventas
+            $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade'); // Relación con productos
+            $table->decimal('cantidad', 10, 2); // Cantidad del producto
+            $table->decimal('precio_unitario', 10, 2); // Precio unitario del producto
+            $table->decimal('descuento', 10, 2)->default(0); // Descuento aplicado al producto
+            $table->decimal('subtotal', 10, 2); // Subtotal del producto (cantidad * precio - descuento)
+            $table->decimal('impuesto', 10, 2)->default(0); // Impuesto aplicado al producto
+            $table->decimal('total', 10, 2); // Total por este producto (subtotal + impuesto)
+            $table->timestamps(); // created_at y updated_at
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('detalle_ventas');
+    }
+}
+3. Migración de la tabla productos
+php
+Copiar código
+// database/migrations/xxxx_xx_xx_create_productos_table.php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateProductosTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('productos', function (Blueprint $table) {
+            $table->id(); // ID auto-incremental
+            $table->string('nombre'); // Nombre del producto
+            $table->text('descripcion')->nullable(); // Descripción del producto
+            $table->decimal('precio', 10, 2); // Precio del producto
+            $table->decimal('cantidad_stock', 10, 2); // Cantidad en stock
+            $table->boolean('activo')->default(true); // Estado del producto (activo o no)
+            $table->timestamps(); // created_at y updated_at
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('productos');
+    }
+}
+4. Migración de la tabla clientes (Opcional)
+php
+Copiar código
+// database/migrations/xxxx_xx_xx_create_clientes_table.php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateClientesTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('clientes', function (Blueprint $table) {
+            $table->id(); // ID auto-incremental
+            $table->string('nombre'); // Nombre del cliente
+            $table->string('email')->unique()->nullable(); // Email del cliente
+            $table->string('telefono')->nullable(); // Teléfono del cliente
+            $table->text('direccion')->nullable(); // Dirección del cliente
+            $table->timestamps(); // created_at y updated_at
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('clientes');
+    }
+}
+5. Migración de la tabla tipos_pago (Opcional)
+php
+Copiar código
+// database/migrations/xxxx_xx_xx_create_tipos_pago_table.php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateTiposPagoTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('tipos_pago', function (Blueprint $table) {
+            $table->id(); // ID auto-incremental
+            $table->string('nombre'); // Nombre del tipo de pago (efectivo, tarjeta, etc.)
+            $table->timestamps(); // created_at y updated_at
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('tipos_pago');
+    }
+}
+¿Cómo ejecutar las migraciones?
+Una vez que hayas creado todas las migraciones, debes ejecutar el siguiente comando para que se apliquen a tu base de datos:
+
+bash
+Copiar código
+php artisan migrate
+Este comando ejecutará todas las migraciones pendientes y creará las tablas en tu base de datos.
+
+Resumen:
+Tabla ventas: Almacena los detalles generales de cada venta (cliente, monto, tipo de pago, etc.).
+Tabla detalle_ventas: Almacena los productos específicos de cada venta (cantidad, precio, impuestos, etc.).
+Tabla productos: Almacena información sobre los productos disponibles en el inventario.
+Tabla clientes (opcional): Almacena la información del cliente, si lo deseas.
+Tabla tipos_pago (opcional): Almacena los tipos de pago disponibles en el sistema.
+Recuerda ajustar las relaciones y campos según las necesidades específicas de tu sistema, por ejemplo, agregando más campos como descuentos globales, impuestos especiales, entre otros.
+

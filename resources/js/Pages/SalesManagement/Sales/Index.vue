@@ -12,6 +12,8 @@ import Totals from './Totals.vue';
 import ModalSearchProduct from './ModalSearchProduct.vue';
 import ModalCollectingMoney from './ModalCollectingMoney.vue';
 
+import LoadingScreen from "@/Components/helps/loading.vue";
+
 // VARIABLES --------------------------
 const { proxy } = getCurrentInstance();
 
@@ -71,6 +73,7 @@ let searchForm = ref([])
 
 let reloadPage = ref(false)
 
+const loadingScreenRef = ref(null);
 
 const config = {
     confirmButtonText: 'Aceptar',
@@ -138,6 +141,9 @@ function action(value) {
         },
         on_collecting_money: function (item) {
             onCollectingMoney(item)
+        },
+        on_collecting_money_submit: function (item) {
+            onCollectingMoneySubmit(item)
         },
     }
 
@@ -207,6 +213,7 @@ function onSearch(barcode) {
             stock: productFind.stock - 1,
             is_with_tax: productFind.is_with_tax,
             has_taxes: productFind.has_taxes, 
+            id: productFind.id,
         });
     }
 
@@ -372,15 +379,78 @@ function onModalSearchProduct(barcode) {
 }
 
 function onCollectingMoney(barcode) {
+
+    if (products.value.length == 0) {
+        proxy.alert.apiWarning({
+            title: 'Advertencia',
+            error: 'Para continuar con la venta, selecciona al menos un producto.'
+        });
+        return;
+    }
     modalCollectingMoneyView.show()
 
 }
+
+function onCollectingMoneySubmit(data) {
+    modalCollectingMoneyView.hide()
+    console.log(data)
+    console.log(products)
+
+    let formData = proxy.setFormData(data);
+    formData.append("products", JSON.stringify(products.value));
+
+    formData.append("amountImport", amountImport.value);
+    formData.append("amountTax", amountTax.value);
+    formData.append("amountDiscount", amountDiscount.value);
+    formData.append("amountTotal", amountTotal.value);
+    
+    onSubmit(formData);
+}
+
+
+async function onSubmit(formData) {
+
+    loadingScreenRef.value.startLoading();
+
+    proxy.api
+        .post(`v1/app-sales-management/store`, formData, {
+            headers: {
+                'Content-Type': `multipart/form-data`,
+            },
+        })
+        .then((response) => {
+            loadingScreenRef.value.stopLoading();
+            proxy.alert.apiSuccess({ title: response.message, description: '' }, config).then((result) => {
+                if (result.isConfirmed) {
+                    reload();
+                }
+            });
+        })
+        .catch((error) => {
+            loadingScreenRef.value.stopLoading();
+            console.log(error)
+            if (error.errors) {
+                proxy.alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.errors.message
+                });
+            } else {
+                proxy.alert.apiError({
+                    title: 'Error en la operación',
+                    error: error.message
+                });
+            }
+        })
+}
+
 
 
 
 </script>
 
 <template>
+
+    <LoadingScreen ref="loadingScreenRef" />
     <MenuPage />
     <div class="content">
         <div class="container-fluid">
@@ -400,7 +470,8 @@ function onCollectingMoney(barcode) {
             <modal-search-product :products="props.cat_products" :method="'on_search_product_modal'"
                 @btnAction="action" />
 
-            <modal-collecting-money @btnAction="action" :amountTotal="amountTotal" :cat_customer="props.cat_customer" />
+            <modal-collecting-money @btnAction="action" :amountTotal="amountTotal" :cat_customer="props.cat_customer"
+                :method="'on_collecting_money_submit'" />
         </div>
     </div>
 

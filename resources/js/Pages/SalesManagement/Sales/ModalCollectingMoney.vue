@@ -128,7 +128,7 @@
                         </div>
 
                         <div class="mt-5">
-                            <SteppersSale :cat_customer="props.cat_customer" />
+                            <SteppersSale ref="steppersSaleRef" :cat_customer="props.cat_customer" />
                         </div>
                         <div class="modal-footer">
 
@@ -156,8 +156,10 @@ import CashPayment from '@/Components/images/CashPayment.vue';
 import CardPayment from '@/Components/images/CardPayment.vue';
 import VoucherPayment from '@/Components/images/VoucherPayment.vue';
 import SteppersSale from '@/Components/helps/SteppersSale.vue';
+import { integer } from "@vuelidate/validators";
 
 // VARIABLES --------------------------
+const { proxy } = getCurrentInstance();
 const emit = defineEmits(['btnAction'])
 
 const props = defineProps({
@@ -179,7 +181,10 @@ const class_his_change = ref({
     class: '',
     icon: '',
 });
+
 const type_payment = ref(null);
+const validValuesTypePayment = [1, 2, 3]
+
 
 const form = ref({
     paid_with : '',
@@ -188,12 +193,86 @@ const form = ref({
     voucher_payment_reference : '',
 });
 
+const steppersSaleRef = ref(null);
+
+// WATCH  --------------------------
+watch(
+    () => type_payment.value,
+    (newValue, oldValue) => {
+        reloadForm()
+    }
+)
 
 // FUNCTIONS ----------------------------
 
-
 function submitForm() {
-    btnAction({ action: props.method, value: true })
+    // Validar si el tipo de pago es válido
+    const isValid = validValuesTypePayment.includes(type_payment.value);
+
+    if (!isValid) {
+        showAlert('Para continuar con la venta, necesitas seleccionar una opción de cobro.');
+        return;
+    }
+
+    // Validaciones específicas por tipo de pago
+    const paymentValidations = {
+        1: () => {
+            if (form.value.paid_with === '' && form.value.his_change === '') {
+                showAlert('Para proceder con la venta, necesitas ingresar el monto que el cliente va a pagar.');
+                return false;
+            }
+            if (form.value.paid_with < props.amountTotal) {
+                showAlert('El monto ingresado es insuficiente para cubrir el total de la venta. Por favor, ingrese un monto mayor.');
+                return false;
+            }
+            return true;
+        },
+        2: () => {
+            if (form.value.card_payment_reference === '') {
+                showAlert('Para proceder con la venta, necesitas ingresar la referencia de la pasarela de pago.');
+                return false;
+            }
+            return true;
+        },
+        3: () => {
+            if (form.value.voucher_payment_reference === '') {
+                showAlert('Para proceder con la venta, necesitas ingresar la referencia y/o el número de vale.');
+                return false;
+            }
+            return true;
+        }
+    };
+
+    // Ejecutar la validación correspondiente al tipo de pago
+    if (!paymentValidations[type_payment.value]?.()) {
+        return;
+    }
+
+    // Obtener los datos del paso actual
+    const { customer, is_invoice, options_sale, type_payment_data } = steppersSaleRef.value.onSubmitData();
+
+    const dataForm = {
+        customer,
+        is_invoice,
+        options_sale,
+        type_payment: type_payment.value,
+        paid_with: form.value.paid_with,
+        his_change: form.value.his_change,
+        card_payment_reference: form.value.card_payment_reference,
+        voucher_payment_reference: form.value.voucher_payment_reference
+    };
+
+    console.log(dataForm);
+
+    btnAction({ action: props.method, value: dataForm });
+}
+
+// Función reusable para mostrar alertas
+function showAlert(message) {
+    proxy.alert.apiWarning({
+        title: 'Advertencia',
+        error: message
+    });
 }
 
 function btnAction(value) {
@@ -204,13 +283,25 @@ function handleInputPaidWith() {
     class_his_change.value.class = '';
     class_his_change.value.icon = 'mdi mdi-cash-check';
 
-    let his_change = props.amountTotal - form.value.paid_with;
-    form.value.his_change = his_change;
+    let his_change = proxy.roundToTwoDecimals(props.amountTotal - form.value.paid_with);
+    form.value.his_change = Math.abs(his_change);
     
-    if (his_change < 0){
+
+    if (form.value.paid_with < props.amountTotal) {
         class_his_change.value.class = 'border-danger';
         class_his_change.value.icon = 'mdi mdi-cash-remove';
     }
+}
+
+function reloadForm() {
+     
+    form.value.paid_with = '';
+    form.value.his_change = '';
+    form.value.card_payment_reference = '';
+    form.value.voucher_payment_reference = '';
+    class_his_change.value.class = '';
+    class_his_change.value.icon = 'mdi mdi-cash-check';
+    
 }
 
 </script>

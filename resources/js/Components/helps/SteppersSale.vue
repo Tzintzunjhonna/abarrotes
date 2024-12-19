@@ -76,7 +76,7 @@
 <script setup>
 
 // IMPORTS --------------------------
-import { getCurrentInstance, onMounted, ref, reactive, watch } from "vue";
+import { getCurrentInstance, onMounted, ref, reactive, watch, defineExpose } from "vue";
 
 // VARIABLES --------------------------
 const emit = defineEmits(['btnAction'])
@@ -111,4 +111,12 @@ function btnAction(value) {
     emit('btnAction', value)
 }
 
+
+function onSubmitData() {
+    return form.value
+}
+
+defineExpose({
+    onSubmitData
+});
 </script>

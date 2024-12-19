@@ -14,3 +14,4 @@ require_once "v1/app/providers/v1.php";
 require_once "v1/app/customers/v1.php";
 require_once "v1/app/products/v1.php";
 require_once "v1/app/configuration/v1.php";
+require_once "v1/app/sales_management/v1.php";

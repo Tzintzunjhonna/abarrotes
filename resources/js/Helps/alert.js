@@ -164,6 +164,41 @@ const alert = {
             confirmButtonText: 'Cerrar',
             ...options
         })
+    },
+    apiWarning: ( { title, description,error, }, options ) => {       
+        var msg = ''
+        if(error){
+            if(typeof(error)== 'array' ){
+                msg = error.join('\n');
+            }else
+            if(typeof(error)== 'object' ){
+
+                var errores='';
+                $.each(error,function(i, item){
+                    errores += '* ' + item + ' \n';
+                });
+                msg = errores;
+            }else{
+                msg = error 
+            }
+
+
+        }else{
+            msg = description 
+        }
+        
+
+        return custom.fire({
+            icon: "warning",
+            showCloseButton: true,
+            closeButtonHtml: '<i class="fa fa-window-close color-orange" aria-hidden="true"></i>',
+            allowOutsideClick: false,
+            title: title,
+            text: msg,
+            html: msg,
+            confirmButtonText: 'Cerrar',
+            ...options
+        })
     }
 }
 

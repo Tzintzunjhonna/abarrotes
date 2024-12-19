@@ -38,7 +38,7 @@ var api = {
         }
     },
     get: function (endpoint, params = null) {
-        api.loader(true);
+        // api.loader(true);
         let url = new URL(baseUrl + endpoint);
 
         if (params) {
@@ -50,21 +50,21 @@ var api = {
         return new Promise((resolve, reject) => {
             axios.get(url.href, config).then(
                 ({ data }) => {
-                    api.loader(false);
+                    // api.loader(false);
                     resolve({
                         ...data,
                     });
                 },
                 (error) => {
                     console.log("get error");
-                    api.loader(false);
+                    // api.loader(false);
                     reject(error.response.data);
                 }
             );
         });
     },
     login: function (endpoint, data) {
-        api.loader(true);
+        // api.loader(true);
         axios.defaults.headers.common = {
             "X-CSRF-TOKEN": document
                 .querySelector('meta[name="csrf-token"]')
@@ -74,71 +74,71 @@ var api = {
         return new Promise((resolve, reject) => {
             axios.post(baseUrl + endpoint, data, config).then(
                 ({ data }) => {
-                    api.loader(false);
+                    // api.loader(false);
                     resolve({ ...data });
                 },
                 (error) => {
-                    api.loader(false);
+                    // api.loader(false);
                     reject(error.response.data);
                 }
             );
         });
     },
     post: function (endpoint, data, config_data = config) {
-        api.loader(true);
+        // api.loader(true);
         return new Promise((resolve, reject) => {
             axios.post(baseUrl + endpoint, data, config_data).then(
                 ({ data }) => {
-                    api.loader(false);
+                    // api.loader(false);
                     resolve({ ...data });
                 },
                 (error) => {
-                    api.loader(false);
+                    // api.loader(false);
                     reject(error.response.data);
                 }
             );
         });
     },
     patch: function (endpoint, data) {
-        api.loader(true);
+        // api.loader(true);
         return new Promise((resolve, reject) => {
             axios.patch(baseUrl + endpoint, data, patch).then(
                 ({ data }) => {
-                    api.loader(false);
+                    // api.loader(false);
                     resolve({ ...data });
                 },
                 (error) => {
-                    api.loader(false);
+                    // api.loader(false);
                     reject(error.response.data);
                 }
             );
         });
     },
     put: function (endpoint, data, config_data = config) {
-        api.loader(true);
+        // api.loader(true);
         return new Promise((resolve, reject) => {
             axios.put(baseUrl + endpoint, data, config_data).then(
                 ({ data }) => {
-                    api.loader(false);
+                    // api.loader(false);
                     resolve({ ...data });
                 },
                 (error) => {
-                    api.loader(false);
+                    // api.loader(false);
                     reject(error.response.data);
                 }
             );
         });
     },
     delete: function (endpoint) {
-        api.loader(true);
+        // api.loader(true);
         return new Promise((resolve, reject) => {
             axios.delete(baseUrl + endpoint, config).then(
                 ({ data }) => {
-                    api.loader(false);
+                    // api.loader(false);
                     resolve({ ...data });
                 },
                 (error) => {
-                    api.loader(false);
+                    // api.loader(false);
                     reject(error.response.data);
                 }
             );

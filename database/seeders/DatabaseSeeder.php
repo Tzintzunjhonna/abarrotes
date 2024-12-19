@@ -55,6 +55,10 @@ class DatabaseSeeder extends Seeder
         $this->call(CatCategoriesProductSeeder::class);
         $this->call(UnitOfMeasurementSeeder::class);
         
+        
+        $this->call(PaymentTypesSeeder::class);
+        $this->call(StatusSaleSeeder::class);
+        
 
 
     }

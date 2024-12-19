@@ -1,21 +1,21 @@
 <template>
     <div v-if="isLoading == true" id="loading">
         <img class="img" src="../../../../public/images/abarrotes/logo.png" alt="loading..." width="200" />
-        <h2>{{ isLoading }}</h2>
     </div>
 </template>
 
 <script setup>
 import { ref, defineExpose, reactive} from 'vue';
 
-let isLoading = reactive(false);
+let isLoading = ref(false);
 
 const startLoading = () => {
-    isLoading = true;
+    isLoading.value = true;
 };
 
 const stopLoading = () => {
-    isLoading = false;
+    console.error('LLEGO A startLoading')
+    isLoading.value = false;
 };
 
 defineExpose({
