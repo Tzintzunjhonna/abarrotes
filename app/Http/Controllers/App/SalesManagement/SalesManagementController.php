@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Products\Products;
 use App\Models\Products\ProductsHasCatSat;
 use App\Models\Products\ProductsHasTaxes;
+use App\Models\SalesManagement\Sale;
+use App\Models\SalesManagement\SalesDetail;
+use App\Models\SalesManagement\SalesDetailHasTax;
+use App\Models\StatusSale;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -85,74 +89,98 @@ class SalesManagementController extends Controller
     public function store(Request $request)
     {
         DB::beginTransaction();
-        dd($request->all());
         try {
 
-            // $request->validate([],[]);
+            $request->validate([
+                'products'          => 'required',
+                'amountImport'      => 'required',
+                'amountTax'         => 'required',
+                'amountDiscount'    => 'required',
+                'amountTotal'       => 'required',
+                'type_payment'      => 'required',
+            ], [
+                'products.required'         => 'Los productos son obligatorios.',
+                'amountImport.required'     => 'El importe es obligatorio.',
+                'amountTax.required'        => 'El total de impuesto es obligatorio.',
+                'amountDiscount.required'   => 'El descuento es obligatorio.',
+                'amountTotal.required'      => 'El total es obligatorio.',
+                'type_payment.required'     => 'El tipo de cobro es obligatorio.',
+            ]);
 
-            // customer: null
-            // is_invoice: false
-            // options_sale: false
-            // paid_with: 14.65
-            // his_change: 0.01
-            // card_payment_reference: 
-            // voucher_payment_reference: 
-            // products: [{"barcode":"7501557140162","name":"PRODUCTO 1","price":"12.00","discount":"2.00","quantity":1,"import":12,"stock":11,"is_with_tax":1,"has_taxes":[{"id":34,"products_id":10,"tax_settings_id":2,"created_at":"2024-12-05 20:11:05","updated_at":"2024-12-05 20:11:05","deleted_at":null,"tax_setting":{"id":2,"tipo_impuesto_id":3,"tipo_factor_id":1,"tasa_cuota_porcentage":"30.40","is_retencion":0,"is_traslado":1,"is_products_new":0,"is_active":1,"created_at":"2024-11-05 22:00:20","updated_at":"2024-11-05 22:00:20","deleted_at":null,"name":"IEPS 30.40 Traslado","has_tipo_impuesto":{"id":3,"codigo":"003","nombre":"IEPS","created_at":"2024-10-25T18:20:22.000000Z","updated_at":"2024-10-25T18:20:22.000000Z","deleted_at":null},"has_tipo_factor":{"id":1,"codigo":"Tasa","nombre":"Tasa","created_at":"2024-10-25T18:20:22.000000Z","updated_at":"2024-10-25T18:20:22.000000Z","deleted_at":null}}},{"id":35,"products_id":10,"tax_settings_id":12,"created_at":"2024-12-05 20:11:05","updated_at":"2024-12-05 20:11:05","deleted_at":null,"tax_setting":{"id":12,"tipo_impuesto_id":2,"tipo_factor_id":1,"tasa_cuota_porcentage":"16.00","is_retencion":0,"is_traslado":1,"is_products_new":0,"is_active":1,"created_at":"2024-11-12 17:30:15","updated_at":"2024-11-12 17:30:15","deleted_at":null,"name":"IVA TRADLADO 16 %","has_tipo_impuesto":{"id":2,"codigo":"002","nombre":"IVA","created_at":"2024-10-25T18:20:22.000000Z","updated_at":"2024-10-25T18:20:22.000000Z","deleted_at":null},"has_tipo_factor":{"id":1,"codigo":"Tasa","nombre":"Tasa","created_at":"2024-10-25T18:20:22.000000Z","updated_at":"2024-10-25T18:20:22.000000Z","deleted_at":null}}}]}]
-            // amountImport: 12
-            // amountTax: 4.64
-            // amountDiscount: 2
-            // amountTotal: 14.64
 
-            $product = new Products();
+            $new_sale = new Sale();
 
-            $product->name                  = $request->name;
-            $product->description           = $request->description;
-            $product->barcode               = $request->barcode;
-            $product->price                 = $request->price;
-            $product->discount              = $request->discount;
-            $product->stock                 = $request->stock;
-            $product->category_id           = $request->category_id;
-            $product->provider_id           = $request->provider_id;
-            $product->unit_of_measurement   = $request->unit_of_measurement;
-            $product->revenue               = $request->revenue;
-            $product->sale_price            = $request->sale_price;
-            $product->wholesale_price       = $request->wholesale_price;
-            $product->is_with_tax           = $request['is_with_tax'] === "true";
-            $product->is_with_discount      = $request['is_with_discount'] === "true";
+            $new_sale->customer_id               = ($request->customer == 'null' || $request->customer == null) ? null : $request->customer;
+            $new_sale->date_sale                 = Carbon::now();
+            $new_sale->total                     = $request->amountTotal;
+            $new_sale->sub_total                 = $request->amountImport;
+            $new_sale->total_discount            = $request->amountDiscount;
+            $new_sale->total_taxt                = $request->amountTax;
+            $new_sale->mount_pay                 = $request->paid_with;
+            $new_sale->change                    = $request->his_change ? $request->his_change : 0;
+            $new_sale->payment_type_id           = $request->type_payment;
+            $new_sale->status_sale_id            = StatusSale::COMPLETADO;
+            $new_sale->comentarios               = 'Nota';
+            $new_sale->is_with_invoice           = $request['is_invoice'] === "true";
+            $new_sale->card_payment_reference    = $request->card_payment_reference;
+            $new_sale->voucher_payment_reference = $request->voucher_payment_reference;
 
-            $product->created_at = Carbon::now();
-            $product->updated_at = Carbon::now();
-            $product->save();
+            $new_sale->created_at = Carbon::now();
+            $new_sale->updated_at = Carbon::now();
+            $new_sale->save();
 
-            $has_taxes = json_decode($request->has_taxes, true);
+            $products = json_decode($request->products, true);
 
-            //Guardar el IVA
-            foreach ($has_taxes as $key => $value) {
-                $products_has_taxes = new ProductsHasTaxes();
-                $products_has_taxes->products_id        = $product->id;
-                $products_has_taxes->tax_settings_id    = $value['id'];
+            foreach ($products as $key => $product) {
 
-                $products_has_taxes->created_at = Carbon::now();
-                $products_has_taxes->updated_at = Carbon::now();
-                $products_has_taxes->save();
+                $find_product = Products::find($product['id']);
+                
+                if($find_product == null){
+                    throw new \Exception('No se encuentra el producto en la base de datos: Código de producto: '. $product['barcode']);
+                }
+
+                $new_sale_detail = new SalesDetail();
+                $new_sale_detail->venta_id       = $new_sale->id;
+                $new_sale_detail->producto_id    = $find_product->id;
+                $new_sale_detail->name           = $find_product->name;
+                $new_sale_detail->description    = $find_product->description;
+                $new_sale_detail->barcode        = $find_product->barcode;
+                $new_sale_detail->cantidad       = $product['quantity'];
+                $new_sale_detail->precio_unitario= $product['price'];
+                $new_sale_detail->descuento      = $product['discount'];
+                $new_sale_detail->importe        = $product['import'];
+                $new_sale_detail->is_with_tax    = $find_product->is_with_tax;
+
+                $new_sale_detail->created_at = Carbon::now();
+                $new_sale_detail->updated_at = Carbon::now();
+                $new_sale_detail->save();
+
+
+                if($find_product->is_with_tax == true){
+
+                    $has_taxes = $find_product->has_taxes;
+
+                    foreach ($has_taxes as $key => $tax) {
+
+                        $tax_new = new SalesDetailHasTax();
+
+                        $tax_new->sales_detail_id        = $new_sale_detail->id;
+                        $tax_new->tipo_impuesto_id       = $tax->tax_setting->tipo_impuesto_id;
+                        $tax_new->tipo_factor_id         = $tax->tax_setting->tipo_factor_id;
+                        $tax_new->tasa_cuota_porcentage  = $tax->tax_setting->tasa_cuota_porcentage;
+                        $tax_new->is_retencion           = $tax->tax_setting->is_retencion;
+                        $tax_new->is_traslado            = $tax->tax_setting->is_traslado;
+
+                        $tax_new->created_at = Carbon::now();
+                        $tax_new->updated_at = Carbon::now();
+                        $tax_new->save();
+                    }
+                }
             }
-
-            //Guardar catalogo del SAT para cada producto
-            $products_has_cat_sat = new ProductsHasCatSat();
-
-            $products_has_cat_sat->products_id          = $product->id;
-            $products_has_cat_sat->clave_producto_id    = $request->clave_producto_id;
-            $products_has_cat_sat->clave_unidad_id      = $request->clave_unidad_id;
-
-            $products_has_cat_sat->created_at = Carbon::now();
-            $products_has_cat_sat->updated_at = Carbon::now();
-            $products_has_cat_sat->save();
-
 
             DB::commit();
             
-
-            return response()->success($product, 'Se dio de alta el producto.');
+            return response()->success($new_sale, 'Se realizó la venta.');
         } catch (ValidationException $exception) {
             DB::rollBack();
             $response = [
@@ -170,7 +198,7 @@ class SalesManagementController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($exception);
-            return response()->error('Error al crear el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al crear la venta.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -228,11 +256,11 @@ class SalesManagementController extends Controller
             $product = Products::where('id', $id)->whereNull('deleted_at')->first();
 
             if ($product == null) {
-                throw new \Exception('No se encuentra el producto.');
+                throw new \Exception('No se encuentra la venta.');
             }
 
             if ($product->barcode != $request->barcode && Products::where('barcode', $request->barcode)->exists()) {
-                throw new \Exception('El código del producto ha sido registrado previamente.');
+                throw new \Exception('El código dla venta ha sido registrado previamente.');
             }
 
             $product->name                  = $request->name;
@@ -289,7 +317,7 @@ class SalesManagementController extends Controller
 
             DB::commit();
             
-            return response()->success($product, 'Se actualizó el producto.');
+            return response()->success($product, 'Se actualizó la venta.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -298,7 +326,7 @@ class SalesManagementController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($exception);
-            return response()->error('Error al actualizar el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al actualizar la venta.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -313,13 +341,13 @@ class SalesManagementController extends Controller
             $products = Products::find($id);
 
             if($products == null){
-                throw new \Exception('No se encuentra el producto.');
+                throw new \Exception('No se encuentra la venta.');
             }
 
             $products->delete();
             DB::commit();
 
-            return response()->success($products, 'Se eliminó el producto.');
+            return response()->success($products, 'Se eliminó la venta.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -328,7 +356,7 @@ class SalesManagementController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($exception);
-            return response()->error('Error al eliminar el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al eliminar la venta.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     /**
@@ -342,7 +370,7 @@ class SalesManagementController extends Controller
             $products = Products::find($id);
 
             if($products == null){
-                throw new \Exception('No se encuentra el producto.');
+                throw new \Exception('No se encuentra la venta.');
             }
 
             $products->is_active = !$products->is_active;
@@ -350,7 +378,7 @@ class SalesManagementController extends Controller
 
             DB::commit();
 
-            return response()->success($products, 'Se cambio de estatus el producto.');
+            return response()->success($products, 'Se cambio de estatus la venta.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -359,7 +387,7 @@ class SalesManagementController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($exception);
-            return response()->error('Error al cambiar de estatus el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al cambiar de estatus la venta.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     /**
@@ -379,7 +407,7 @@ class SalesManagementController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($exception);
-            return response()->error('Error al cambiar de estatus el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al cambiar de estatus la venta.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

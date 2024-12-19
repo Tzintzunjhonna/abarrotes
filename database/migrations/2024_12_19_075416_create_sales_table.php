@@ -31,8 +31,41 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->foreign('payment_type_id')->references('id')->on('payment_type');
+            $table->foreign('payment_type_id')->references('id')->on('payment_types');
             $table->foreign('status_sale_id')->references('id')->on('status_sale');
+        });
+
+        Schema::create('sales_detail', function (Blueprint $table) {
+            $table->id();  // ID auto-incremental
+            $table->unsignedBigInteger('venta_id')->nullable(); // Relación con ventas
+            $table->unsignedBigInteger('producto_id')->nullable(); // Relación con productos
+            $table->string('name')->nullable();
+            $table->string('description')->nullable();
+            $table->string('barcode')->nullable();
+            $table->decimal('cantidad', 10, 2); // Cantidad del producto
+            $table->decimal('precio_unitario', 10, 2); // Precio unitario del producto
+            $table->decimal('descuento', 10, 2)->default(0); // Descuento aplicado al producto
+            $table->decimal('importe', 10, 2); // Subtotal del producto (cantidad * precio - descuento)
+            $table->boolean('is_with_tax')->default(false);
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('venta_id')->references('id')->on('sales');
+            $table->foreign('producto_id')->references('id')->on('products');
+        });
+
+        Schema::create('sales_detail_has_tax', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('sales_detail_id')->nullable(); // Relación con ventas
+            $table->integer('tipo_impuesto_id')->nullable();
+            $table->integer('tipo_factor_id')->nullable();
+            $table->decimal('tasa_cuota_porcentage', 10, 2)->nullable();
+            $table->boolean('is_retencion')->default(false);
+            $table->boolean('is_traslado')->default(false);
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('sales_detail_id')->references('id')->on('sales_detail');
         });
     }
 

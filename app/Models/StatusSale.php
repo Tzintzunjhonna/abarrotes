@@ -18,6 +18,11 @@ class StatusSale extends Model
     const UPDATED_AT  = 'updated_at';
     const DELETED_AT  = 'deleted_at';
 
+    const PENDIENTE     = '1';
+    const COMPLETADO    = '2';
+    const CANCELADO     = '3';
+    const TIMBRADO      = '4';
+
     use SoftDeletes;
     protected $table    = self::TABLE;
     public $timestamps  = false;
