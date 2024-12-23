@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
+            $table->char('ticket_no', 30)->unique(); // Relación con clientes (opcional)
             $table->unsignedBigInteger('customer_id')->nullable(); // Relación con clientes (opcional)
             $table->timestamp('date_sale')->useCurrent(); // Fecha de la venta
             $table->decimal('total', 10, 2)->nullable(); // Monto total de la venta

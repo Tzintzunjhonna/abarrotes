@@ -58,7 +58,7 @@ function btnAction(value) {
                 <div class="row">
                   <div class="col-sm-6">
                     <button class="btn btn-outline-success" type="submit">
-                      <i class="mdi mdi-cash-100 mdi-18px"></i>
+                      <i class="mdi mdi-cash-register mdi-18px"></i>
                       Cobrar venta
                     </button>
                   </div>

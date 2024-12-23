@@ -36,7 +36,7 @@
                                             <td>
                                                 <label>
                                                     <input type="checkbox" @change="onSelectProduct(item)"
-                                                        :checked="selectedProduct === item.id" />
+                                                        :checked="selectedProduct === item.barcode" />
                                                 </label>
                                             </td>
                                             <td>{{ item.name }}</td>

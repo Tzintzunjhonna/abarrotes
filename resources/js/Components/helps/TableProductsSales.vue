@@ -35,10 +35,30 @@
                                             <template v-if="attribute == 'quantity'">
                                                 <input v-model="item.quantity" type="number"
                                                     class="form-control allow-spin" id="quantity" placeholder="Cantidad"
-                                                    step="1"
+                                                    step="0.01"
                                                     oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                                    maxlength="10"
+                                                    maxlength="4"
                                                     @input="btnAction({ action: 'change_quantity', value: collection, key: index })">
+                                            </template>
+                                            <template v-else-if="attribute == 'amount_sold'">
+                                                <template
+                                                    v-if="item.has_unit_of_measurement.name == 'Kilogramos' || item.has_unit_of_measurement.name == 'Gramos'">
+
+                                                    <div class="input-group">
+                                                        <span class="input-group-text" id="amount_sold">
+                                                            $
+                                                        </span>
+                                                        <input v-model="item.amount_sold" type="number"
+                                                            class="form-control allow-spin" id="amount_sold"
+                                                            placeholder="Monto Vendido" step="0.01"
+                                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                                            maxlength="4"
+                                                            @input="btnAction({ action: 'change_amount', value: collection, key: index })">
+                                                    </div>
+                                                </template>
+                                                <template v-else>
+                                                    {{ getValueProperty(item, attribute) }}
+                                                </template>
                                             </template>
                                             <template v-else>
                                                 {{ getValueProperty(item, attribute) }}
@@ -186,6 +206,10 @@ function getValueProperty(item, attribute) {
 
     if (attribute === 'created_at') {
         value = setFormatYMD(value)
+    }
+
+    if (attribute === 'amount_sold') {
+        value = '$ ' + proxy.roundToTwoDecimals(value)
     }
     return value
 }

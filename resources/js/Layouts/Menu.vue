@@ -5,7 +5,8 @@
                 <a href="/admin/mi-empresa" class="logo-light">
                     <template v-if="proxy.company != null">
                         <span>
-                            <img :src="BaseUrl + proxy.company.path_logo" alt="logo" class="logo-lg rounded" height="28">
+                            <img :src="BaseUrl + proxy.company.path_logo" alt="logo" class="logo-lg rounded"
+                                height="28">
                         </span>
                     </template>
 
@@ -44,21 +45,6 @@
                             <li class="nav-item dropdown">
                                 <a id="navbarSistem" class="side-nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="mdi mdi-cog-outline"></i>
-
-                                    <span class="ml-1"> Configuración </span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarSistem">
-                                    <a class="side-nav-item dropdown-item" href="/admin/configuracion/catalogo-impuestos">Impuestos</a>
-                                </div>
-                            </li>
-                        </div>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
-                        <div>
-                            <li class="nav-item dropdown">
-                                <a id="navbarSistem" class="side-nav-link dropdown-toggle" href="#" role="button"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="ri-briefcase-line"></i>
 
                                     <span class="ml-1"> Sistema </span>
@@ -75,35 +61,20 @@
                     <ul class="navbar-nav ms-auto">
                         <div>
                             <li class="nav-item dropdown">
-                                <a href="/admin/proveedores" class="side-nav-link">
-                                    <i class="mdi mdi-truck-delivery"></i>
-                                    <span class="ml-1"> Proveedores </span>
-                                </a>
-                            </li>
-                        </div>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
-                        <div>
-                            <li class="nav-item dropdown">
-                                <a href="/admin/clientes" class="side-nav-link">
-                                    <i class="mdi mdi-account-group"></i>
-                                    <span class="ml-1"> Clientes </span>
-                                </a>
-                            </li>
-                        </div>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
-                        <div>
-                            <li class="nav-item dropdown">
-                                <a id="navbarProducts" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                <a id="navbarSistem" class="side-nav-link dropdown-toggle" href="#" role="button"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="ri-briefcase-line"></i>
-                                    <span class="ml-1"> Productos </span>
+                                    <i class="mdi mdi-cog-outline"></i>
+
+                                    <span class="ml-1"> Configuración </span>
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProducts">
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarSistem">
+                                    <a class="side-nav-item dropdown-item" href="/admin/proveedores">Proveedores</a>
+                                    <a class="side-nav-item dropdown-item" href="/admin/clientes">Clientes</a>
+                                    <a class="side-nav-item dropdown-item" href="/admin/productos">Productos</a>
                                     <a class="side-nav-item dropdown-item"
                                         href="/admin/categorias-de-producto">Categoría de productos</a>
-                                    <a class="side-nav-item dropdown-item" href="/admin/productos">Productos</a>
+                                    <a class="side-nav-item dropdown-item"
+                                        href="/admin/configuracion/catalogo-impuestos">Impuestos</a>
                                 </div>
                             </li>
                         </div>
@@ -118,7 +89,30 @@
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarSales">
                                     <a class="side-nav-item dropdown-item" href="/admin/gestion-de-ventas/caja">Caja</a>
+                                    <a class="side-nav-item dropdown-item" href="/admin/gestion-de-ventas/historial">Ventas</a>
                                 </div>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a id="navbarSales" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="mdi mdi-chart-bar"></i>
+                                    <span class="ml-1"> Inventario</span>
+                                </a>
+                            </li>
+                        </div>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <div>
+                            <li class="nav-item dropdown">
+                                <a id="navbarSales" class="side-nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="mdi mdi-calculator"></i>
+                                    <span class="ml-1">Facturación</span>
+                                </a>
                             </li>
                         </div>
                     </ul>

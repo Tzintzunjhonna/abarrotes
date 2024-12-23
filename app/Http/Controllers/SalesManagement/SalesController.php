@@ -13,7 +13,7 @@ class SalesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function indexToCheckoutCounter()
     {
         $products = Products::where(Products::IS_ACTIVE, 1)->get();
         $customers = Customers::where(Customers::IS_ACTIVE, 1)->get();
@@ -23,6 +23,21 @@ class SalesController extends Controller
             'cat_products' => $products,
             'cat_customer' => $customers,
         ]);
+    }
+
+    /**
+     * Index para el historial de ventas.
+     */
+    public function indexToHistory()
+    {
+        $customers = Customers::where(Customers::IS_ACTIVE, 1)->get();
+
+        return Inertia::render(
+            'SalesManagement/HistorySales/Index',
+            [
+                'cat_customer' => $customers,
+            ]
+        );
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\App\SalesManagement;
 
 use App\Exports\ProductsExport;
 use App\Http\Controllers\Controller;
+use App\Models\Customers;
 use App\Models\Products\Products;
 use App\Models\Products\ProductsHasCatSat;
 use App\Models\Products\ProductsHasTaxes;
@@ -22,41 +23,17 @@ use Maatwebsite\Excel\Facades\Excel;
 class SalesManagementController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Colection de ventas realziadas
      */
-    public function collection(Request $request)
+    public function history_sales_collection(Request $request)
     {
         try {
-            $query = Products::query();
-
-            if($request->name){
-                $query = $query->whereRaw('LOWER(name) LIKE (?) ',["%{$request->name}%"]);
-            }
-            
-            if($request->description){
-                $query = $query->whereRaw('LOWER(description) LIKE (?) ',["%{$request->description}%"]);
-            }
-
-            if($request->barcode){
-                $query = $query->whereRaw('LOWER(barcode) LIKE (?) ',["%{$request->barcode}%"]);
-            }
-
-            if($request->category_id){
-                $query = $query->whereRaw('LOWER(category_id) LIKE (?) ',["%{$request->category_id}%"]);
-            }
-            
-            if($request->name_provider){
-
-                $query = $query->whereHas('has_provider', function ($query) use ($request) {
-
-                    $query = $query->whereRaw('LOWER(name) LIKE (?) ', ["%{$request->name_provider}%"]);
-                });
-            }
+            $query = Sale::query();
 
             
             $list = $query->orderBy('id', 'desc')->paginate($request->pageSize);
 
-            return response()->success($list, 'Se consulto correctamnete la lista de productos.');
+            return response()->success($list, 'Se consulto correctamnete la lista de ventas.');
 
 
         } catch (\Exception $exception) {
@@ -71,7 +48,7 @@ class SalesManagementController extends Controller
             if ($exception->getCode()) {
                 $code = $exception->getCode();
             }
-            return response()->error('Error conusltar la lista de productos', $response, $code);
+            return response()->error('Error conusltar la lista de ventas', $response, $code);
         }
     }
 
@@ -108,9 +85,27 @@ class SalesManagementController extends Controller
             ]);
 
 
+            $date = Carbon::now();
+            $date_ticket = $date->format('Ymd');
+            
+            $find_sale = Sale::where(Sale::TICKET_NO, 'LIKE', "%$date_ticket%")->orderBy(Sale::ID, 'desc')->first();
+
+            if ($find_sale != null) {
+                $conteo = (int)substr($find_sale->ticket_no, 8) + 1;
+            } else {
+                $conteo = 1;
+            }
+
+            // Formateamos el conteo con 3 dígitos
+            $conteoFormato = str_pad($conteo, 3, '0', STR_PAD_LEFT);
+
+            // Generamos el número completo de ticket
+            $ticket_no = $date_ticket . $conteoFormato;
+
             $new_sale = new Sale();
 
             $new_sale->customer_id               = ($request->customer == 'null' || $request->customer == null) ? null : $request->customer;
+            $new_sale->ticket_no                 = $ticket_no;
             $new_sale->date_sale                 = Carbon::now();
             $new_sale->total                     = $request->amountTotal;
             $new_sale->sub_total                 = $request->amountImport;
@@ -203,11 +198,49 @@ class SalesManagementController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Asignar cliente a venta
      */
-    public function show(string $id)
+    public function assing_customer_to_sale(string $id_sale, string $id_customer)
     {
-        //
+
+        DB::beginTransaction();
+        try {
+
+
+            $id_sale = base64_decode($id_sale);
+            $id_customer = base64_decode($id_customer);
+
+            $sale_info = Sale::find($id_sale);
+
+            $customer_info = Customers::find($id_customer);
+
+            if ($sale_info == null) {
+                throw new \Exception('No se encuentra la venta.');
+            }
+
+            if ($customer_info == null) {
+                throw new \Exception('No se encontró el cliente.');
+            }
+
+
+            $sale_info->customer_id = $customer_info->id;
+            $sale_info->save();
+
+            DB::commit();
+
+            return response()->success($sale_info, 'Se agregó el cliente a la venta.');
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $response = [
+                "file"    => $exception->getFile(),
+                "line"    => $exception->getLine(),
+                "message" => $exception->getMessage(),
+            ];
+            log::debug($exception);
+            return response()->error('Error al eliminar el producto.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+
     }
 
     /**

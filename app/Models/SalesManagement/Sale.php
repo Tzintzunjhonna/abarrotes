@@ -17,6 +17,7 @@ class Sale extends Model
 
     const ID = 'id';
     const CUSTOMER_ID = 'customer_id';
+    const TICKET_NO = 'ticket_no';
     const DATE_SALE = 'date_sale';
     const TOTAL = 'total';
     const SUB_TOTAL = 'sub_total';
@@ -37,6 +38,7 @@ class Sale extends Model
     protected $table = self::TABLE;
 
     protected $fillable = [
+        self::TICKET_NO,
         self::CUSTOMER_ID,
         self::DATE_SALE,
         self::TOTAL,
@@ -51,6 +53,12 @@ class Sale extends Model
         self::IS_WITH_INVOICE,
         self::CARD_PAYMENT_REFERENCE,
         self::VOUCHER_PAYMENT_REFERENCE,
+    ];
+
+    protected $with = [
+        'customer',
+        'paymentType',
+        'statusSale',
     ];
 
     public function customer()

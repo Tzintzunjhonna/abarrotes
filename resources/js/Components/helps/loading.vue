@@ -14,7 +14,6 @@ const startLoading = () => {
 };
 
 const stopLoading = () => {
-    console.error('LLEGO A startLoading')
     isLoading.value = false;
 };
 

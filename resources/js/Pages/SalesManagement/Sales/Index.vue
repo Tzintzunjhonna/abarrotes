@@ -46,7 +46,7 @@ const amountTax = ref(0)
 const amountDiscount = ref(0)
 const amountTotal = ref(0)
 
-const tableHeaders = ['Código de barras', 'Nombre', 'Precio Venta', 'Descuento', 'Cantidad', 'Importe', 'Inventario' , 'Opciones'];
+const tableHeaders = ['Código de barras', 'Nombre', 'Precio Venta', 'Descuento', 'Cantidad','Unidad de medida', 'Importe', 'Inventario' , 'Opciones'];
 const tableTitle = ref('Lista de productos de caja')
 
 const tbody = [
@@ -55,7 +55,8 @@ const tbody = [
     'price',
     'discount',
     'quantity',
-    'import',
+    'has_unit_of_measurement.name',
+    'amount_sold',
     'stock',
 ];
 
@@ -130,8 +131,11 @@ function action(value) {
         cancel_sale: function (item) {
             onCancelSale()
         },
-        change_quantity: function (item) {
-            onChangeQuantity(item)
+        change_quantity: function (item, key) {
+            onChangeQuantity(item, key)
+        },
+        change_amount: function (item, key) {
+            onChangeAmount(item, key)
         },
         on_view_modal_search_product: function (item) {
             onViewModalSearchProduct(item)
@@ -163,9 +167,62 @@ function onEdit(data) {
     router.visit(`/admin/proveedores/${ids}/editar`);
 }
 
-function onChangeQuantity(data) {
+function onChangeQuantity(data, key) {
+
+    // Buscar el inventario original para regresar l valor y restar la cantidad
+    let product = props.cat_products.find(item => item.barcode === data[key].barcode);
+    
+    data[key].stock = product.stock - data[key].quantity
+
+    if (data[key].stock < 0) {
+        proxy.alert.apiWarning({
+            title: 'Advertencia',
+            error: `La cantidad elegida para el producto "${data[key].name}" excede el inventario disponible.`
+        });
+        return;
+    }
+
     products.value = data
     onGetTotal();    
+    
+}
+
+function onChangeAmount(data, key) {
+
+    // Buscar el inventario original para regresar l valor y restar la cantidad
+    let product = props.cat_products.find(item => item.barcode === data[key].barcode);
+    
+    // Verificar que el precio del producto no sea 0 (evitar divisiones por 0)
+    if (product.price <= 0) {
+        proxy.alert.apiError({
+            title: 'Error',
+            error: `El precio del producto "${data[key].name}" no puede ser 0.`
+        });
+        return;
+    }
+    // Calcular la nueva cantidad basada en el monto vendido
+    const newQuantity = data[key].amount_sold / product.price;
+
+    // Verificar stock
+    if (newQuantity > product.stock) {
+        proxy.alert.apiWarning({
+            title: 'Advertencia',
+            error: `El monto ingresado equivale a una cantidad (${newQuantity.toFixed(2)}) que excede el inventario disponible (${product.stock}).`
+        });
+        return;
+    }
+
+    // Actualizar la cantidad
+    data[key].quantity = newQuantity;
+
+    // Recalcular el stock restante
+    data[key].stock = product.stock - newQuantity;
+
+    // Guardar los datos actualizados
+    products.value = data;
+
+    // Recalcular totales
+    onGetTotal();
     
 }
 
@@ -176,7 +233,7 @@ function onSearch(barcode) {
 
     // Si no se encuentra el producto, mostrar alerta y salir
     if (!productFind) {
-        proxy.alert.apiError({
+        proxy.alert.apiWarning({
             title: 'Advertencia',
             error: 'No se encuentra el producto con el código escaneado'
         });
@@ -190,16 +247,29 @@ function onSearch(barcode) {
 
         // Si ya no tiene inventario no permite agregar producto 
         if (product.stock == 0) {
-            proxy.alert.apiError({
+            proxy.alert.apiWarning({
                 title: 'Advertencia',
                 error: 'Ya no tiene este producto en inventario.'
             });
             return;
         }
+
+        // Si encuentra un producto con mas del inventario no lo añade.
+        const productExceedingStock = products.value.find(product => product.quantity > product.stock);
+
+        if (productExceedingStock) {
+            proxy.alert.apiWarning({
+                title: 'Advertencia',
+                error: `La cantidad elegida para el producto "${productExceedingStock.name}" excede el inventario disponible.`
+            });
+            return;
+        }
+
         // Si el producto ya está en la lista, aumentar la cantidad y el importe
         product.quantity++;
         product.discount + product.discount;
         product.import = product.import;
+        product.amount_sold = product.import;
         product.stock = product.stock - 1
     } else {
         // Si el producto no está en la lista, agregarlo
@@ -213,7 +283,9 @@ function onSearch(barcode) {
             stock: productFind.stock - 1,
             is_with_tax: productFind.is_with_tax,
             has_taxes: productFind.has_taxes, 
+            has_unit_of_measurement: productFind.has_unit_of_measurement, 
             id: productFind.id,
+            amount_sold: 1 * productFind.price,
         });
     }
 
@@ -235,6 +307,7 @@ function onGetTotal() {
         const price = (element.price * element.quantity) - discount;
 
         const importAmount = price_of_discount;
+        element.amount_sold = price_of_discount;
 
         amountImport.value      = (amountImport.value + parseFloat(importAmount));
         amountDiscount.value    = (amountDiscount.value + parseFloat(discount));
@@ -272,22 +345,19 @@ function onGetTotal() {
     //Total
     let total = amountImport.value - amountDiscount.value;
     total = total + amountTax.value;
-    amountTotal.value = roundToTwoDecimals(total);
+    amountTotal.value = proxy.roundToTwoDecimals(total);
 
     //Subtotal (Importe)
-    amountImport.value = roundToTwoDecimals(amountImport.value);
+    amountImport.value = proxy.roundToTwoDecimals(amountImport.value);
 
     // Descuento
-    amountDiscount.value = roundToTwoDecimals(amountDiscount.value);
+    amountDiscount.value = proxy.roundToTwoDecimals(amountDiscount.value);
 
     // Impuesto
-    amountTax.value = roundToTwoDecimals(amountTax.value);
+    amountTax.value = proxy.roundToTwoDecimals(amountTax.value);
 
 }
 
-const roundToTwoDecimals = (value) => {
-    return parseFloat(parseFloat(value).toFixed(2));
-}
 
 function onAdd(data) {
     router.visit(`/admin/proveedores/nuevo`);
@@ -387,14 +457,31 @@ function onCollectingMoney(barcode) {
         });
         return;
     }
+    const productExceedingStock = products.value.find(product => product.quantity > product.stock);
+
+    if (productExceedingStock) {
+        proxy.alert.apiWarning({
+            title: 'Advertencia',
+            error: `La cantidad elegida para el producto "${productExceedingStock.name}" excede el inventario disponible.`
+        });
+        return;
+    }
+    const productExceedingQuantity = products.value.find(product => product.quantity <= 0);
+
+    if (productExceedingQuantity) {
+        proxy.alert.apiWarning({
+            title: 'Advertencia',
+            error: `La cantidad elegida para el producto "${productExceedingQuantity.name}" es cero (0), por lo cual no se puede realizar la venta.`
+        });
+        return;
+    }
+
     modalCollectingMoneyView.show()
 
 }
 
 function onCollectingMoneySubmit(data) {
     modalCollectingMoneyView.hide()
-    console.log(data)
-    console.log(products)
 
     let formData = proxy.setFormData(data);
     formData.append("products", JSON.stringify(products.value));

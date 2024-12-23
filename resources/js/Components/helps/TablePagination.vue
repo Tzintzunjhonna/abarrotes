@@ -1,4 +1,5 @@
 <template>
+    <LoadingScreen ref="loadingScreenRef" />
     <div class="col-12">
         <div class="card">
             <div class="card-body">
@@ -6,8 +7,8 @@
                 <div class="col-12 d-flex justify-content-end">
                     <template v-if="props.showBtnNew">
                         <div class="col-auto">
-                            <button @click="btnAction({ action: 'add', value: null })" type="button" :title="props.labelBtnNew"
-                                class="btn btn-danger mb-2 mr-1">
+                            <button @click="btnAction({ action: 'add', value: null })" type="button"
+                                :title="props.labelBtnNew" class="btn btn-danger mb-2 mr-1">
                                 <i :class="props.btnNewIcon" />
                                 {{ props.labelBtnNew }}
                             </button>
@@ -15,8 +16,8 @@
                     </template>
                     <template v-if="props.showBtnExport">
                         <div class="col-auto">
-                            <button @click="btnAction({ action: 'export', value: null })" type="button" :title="props.labelBtnExport"
-                                class="btn btn-success mb-2 mr-1">
+                            <button @click="btnAction({ action: 'export', value: null })" type="button"
+                                :title="props.labelBtnExport" class="btn btn-success mb-2 mr-1">
                                 <i :class="props.btnExportIcon" />
                                 {{ props.labelBtnExport }}
                             </button>
@@ -76,6 +77,22 @@
                                                 <img id="logo" class="avatar-md rounded-circle"
                                                     :src="item.path_logo ? BaseUrl + item.path_logo : BaseUrl + '/images/users/avatar-1.jpg'" />
                                             </template>
+                                            <template v-else-if="['is_with_invoice'].includes(attribute)">
+                                                <template v-if="item.is_with_invoice == 1">
+                                                    <span class="badge bg-primary">Sí aplica factura</span>
+                                                </template>
+                                                <template v-else>
+                                                    <span class="badge bg-danger">No aplica</span>
+                                                </template>
+                                            </template>
+                                            <template v-else-if="['customer'].includes(attribute)">
+                                                <template v-if="item.customer == null">
+                                                    <span class="badge bg-danger">Publico en general</span>
+                                                </template>
+                                                <template v-else>
+                                                    {{ item.customer.business_name}}
+                                                </template>
+                                            </template>
                                             <template v-else>
                                                 {{ getValueProperty(item, attribute) }}
                                             </template>
@@ -83,20 +100,22 @@
                                         <td v-if="props.options">
                                             <template v-if="habilitedActions(index)">
                                                 <template v-if="props.actions.length">
-                                                    <template v-if="habilitedRecicleAction(item)">
-                                                        <button type="button" :class="getClass(action, i)"
-                                                            @click="btnAction({ action: action.name, value: item })"
-                                                            v-for="(action, i) in props.actions" :key="action.name"
-                                                            :title="props.actions[i].tooltip">
-                                                            <template v-if="action.hasOwnProperty('title')">
-                                                                {{ action.title }}
-                                                            </template>
-                                                            <template v-else>
-                                                                <i :class="action.class_icon"></i>
-                                                            </template>
+                                                    <template v-for="(action, i) in props.actions" :key="action.name">
+                                                        <template v-if="habilitedRecicleAction(item, action)">
+                                                            <button type="button" :class="getClass(action, i)"
+                                                                @click="btnAction({ action: action.name, value: item })"
+                                                                :title="action.tooltip">
+                                                                <template v-if="action.hasOwnProperty('title')">
+                                                                    {{ action.title }}
+                                                                </template>
+                                                                <template v-else>
+                                                                    <i :class="action.class_icon"></i>
+                                                                </template>
 
-                                                        </button>
+                                                            </button>
+                                                        </template>
                                                     </template>
+
                                                 </template>
                                             </template>
                                         </td>
@@ -130,6 +149,8 @@
 
 <script setup>
 import {getCurrentInstance, onMounted, watch, ref} from 'vue';
+import LoadingScreen from "@/Components/helps/loading.vue";
+
 const { proxy } = getCurrentInstance();
 
 const props = defineProps({
@@ -182,6 +203,8 @@ const props = defineProps({
 });
 
 // VARIABLES  --------------------------
+const loadingScreenRef = ref(null);
+
 const response = ref({})
 const search = ref('')
 let collection = ref([])
@@ -193,6 +216,7 @@ const btnAction = (item) => {
     emit('btnAction', item);
 };
 
+let habilitedAction = ref(['modal_assing_customer'])
 
 // WATCH  --------------------------
 watch(
@@ -361,7 +385,16 @@ function habilitedActions(index) {
   return true
 }
 
-function habilitedRecicleAction(item) {
+function habilitedRecicleAction(item, action) {
+    
+    // if (habilitedAction.value.includes('modal_assing_customer')) {
+    //     if (action.name == 'modal_assing_customer') {
+    //         if (item.customer != null) {
+    //             return false
+    //         }
+    //     }
+    // }
+
     return true
 }
 
@@ -403,13 +436,17 @@ function getData(page = 1, pageSize = 10) {
 
     }
 
+    loadingScreenRef.value.startLoading();
+
     proxy.api
         .get(`${props.endpoint}`, parameters)
         .then(({ data }) => {
+            loadingScreenRef.value.stopLoading();
             response.value = data
             collection.value = data.hasOwnProperty('data') ? data.data : data
         })
         .catch((error) => {
+            loadingScreenRef.value.stopLoading();
             console.log(error)
             if (error.message) {
                 proxy.alert.apiError({
