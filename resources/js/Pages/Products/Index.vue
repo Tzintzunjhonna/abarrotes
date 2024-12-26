@@ -10,9 +10,12 @@ import Footer from '@/Layouts/Footer.vue';
 import TablePagination from '@/Components/helps/TablePagination.vue';
 import Search from './Search.vue';
 
+// Loading 
+import LoadingScreen from "@/Components/helps/loading.vue";
+
 // VARIABLES --------------------------
 const { proxy } = getCurrentInstance();
-
+const loadingScreenRef = ref(null);
 
 const props = defineProps({
     cat_category: {
@@ -218,24 +221,60 @@ function onChangeStatus(data) {
         })
 }
 function onExport(data) {
-    
-    const data_copy = searchRef.value.submitFormExport()
 
+    loadingScreenRef.value.startLoading();
+    const data_copy = searchRef.value.submitFormExport();
     const baseUrl = window.location.origin;
-
+    const token = localStorage.getItem("token");
     let queryParams = [];
 
+    // Añadir los parámetros de la consulta
     for (let key in data_copy) {
         if (data_copy.hasOwnProperty(key)) {
             queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(data_copy[key])}`);
         }
     }
+
     const exportUrl = `${baseUrl}/api/v1/app-products/export-products?${queryParams.join('&')}`;
-    
-    window.open(exportUrl, "_blank");
 
+    // Verifica si el token está presente
+    if (!token) {
+        console.error("Token no encontrado");
+        return;
+    }
 
-    
+    // Usar fetch para enviar la solicitud con el token en los encabezados
+    fetch(exportUrl, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,  // Incluye el token en los encabezados
+            'Accept': 'application/json',  // Especifica que esperamos JSON o el tipo de archivo necesario
+        }
+    })
+        .then(response => response.blob())  // Esperamos que la respuesta sea un archivo binario (blob)
+        .then(blob => {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');  // +1 porque los meses en JS empiezan en 0
+            const day = String(date.getDate()).padStart(2, '0');
+            const date_end = `${year}_${month}_${day}`
+
+            // Crear un enlace temporal para descargar el archivo
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+
+            link.download = `Productos_ ${date_end}.xlsx`;  // Nombre del archivo, puedes cambiarlo según sea necesario
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);  // Limpiar el objeto URL
+            loadingScreenRef.value.stopLoading();
+        })
+        .catch(error => {
+            console.error('Error al exportar:', error);  // Manejar cualquier error
+            loadingScreenRef.value.stopLoading();
+        });
 }
 
 
@@ -243,6 +282,7 @@ function onExport(data) {
 </script>
 
 <template>
+    <LoadingScreen ref="loadingScreenRef" />
     <MenuPage />
 
     <div class="content">

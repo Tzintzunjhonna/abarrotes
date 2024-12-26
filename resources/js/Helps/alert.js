@@ -42,21 +42,20 @@ const alert = {
     toast: (type, message, options) => {
         toast[type](message, {
             ...options,
-            timeout: 4000
+            timeout: 4000,
         });
     },
     message: ({ title, text, imageUrl, options, icon }) => {
-
         if (imageUrl) {
-            config.imageUrl = `${API_URL}/${imageUrl}`
-            config.imageWidth = 120
-            config.imageHeight = 120
-            config.imageAlt = 'Images'
+            config.imageUrl = `${API_URL}/${imageUrl}`;
+            config.imageWidth = 120;
+            config.imageHeight = 120;
+            config.imageAlt = "Images";
         } else {
-            delete config.imageUrl
-            delete config.imageWidth
-            delete config.imageHeight
-            delete config.imageAlt
+            delete config.imageUrl;
+            delete config.imageWidth;
+            delete config.imageHeight;
+            delete config.imageAlt;
         }
         if (icon) {
             config.icon = icon;
@@ -64,143 +63,185 @@ const alert = {
             config.icon = "warning";
         }
 
-        config.title = title
-        config.text = text
-        config.html = text
+        config.title = title;
+        config.text = text;
+        config.html = text;
 
         config = {
             ...config,
             ...options,
-            ...objectIMG
-        }
-        return custom.fire(config)
+            ...objectIMG,
+        };
+        return custom.fire(config);
     },
-
 
     deleteConfirmation: ({ title, text, options }) => {
-
-        config.title = title
-        config.icon = "question",
-        config.input = 'text'
-        config.text = text
-        config.html = text
+        config.title = title;
+        (config.icon = "question"), (config.input = "text");
+        config.text = text;
+        config.html = text;
         config.inputValidator = (value) => {
-            if(value != 'Confirmar') {
+            if (value != "Confirmar") {
                 return 'Ingresar la palabra "Confirmar" respetando mayúsculas y minúsculas';
-            }          
-        }
+            }
+        };
 
-       const deleteConfig = {
+        const deleteConfig = {
             ...config,
-            ...options
-        }
-        return customConfirmation.fire(deleteConfig)
+            ...options,
+        };
+        return customConfirmation.fire(deleteConfig);
     },
 
+    deleteConfirmation: ({ title, text, options }) => {
+        config.title = title;
+        (config.icon = "question"), (config.input = "text");
+        config.text = text;
+        config.html = text;
+        config.inputValidator = (value) => {
+            if (value != "Confirmar") {
+                return 'Ingresar la palabra "Confirmar" respetando mayúsculas y minúsculas';
+            }
+        };
 
-    apiSuccess: ({ title, description, imageUrl }, options ) => {
-        const fixedDescription = replaceAll( description, {
-            'éxitosa': 'exitosa',
-            'éxitoso': 'exitoso'
-        } )
+        const deleteConfig = {
+            ...config,
+            ...options,
+        };
+        return customConfirmation.fire(deleteConfig);
+    },
+
+    actionConfirmation: ({ title, text, options }) => {
+        const config = {
+            title: title,
+            text: text,
+            icon: "question",
+            input: "textarea", // Usamos un campo de texto para el motivo
+            inputAttributes: {
+                autocapitalize: "off",
+                placeholder: "Escribe tu motivo aquí...",
+                rows: 4,
+            },
+            showCancelButton: true,
+            confirmButtonText: "Confirmar",
+            showLoaderOnConfirm: true, // Mostrar el loader mientras se confirma
+            inputValidator: (value) => {
+                if (!value) {
+                    return "El motivo es requerido";
+                }
+            },
+            preConfirm: (value) => {
+                // Validación adicional o procesamiento asíncrono si es necesario
+                return new Promise((resolve, reject) => {
+                    // Si el campo está vacío, rechazamos el promise y mostramos un error
+                    if (!value) {
+                        reject("El motivo es requerido");
+                    } else {
+                        resolve(value); // Si el valor es válido, resolvemos el promise
+                    }
+                });
+            },
+            ...options, // Combina configuraciones adicionales si las proporcionas
+        };
+
+        // Llamamos a la función para mostrar la confirmación
+        return Swal.fire(config);
+    },
+
+    apiSuccess: ({ title, description, imageUrl }, options) => {
+        const fixedDescription = replaceAll(description, {
+            éxitosa: "exitosa",
+            éxitoso: "exitoso",
+        });
 
         if (imageUrl) {
-            config.imageUrl = `${API_URL}/${imageUrl}`
-            config.imageWidth = 120
-            config.imageHeight = 120
-            config.imageAlt = 'Images'
+            config.imageUrl = `${API_URL}/${imageUrl}`;
+            config.imageWidth = 120;
+            config.imageHeight = 120;
+            config.imageAlt = "Images";
         } else {
-            delete config.imageUrl
-            delete config.imageWidth
-            delete config.imageHeight
-            delete config.imageAlt
-            delete config.input
+            delete config.imageUrl;
+            delete config.imageWidth;
+            delete config.imageHeight;
+            delete config.imageAlt;
+            delete config.input;
         }
 
-        config.icon = "success",
-        config.title = title
-        config.text = fixedDescription
-        config.html = fixedDescription
+        (config.icon = "success"), (config.title = title);
+        config.text = fixedDescription;
+        config.html = fixedDescription;
 
         config = {
             ...config,
             ...options,
-            ...objectIMG
-        }
-        return custom.fire(config)
+            ...objectIMG,
+        };
+        return custom.fire(config);
     },
 
-    apiError: ( { title, description,error, }, options ) => {       
-        var msg = ''
-        if(error){
-            if(typeof(error)== 'array' ){
-                msg = error.join('\n');
-            }else
-            if(typeof(error)== 'object' ){
-
-                var errores='';
-                $.each(error,function(i, item){
-                    errores += '* ' + item + ' \n';
+    apiError: ({ title, description, error }, options) => {
+        var msg = "";
+        if (error) {
+            if (typeof error == "array") {
+                msg = error.join("\n");
+            } else if (typeof error == "object") {
+                var errores = "";
+                $.each(error, function (i, item) {
+                    errores += "* " + item + " \n";
                 });
                 msg = errores;
-            }else{
-                msg = error 
+            } else {
+                msg = error;
             }
-
-
-        }else{
-            msg = description 
+        } else {
+            msg = description;
         }
-        
 
         return custom.fire({
             icon: "error",
             showCloseButton: true,
-            closeButtonHtml: '<i class="fa fa-window-close color-orange" aria-hidden="true"></i>',
+            closeButtonHtml:
+                '<i class="fa fa-window-close color-orange" aria-hidden="true"></i>',
             allowOutsideClick: false,
             title: title,
             text: msg,
             html: msg,
-            confirmButtonText: 'Cerrar',
-            ...options
-        })
+            confirmButtonText: "Cerrar",
+            ...options,
+        });
     },
-    apiWarning: ( { title, description,error, }, options ) => {       
-        var msg = ''
-        if(error){
-            if(typeof(error)== 'array' ){
-                msg = error.join('\n');
-            }else
-            if(typeof(error)== 'object' ){
-
-                var errores='';
-                $.each(error,function(i, item){
-                    errores += '* ' + item + ' \n';
+    apiWarning: ({ title, description, error }, options) => {
+        var msg = "";
+        if (error) {
+            if (typeof error == "array") {
+                msg = error.join("\n");
+            } else if (typeof error == "object") {
+                var errores = "";
+                $.each(error, function (i, item) {
+                    errores += "* " + item + " \n";
                 });
                 msg = errores;
-            }else{
-                msg = error 
+            } else {
+                msg = error;
             }
-
-
-        }else{
-            msg = description 
+        } else {
+            msg = description;
         }
-        
 
         return custom.fire({
             icon: "warning",
             showCloseButton: true,
-            closeButtonHtml: '<i class="fa fa-window-close color-orange" aria-hidden="true"></i>',
+            closeButtonHtml:
+                '<i class="fa fa-window-close color-orange" aria-hidden="true"></i>',
             allowOutsideClick: false,
             title: title,
             text: msg,
             html: msg,
-            confirmButtonText: 'Cerrar',
-            ...options
-        })
-    }
-}
+            confirmButtonText: "Cerrar",
+            ...options,
+        });
+    },
+};
 
 
 function replaceAll(sentence, wordsToReplace) {

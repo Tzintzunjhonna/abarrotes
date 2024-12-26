@@ -26,5 +26,8 @@ class StatusSaleSeeder extends Seeder
         StatusSale::create([
             'name' => 'Timbrado',
         ]);
+        StatusSale::create([
+            'name' => 'Factura pendiente',
+        ]);
     }
 }

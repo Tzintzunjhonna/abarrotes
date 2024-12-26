@@ -22,5 +22,7 @@ Route::middleware('auth:sanctum', config('jetstream.auth_session'), 'verified')-
 
         Route::get('/collection/history_sales', [SalesManagementController::class, 'history_sales_collection'])->name("$endpointApp.history.sales.collection");
         Route::post('/assing-customer-to-sale/{id_sale}/{id_customer}', [SalesManagementController::class, 'assing_customer_to_sale'])->name("$endpointApp.assing.customer.to.sale");
+        Route::post('/{id_sale}/{id_status}/change-status', [SalesManagementController::class, 'change_status'])->name("$endpointApp.change_status");
+        Route::get('/export-sales', [SalesManagementController::class, 'export_sales'])->name("$endpointApp.export.sales");
     });
 });

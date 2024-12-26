@@ -9,14 +9,21 @@ const props = defineProps({
   method: {
     type: String
   },
+  cat_payment_type: {
+    type: Array,
+    required: true,
+  },
+  cat_status_sale: {
+    type: Array,
+    required: true,
+  },
 })
 
 let search = ref({
-  name: '',
-  description: '',
-  name_provider: '',
-  barcode: '',
-  category_id: '',
+  ticket_no: '',
+  customer: '',
+  payment_type_id: '',
+  status_sale_id: '',
 })
 
 
@@ -40,11 +47,10 @@ function formData(value) {
 
   const search_form = {
 
-    name: search.value.name,
-    description: search.value.description,
-    name_provider: search.value.name_provider,
-    barcode: search.value.barcode,
-    category_id: (search.value.category_id != undefined && search.value.category_id != '') ? search.value.category_id?.id : '',
+    ticket_no: search.value.ticket_no,
+    customer: search.value.customer,
+    status_sale_id: (search.value.status_sale_id != undefined && search.value.status_sale_id != '') ? search.value.status_sale_id?.id : '',
+    payment_type_id: (search.value.payment_type_id != undefined && search.value.payment_type_id != '') ? search.value.payment_type_id?.id : '',
   }
 
   return search_form
@@ -70,22 +76,34 @@ defineExpose({
           <div class="row">
 
             <div class="mb-2 col-md-6">
-              <label for="name" class="form-label">Nombre</label>
-              <input v-model="search.name" type="text" class="form-control" id="name" placeholder="Nombre">
+              <label for="name" class="form-label">No. Ticket</label>
+              <input v-model="search.ticket_no" type="text" class="form-control" id="name" placeholder="Nombre">
             </div>
             <div class="mb-2 col-md-6">
-              <label for="description" class="form-label">Descripción</label>
-              <input v-model="search.description" type="text" class="form-control" id="name" placeholder="Descripción">
+              <label for="description" class="form-label">Cliente</label>
+              <input v-model="search.customer" type="text" class="form-control" id="name" placeholder="Descripción">
             </div>
             <div class="mb-2 col-md-6">
-              <label for="name_provider" class="form-label">Nombre de proveedor</label>
-              <input v-model="search.name_provider" type="text" class="form-control" id="name"
-                placeholder="Nombre de proveedor">
+              <label for="name_provider" class="form-label">Estatus de venta</label>
+              <Multiselect v-model="search.status_sale_id" track-by="name" label="name"
+                placeholder="Selecciona un estatus" :show-labels="false" deselectLabel=" "
+                :block-keys="['Tab', 'Enter']" :options="cat_status_sale" :searchable="true" :allow-empty="true"
+                :showNoOptions="false">
+                <template v-slot:noResult>
+                  <span>Opción no encontrada</span>
+                </template>
+              </Multiselect>
             </div>
             <div class="mb-2 col-md-6">
-              <label for="barcode" class="form-label">Código de producto</label>
-              <input v-model="search.barcode" type="text" class="form-control" id="name"
-                placeholder="Código de producto">
+              <label for="barcode" class="form-label">Tipo de cobro</label>
+              <Multiselect v-model="search.payment_type_id" track-by="name" label="name"
+                placeholder="Selecciona un tipo de cobro" :show-labels="false" deselectLabel=" "
+                :block-keys="['Tab', 'Enter']" :options="cat_payment_type" :searchable="true" :allow-empty="true"
+                :showNoOptions="false">
+                <template v-slot:noResult>
+                  <span>Opción no encontrada</span>
+                </template>
+              </Multiselect>
             </div>
           </div>
 

@@ -26,6 +26,20 @@
                         </Multiselect>
 
                     </div>
+                    <div class="col-md-12 col-sm-12 mb-4">
+                        <p>
+                            Al activar este botón, la venta será facturada y el responsable de facturación
+                            deberá emitir la factura correspondiente.
+                        </p>
+                        <div class="form-check form-switch">
+                            <input v-model="form.is_with_invoice" class="form-check-input" type="checkbox"
+                                id="switch_is_with_invoice">
+
+                            <label class="form-check-label ml-2" for="switch_is_with_invoice">Facturar
+                                venta</label>
+                        </div>
+
+                    </div>
 
 
                 </div>
@@ -56,7 +70,8 @@ const emit = defineEmits(['btnAction'])
 
 
 const form = ref({
-    customer : null
+    customer : null,
+    is_with_invoice : false
 });
 
 
@@ -102,11 +117,13 @@ function btnAction(value) {
 
 function resetForm() {
     form.value.customer = null;
+    form.value.is_with_invoice = null;
 }
 
 
-function getData(data) {
-    form.value.customer = data;
+function getData(sale) {
+    form.value.customer = sale.customer;
+    form.value.is_with_invoice = sale.is_with_invoice == 1 ? true : false;
 }
 
 defineExpose({

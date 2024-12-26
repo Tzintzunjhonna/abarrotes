@@ -4,7 +4,9 @@ namespace App\Http\Controllers\SalesManagement;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customers;
+use App\Models\PaymentType;
 use App\Models\Products\Products;
+use App\Models\StatusSale;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -31,11 +33,15 @@ class SalesController extends Controller
     public function indexToHistory()
     {
         $customers = Customers::where(Customers::IS_ACTIVE, 1)->get();
+        $statusSale = StatusSale::whereNot(StatusSale::ID, StatusSale::TIMBRADO)->get();
+        $paymentType = PaymentType::all();
 
         return Inertia::render(
             'SalesManagement/HistorySales/Index',
             [
                 'cat_customer' => $customers,
+                'cat_status_sale' => $statusSale,
+                'cat_payment_type' => $paymentType,
             ]
         );
     }

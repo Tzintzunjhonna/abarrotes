@@ -79,7 +79,7 @@
                                             </template>
                                             <template v-else-if="['is_with_invoice'].includes(attribute)">
                                                 <template v-if="item.is_with_invoice == 1">
-                                                    <span class="badge bg-primary">Sí aplica factura</span>
+                                                    <span class="badge bg-primary">Sí aplica</span>
                                                 </template>
                                                 <template v-else>
                                                     <span class="badge bg-danger">No aplica</span>
@@ -93,6 +93,35 @@
                                                     {{ item.customer.business_name}}
                                                 </template>
                                             </template>
+                                            <template v-else-if="['status_sale.name'].includes(attribute)">
+                                                <template v-if="item.status_sale.name === 'Pendiente'">
+                                                    <span class="badge bg-warning ml-3">{{ getValueProperty(item, attribute)
+                                                        }}</span>
+                                                </template>
+                                                <template v-else-if="item.status_sale.name === 'Completado'">
+                                                    <span class="badge bg-success ml-3">{{ getValueProperty(item, attribute)
+                                                        }}</span>
+                                                </template>
+                                                <template v-else-if="item.status_sale.name === 'Cancelado'">
+                                                    <button type="button" :class="class_button"
+                                                        @click="btnAction({ action: 'on_view_reason', value: item })"
+                                                        :title="'Mostrar motivo de cancelación'">
+                                                        <span class="badge bg-danger">
+                                                            {{ getValueProperty(item, attribute) }}
+
+                                                            <i class="mdi mdi-eye"></i>
+                                                        </span>
+                                                    </button>
+                                                </template>
+                                                <template v-else-if="item.status_sale.name === 'Timbrado'">
+                                                    <span class="badge bg-info ml-3">{{ getValueProperty(item, attribute)
+                                                        }}</span>
+                                                </template>
+                                                <template v-else-if="item.status_sale.name === 'Factura pendiente'">
+                                                    <span class="badge bg-primary ml-3">{{ getValueProperty(item, attribute)
+                                                        }}</span>
+                                                </template>
+                                            </template>
                                             <template v-else>
                                                 {{ getValueProperty(item, attribute) }}
                                             </template>
@@ -102,17 +131,45 @@
                                                 <template v-if="props.actions.length">
                                                     <template v-for="(action, i) in props.actions" :key="action.name">
                                                         <template v-if="habilitedRecicleAction(item, action)">
-                                                            <button type="button" :class="getClass(action, i)"
-                                                                @click="btnAction({ action: action.name, value: item })"
-                                                                :title="action.tooltip">
-                                                                <template v-if="action.hasOwnProperty('title')">
-                                                                    {{ action.title }}
-                                                                </template>
-                                                                <template v-else>
-                                                                    <i :class="action.class_icon"></i>
-                                                                </template>
+                                                            <template v-if="habilitedDropdownAction(item, action)">
+                                                                <div class="btn-group" role="group">
+                                                                    <button id="btnGroupDrop" type="button"
+                                                                        class="btn btn-primary dropdown-toggle"
+                                                                        :class="getClass(action, i)"
+                                                                        data-bs-toggle="dropdown" aria-expanded="false"
+                                                                        :title="action.tooltip">
+                                                                        <template v-if="action.hasOwnProperty('title')">
+                                                                            {{ action.title }}
+                                                                        </template>
+                                                                        <template v-else>
+                                                                            <i :class="action.class_icon"></i>
+                                                                        </template>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu"
+                                                                        aria-labelledby="btnGroupDrop">
+                                                                        <li v-for="(dropdownItem, keydropdownItem) in action.dropdownItem"
+                                                                            :key="keydropdownItem">
+                                                                            <a class="dropdown-item" href="#"
+                                                                                @click.prevent="btnAction({ action: action.name, value: item, key: dropdownItem.id })">
+                                                                                {{ dropdownItem.name }}
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </template>
+                                                            <template v-else>
+                                                                <button type="button" :class="getClass(action, i)"
+                                                                    @click="btnAction({ action: action.name, value: item })"
+                                                                    :title="action.tooltip">
+                                                                    <template v-if="action.hasOwnProperty('title')">
+                                                                        {{ action.title }}
+                                                                    </template>
+                                                                    <template v-else>
+                                                                        <i :class="action.class_icon"></i>
+                                                                    </template>
 
-                                                            </button>
+                                                                </button>
+                                                            </template>
                                                         </template>
                                                     </template>
 
@@ -218,6 +275,7 @@ const btnAction = (item) => {
 
 let habilitedAction = ref(['modal_assing_customer'])
 
+const class_button = ref('btn btn-sm');
 // WATCH  --------------------------
 watch(
     () => props.searchPost,
@@ -398,6 +456,15 @@ function habilitedRecicleAction(item, action) {
     return true
 }
 
+function habilitedDropdownAction(item, action) {
+    
+    if (action.dropdown == true) {
+        return true
+    }
+
+    return false
+}
+
 
 
 function getData(page = 1, pageSize = 10) {
@@ -421,6 +488,7 @@ function getData(page = 1, pageSize = 10) {
             paginate: true,
             pageSize: pageSize
         }
+        // SEARCH
         let properties = [
             'name',
             'email',
@@ -430,6 +498,10 @@ function getData(page = 1, pageSize = 10) {
             'percentage',
             'barcode',
             'category_id',
+            'ticket_no',
+            'customer',
+            'status_sale_id',
+            'payment_type_id',
         ]
 
         properties.forEach((property) => addParameter(parameters, props.searchPost, property))

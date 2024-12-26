@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\App\SalesManagement;
 
-use App\Exports\ProductsExport;
+use App\Exports\SalesHistoryExport;
 use App\Http\Controllers\Controller;
 use App\Models\Customers;
 use App\Models\Products\Products;
@@ -18,7 +18,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Log;
 use Illuminate\Validation\ValidationException;
-use Maatwebsite\Excel\Facades\Excel;
 
 class SalesManagementController extends Controller
 {
@@ -30,6 +29,23 @@ class SalesManagementController extends Controller
         try {
             $query = Sale::query();
 
+            if($request->ticket_no){
+                $query = $query->where(Sale::TICKET_NO, 'LIKE', "%$request->ticket_no%");
+            }
+            if($request->status_sale_id){
+                $query = $query->where(Sale::STATUS_SALE_ID, $request->status_sale_id);
+            }
+            if($request->payment_type_id){
+                $query = $query->where(Sale::PAYMENT_TYPE_ID, $request->payment_type_id);
+            }
+
+            if ($request->customer) {
+
+                $query = $query->whereHas('customer', function ($query) use ($request) {
+
+                    $query = $query->whereRaw('LOWER(business_name) LIKE (?) ', ["%{$request->customer}%"]);
+                });
+            }
             
             $list = $query->orderBy('id', 'desc')->paginate($request->pageSize);
 
@@ -200,7 +216,7 @@ class SalesManagementController extends Controller
     /**
      * Asignar cliente a venta
      */
-    public function assing_customer_to_sale(string $id_sale, string $id_customer)
+    public function assing_customer_to_sale(string $id_sale, string $id_customer, Request $request)
     {
 
         DB::beginTransaction();
@@ -224,6 +240,7 @@ class SalesManagementController extends Controller
 
 
             $sale_info->customer_id = $customer_info->id;
+            $sale_info->is_with_invoice = $request['is_with_invoice'] === "true";
             $sale_info->save();
 
             DB::commit();
@@ -395,23 +412,24 @@ class SalesManagementController extends Controller
     /**
      * Change status the specified resource from storage.
      */
-    public function change_status(string $id)
+    public function change_status(string $id_sale, string $id_status, Request $request)
     {
         DB::beginTransaction();
         try {
 
-            $products = Products::find($id);
+            $sale_info = Sale::find($id_sale);
 
-            if($products == null){
+            if($sale_info == null){
                 throw new \Exception('No se encuentra la venta.');
             }
 
-            $products->is_active = !$products->is_active;
-            $products->save();
+            $sale_info->status_sale_id = $id_status;
+            $sale_info->comentarios = $request->reason_for_cancellation;
+            $sale_info->save();
 
             DB::commit();
 
-            return response()->success($products, 'Se cambio de estatus la venta.');
+            return response()->success($sale_info, 'Se cambio de estatus la venta.');
         } catch (\Exception $exception) {
             DB::rollBack();
             $response = [
@@ -420,17 +438,17 @@ class SalesManagementController extends Controller
                 "message" => $exception->getMessage(),
             ];
             log::debug($exception);
-            return response()->error('Error al cambiar de estatus la venta.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error('Error al generar el reporte de las ventas.', $response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     /**
-     * Exportar reporte de productos
+     * Exportar reporte de ventas realizadas
      */
-    public function export_products(Request $request)
+    public function export_sales(Request $request)
     {
         try {
-            $fileNme    = 'productos_' . Carbon::now()->toDateString(). '.xlsx';
-            return (new ProductsExport($request))->download($fileNme);
+            $fileNme    = 'Ventas_' . Carbon::now()->toDateString(). '.xlsx';
+            return (new SalesHistoryExport($request))->download($fileNme);
 
         } catch (\Exception $exception) {
             

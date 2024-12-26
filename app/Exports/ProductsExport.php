@@ -181,6 +181,7 @@ class ProductsExport implements
             'L' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2,
             'M' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2,
             'N' => NumberFormat::FORMAT_DATE_DDMMYYYY,
+            'C' => NumberFormat::FORMAT_NUMBER,
             'O' => NumberFormat::FORMAT_DATE_DDMMYYYY,
         ];
     }
