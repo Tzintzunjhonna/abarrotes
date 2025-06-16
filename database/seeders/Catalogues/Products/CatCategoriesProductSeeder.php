@@ -3,6 +3,7 @@
 namespace Database\Seeders\Catalogues\Products;
 
 use App\Models\CategorieProducts;
+use App\Models\Products\CategorieProducts as ProductsCategorieProducts;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -17,57 +18,57 @@ class CatCategoriesProductSeeder extends Seeder
     {
 
 
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Alimentos',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Bebidas',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Productos de Higiene Personal',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Limpieza del Hogar',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Congelados',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Dulcería',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Enlatados y Conservas',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Bebidas alcohólicas (si aplican)',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Productos para Mascotas',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Botanas',
             ]
         );
-        CategorieProducts::create(
+        ProductsCategorieProducts::create(
             [
                 'name' => 'Condimentos y Especias',
             ]

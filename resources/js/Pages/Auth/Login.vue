@@ -18,7 +18,7 @@ defineProps({
 });
 
 const form = useForm({
-    email: 'admin@bitfx.mx',
+    email: 'admin@corp.com',
     password: 'admin',
     remember: false,
 });
