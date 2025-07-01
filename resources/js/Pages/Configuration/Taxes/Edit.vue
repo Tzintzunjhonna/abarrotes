@@ -7,9 +7,10 @@ import { useVuelidate, } from '@vuelidate/core';
 import { helpers, required, email, numeric } from '@vuelidate/validators';
 import PageTitle from '@/Components/PageTitle.vue';
 import MenuPage from '@/Layouts/Menu.vue';
-
+import AddTaxTable from './AddTaxTable.vue';
 import Footer from '@/Layouts/Footer.vue';
 import FlashMessage from '@/Components/helps/FlashMessage.vue';
+import Divider from '@/Components/helps/Divider.vue';
 
 const { proxy } = getCurrentInstance();
  
@@ -45,17 +46,15 @@ const props = defineProps({
     },
 });
 
-let cat_tasa_cuota = ref(props.cat_tasa_cuota_prop)
+
+const tax_iva_ref = ref(null)
+const tax_isr_ref = ref(null)
+const tax_ieps_ref = ref(null)
 
 let is_submit = ref(false)
 
-const form = ref({
-    tipo_impuesto_id: '',
+const formGeneral = ref({
     name: '',
-    tipo_factor_id: '',
-    is_retencion: false,
-    is_traslado: false,
-    tasa_cuota_porcentage: '',
     is_products_new: false,
 })
 
@@ -71,15 +70,15 @@ onMounted(() => {
     getData()
 });
 
-// WATCH -----------------------------
+// // WATCH -----------------------------
 
-watch(() => form.value.tasa_cuota_porcentage, (newValue, oldValue) => {
-    if (newValue != null) {
-        is_submit.value = true;
-    }else{
-        is_submit.value = false;
-    }
-});
+// watch(() => formGeneral.value.tasa_cuota_porcentage, (newValue, oldValue) => {
+//     if (newValue != null) {
+//         is_submit.value = true;
+//     }else{
+//         is_submit.value = false;
+//     }
+// });
 
 // VALIDACION DE FORMULARIOS --------------------------
 
@@ -90,47 +89,11 @@ const validateRulesForm = {
             'El campo nombre del impuesto es requerido.',
             required,
         )
-    },
-    tipo_impuesto_id: {
-        required: helpers.withMessage(
-            'El campo tipo impuesto es requerido.',
-            required,
-        )
-    },
-    tipo_factor_id: {
-        required: helpers.withMessage(
-            'El campo tipo factor es requerido.',
-            required,
-        )
-    },
-    tasa_cuota_porcentage: {
-        required: helpers.withMessage(
-            'El campo Tasa o Cuota es requerido.',
-            required,
-        )
-    },
+    }
 };
 
-const f$ = useVuelidate(validateRulesForm, form);
+const g$ = useVuelidate(validateRulesForm, formGeneral);
 
-
-const validateRulesTasaOCuota = {
-    
-    tipo_impuesto_id: {
-        required: helpers.withMessage(
-            'El campo tipo impuesto es requerido.',
-            required,
-        )
-    },
-    tipo_factor_id: {
-        required: helpers.withMessage(
-            'El campo tipo factor es requerido.',
-            required,
-        )
-    },
-};
-
-const b$ = useVuelidate(validateRulesTasaOCuota, form);
 
 
 // FUNCIONES --------------------------
@@ -138,23 +101,65 @@ const b$ = useVuelidate(validateRulesTasaOCuota, form);
 
 function getData() {
 
-    console.log(props.item_info)
-    form.value.name                     = props.item_info.name;
-    form.value.tipo_impuesto_id         = props.item_info.has_tipo_impuesto;
-    form.value.tipo_factor_id           = props.item_info.has_tipo_factor;
-    form.value.is_retencion             = props.item_info.is_retencion == 1 ? true : false;
-    form.value.is_traslado              = props.item_info.is_traslado == 1 ? true : false;
-    form.value.is_products_new          = props.item_info.is_products_new == 1 ? true : false;
-    form.value.tasa_cuota_porcentage    = {codigo: props.item_info.tasa_cuota_porcentage};
+    console.error('info:',props.item_info)
+    formGeneral.value.name = props.item_info.name;
+    
+    let tax_iva = [];  
+    // props.item_info.has_taxes.filter((tax) => {
+    //     return tax.is_traslado == 1; // IVA
+    // });
+    let tax_isr = [];  
+    // props.item_info.has_taxes.filter((tax) => {
+    //     return tax.is_retencion == 1; // ISR
+    // });
+    let tax_ieps = [];  
+    // props.item_info.has_taxes.filter((tax) => {
+    //     return tax.is_ieps == 1; // IEPS
+    // });
+
+    props.item_info.has_taxes.forEach((tax) => {
+        console.error('tax:', tax)
+        if (tax.is_traslado == 1) {
+            tax_iva.push({
+                id: tax.id,
+                tipo_impuesto_id: tax.has_tipo_impuesto,
+                tipo_factor_id: tax.has_tipo_factor,
+                tasa_cuota_porcentage: tax.tasa_cuota_porcentage,
+            });
+        } else if (tax.is_retencion == 1) {
+            tax_isr.push({
+                id: tax.id,
+                tipo_impuesto_id: tax.has_tipo_impuesto,
+                tipo_factor_id: tax.has_tipo_factor,
+                tasa_cuota_porcentage: tax.tasa_cuota_porcentage,
+            });
+        } else if (tax.is_ieps == 1) {
+            tax_ieps.push({
+                id: tax.id,
+                tipo_impuesto_id: tax.has_tipo_impuesto,
+                tipo_factor_id: tax.has_tipo_factor,
+                tasa_cuota_porcentage: tax.tasa_cuota_porcentage,
+            });
+        }
+    });
+
+
+    tax_iva_ref.value?.addListTaxes(tax_iva);
+    tax_isr_ref.value?.addListTaxes(tax_isr);
+    tax_ieps_ref.value?.addListTaxes(tax_ieps);
 
 }
 
 async function onSubmit() {
 
-    const isFormCorrect = await f$.value.$validate();
-    if (!isFormCorrect) return;
+    // Validar campos de cada uno de los impuestos
+    const formData = validateFormTaxes();
 
-    let formData = proxy.setFormData(form.value);
+    console.error('formData', formData)
+
+    if (formData === false) {
+        return;
+    }
 
     proxy.api
         .post(`v1/app-configuration/tax-settings/${props.item_info.id}/update`, formData,
@@ -187,89 +192,56 @@ async function onSubmit() {
         })
 }
 
-function setForm(form){
+
+
+function validateFormTaxes() {
+
+    if (formGeneral.value.name == '') {
+        g$.value.name.$touch();
+        proxy.alert.apiError({
+            title: 'Advertencia',
+            error: 'Deberás agregar el nombre de la configuracion del impuesto.'
+        });
+        return false;
+    }
+
+
+    let impuestosIva = tax_iva_ref.value?.validarCampos();
+    let impuestosIsr = tax_isr_ref.value?.validarCampos();
+    let impuestosIeps = tax_ieps_ref.value?.validarCampos();
+
+    console.error('impuestosIva', impuestosIva)
+    console.error('impuestosIsr', impuestosIsr)
+    console.error('impuestosIeps', impuestosIeps)
+    if (
+        impuestosIva.success == false &&
+        impuestosIsr.success == false &&
+        impuestosIeps.success == false
+    ) {
+        proxy.alert.apiError({
+            title: 'Advertencia',
+            error: 'Deberás agregar al menos un impuesto de IVA, ISR e IEPS.'
+        });
+        return false;
+    }
 
     const formData = new FormData();
 
-    for (const [key, value] of Object.entries(form)) {
-        if (typeof value === 'object' && value !== null) {
-            if(key == 'photo_input'){
-                formData.append(key, value);
-
-            }
-            else if (key == 'tasa_cuota_porcentage'){
-                formData.append(key, value.codigo);
-            }
-            else{
-                formData.append(key, value.id);
-            }
-        }else {
-            formData.append(key, value);
-        }
+    if (impuestosIva.success == true) {
+        formData.append('impuestos_iva', JSON.stringify(impuestosIva.data));
     }
+    if (impuestosIsr.success == true) {
+        formData.append('impuestos_isr', JSON.stringify(impuestosIsr.data));
+    }
+    if (impuestosIeps.success == true) {
+        formData.append('impuestos_ieps', JSON.stringify(impuestosIeps.data));
+    }
+
+    formData.append('name', formGeneral.value.name);
+    formData.append('is_products_new', formGeneral.value.is_products_new);
 
     return formData;
-}
-function uploadFile(event, name) {
-    const file = event.target.files[0];
-    form.value.photo_input = file;
-    form.value.photo = URL.createObjectURL(event.target.files[0]);
 
-}
-
-
-async function btnSearchTasaCuota() {
-
-    cat_tasa_cuota.value = [];
-    const isFormCorrect = await b$.value.$validate();
-    if (!isFormCorrect) return;
-
-    if (form.value.is_retencion == false && form.value.is_traslado == false){
-        proxy.alert.message({
-            title: 'Advertencia',
-            text: 'Debes de elegir una opción, si es retencion o traslado.'
-        });
-        return;
-    }
-
-    const formData = setForm(form.value);
-    proxy.api
-        .post(`v1/app-configuration/tax-settings/info-tasa-cuota`, formData)
-        .then((response) => {
-            const data = response.data
-            cat_tasa_cuota.value = data;
-            
-        })
-        .catch((error) => {
-            console.log(error)
-            if (error.errors) {
-                proxy.alert.apiError({
-                    title: 'Error en la operación',
-                    error: error.errors.message
-                });
-            } else {
-                proxy.alert.apiError({
-                    title: 'Error en la operación',
-                    error: error.message
-                });
-            }
-        })
-}
-
-
-
-function btnEdit() {
-
-    is_disabled.value = !is_disabled.value;
-    if (is_disabled.value == false) {
-        text_disabled.value = 'Cancelar edicion';
-        class_button_disabled.value = 'btn btn-danger';
-        icon_disabled.value = 'mdi mdi-book-cancel';
-    } else {
-        text_disabled.value = 'Editar';
-        class_button_disabled.value = 'btn btn-primary';
-        icon_disabled.value = 'mdi mdi-content-save';
-    }
 
 }
 
@@ -291,7 +263,7 @@ function btnIndex() {
             <PageTitle :title="title" :prevPageName="prevPageName" :prevPageUrl="prevPageUrl"
                 :pageNowName="pageNowName" />
 
-            <FlashMessage/>
+            <FlashMessage />
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card">
@@ -302,113 +274,34 @@ function btnIndex() {
                                 </a>
                                 Editar impuesto
                             </h4>
-                            <div class="col-12 d-flex justify-content-end">
-                                <button :class="class_button_disabled" type="button" @click="btnEdit()">
-                                    <i :class="icon_disabled"></i>
-                                    {{ text_disabled }}
-                                </button>
-                            </div>
 
                             <form class="needs-validation" @submit.prevent="onSubmit">
-                                <div class="row">
-                                    <div class="mb-2 col-md-6">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
                                         <label for="name" class="form-label">Nombre</label>
-                                        <input :disabled="is_disabled" v-model="form.name" type="text" class="form-control" id="name"
+                                        <input v-model="formGeneral.name" type="text" class="form-control" id="name"
                                             name="name" placeholder="Nombre">
-                                        <div class="input-errors" v-for="error of f$.name.$errors" :key="error.$uid">
+                                        <div class="input-errors" v-for="error of g$.name.$errors" :key="error.$uid">
                                             <div class="text-danger">{{ error.$message }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-2 col-md-6">
-                                        <label for="rol" class="form-label">Tipo de impuesto</label>
-                                        <Multiselect :disabled="is_disabled" v-model="form.tipo_impuesto_id" track-by="nombre" label="nombre"
-                                            placeholder="Selecciona un tipo de impuesto" :show-labels="false"
-                                            deselectLabel=" " :block-keys="['Tab', 'Enter']" :options="cat_sat_impuesto"
-                                            :searchable="true" :allow-empty="true" :showNoOptions="false">
-                                            <template v-slot:noResult>
-                                                <span>Opción no encontrada</span>
-                                            </template>
-                                        </Multiselect>
-                                        <div class="input-errors" v-for="error of f$.tipo_impuesto_id.$errors"
-                                            :key="error.$uid">
-                                            <div class="text-danger">{{ error.$message }}</div>
-                                        </div>
-                                        <div class="input-errors" v-for="error of b$.tipo_impuesto_id.$errors"
-                                            :key="error.$uid">
-                                            <div class="text-danger">{{ error.$message }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-2 col-md-6">
-                                        <label for="rol" class="form-label">Tipo factor</label>
-                                        <Multiselect :disabled="is_disabled" v-model="form.tipo_factor_id" track-by="nombre" label="nombre"
-                                            placeholder="Selecciona un tipo factor" :show-labels="false"
-                                            deselectLabel=" " :block-keys="['Tab', 'Enter']"
-                                            :options="cat_sat_tipo_factor" :searchable="true" :allow-empty="true"
-                                            :showNoOptions="false">
-                                            <template v-slot:noResult>
-                                                <span>Opción no encontrada</span>
-                                            </template>
-                                        </Multiselect>
-                                        <div class="input-errors" v-for="error of f$.tipo_factor_id.$errors"
-                                            :key="error.$uid">
-                                            <div class="text-danger">{{ error.$message }}</div>
-                                        </div>
-                                        <div class="input-errors" v-for="error of b$.tipo_factor_id.$errors"
-                                            :key="error.$uid">
-                                            <div class="text-danger">{{ error.$message }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-2 col-md-6">
-                                        <label for="rol" class="form-label"></label>
-                                        <div class="form-check form-switch">
-                                            <input :disabled="is_disabled" v-model="form.is_retencion" class="form-check-input" type="checkbox"
-                                                id="flexSwitchCheckRetencion">
-                                            <label class="form-check-label"
-                                                for="flexSwitchCheckRetencion">Retención</label>
-                                        </div>
-                                        <div class="form-check form-switch">
-                                            <input :disabled="is_disabled" v-model="form.is_traslado" class="form-check-input" type="checkbox"
-                                                id="flexSwitchCheckTraslado">
-                                            <label class="form-check-label"
-                                                for="flexSwitchCheckTraslado">Traslado</label>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="mb-2 col-md-6">
-                                        <button :disabled="is_disabled" class="btn btn-warning" type="button" @click="btnSearchTasaCuota">
-                                            <i class="mdi mdi-text-search mdi-18px"></i>
-                                            Buscar rango de Tasa o Cuota
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="mb-2 col-md-6">
-                                    <label for="rol" class="form-label">Tasa o cuota %</label>
-                                    <Multiselect :disabled="is_disabled" v-model="form.tasa_cuota_porcentage" track-by="codigo" label="codigo"
-                                        placeholder="Selecciona un tipo factor" :show-labels="false" deselectLabel=" "
-                                        :block-keys="['Tab', 'Enter']" :options="cat_tasa_cuota" :searchable="true"
-                                        :allow-empty="true" :showNoOptions="false">
-                                        <template v-slot:noResult>
-                                            <span>Opción no encontrada</span>
-                                        </template>
-                                    </Multiselect>
-                                    <div class="input-errors" v-for="error of f$.tasa_cuota_porcentage.$errors"
-                                        :key="error.$uid">
-                                        <div class="text-danger">{{ error.$message }}</div>
-                                    </div>
-                                </div>
-                                <div class="mb-2 col-md-6">
-                                    <!-- <div class="form-check form-switch">
-                                        <input :disabled="is_disabled" v-model="form.is_products_new" class="form-check-input" type="checkbox"
-                                            id="flexSwitchCheckRetencion">
-                                        <label class="form-check-label"
-                                            for="flexSwitchCheckRetencion">Incluir a productos nuevos automaticamente</label>
-                                    </div> -->
-                                </div>
+                                <Divider label="Impuestos de IVA" />
+                                <AddTaxTable :cat_sat_impuesto="props.cat_sat_impuesto"
+                                    :cat_sat_tipo_factor="props.cat_sat_tipo_factor" type_tax="IVA" ref="tax_iva_ref" />
 
-                                <button class="btn btn-primary" type="submit" v-if="!is_disabled">
+                                <Divider label="Impuestos de retención" class="mt-2" />
+                                <AddTaxTable :cat_sat_impuesto="props.cat_sat_impuesto"
+                                    :cat_sat_tipo_factor="props.cat_sat_tipo_factor" type_tax="ISR" ref="tax_isr_ref" />
+
+                                <Divider label="Impuestos de IEPS" class="mt-2" />
+                                <AddTaxTable :cat_sat_impuesto="props.cat_sat_impuesto"
+                                    :cat_sat_tipo_factor="props.cat_sat_tipo_factor" type_tax="IEPS"
+                                    ref="tax_ieps_ref" />
+
+                                <button class="btn btn-primary mt-1" type="submit">
                                     <i class="mdi mdi-content-save"></i>
-                                    Actualizar
+                                    Guardar configuración
                                 </button>
                             </form>
 

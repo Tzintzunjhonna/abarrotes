@@ -2,8 +2,6 @@
 
 namespace App\Models\Configuration;
 
-use App\Models\Sat\CatSatImpuesto;
-use App\Models\Sat\CatSatTipoFactor;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -47,24 +45,12 @@ class TaxSettings extends Model
     );
 
     protected $with = [
-        'has_tipo_impuesto',
-        'has_tipo_factor',
+        'has_taxes',
     ];
-    public function has_tipo_impuesto(): \Illuminate\Database\Eloquent\Relations\HasOne
-    {
-        return $this->hasOne(
-            CatSatImpuesto::class,
-            'id',
-            self::TIPO_IMPUESTO_ID,
-        );
-    }
+    
 
-    public function has_tipo_factor(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function has_taxes()
     {
-        return $this->hasOne(
-            CatSatTipoFactor::class,
-            'id',
-            self::TIPO_FACTOR_ID,
-        );
+        return $this->hasMany(TaxSettingsHasRecord::CLASS_NAME, TaxSettingsHasRecord::TAX_SETTINGS_ID);
     }
 }

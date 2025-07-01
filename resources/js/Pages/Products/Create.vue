@@ -573,7 +573,7 @@ function onPriceWithTaxs(price){
                                                         </tr>
                                                     </thead>
                                                     <tbody v-if="props.cat_tax_settings?.length > 0">
-                                                        <tr v-for="(item, key )  in props.cat_tax_settings" :key="key">
+                                                        <tr v-for="(item, key) in props.cat_tax_settings" :key="key">
                                                             <td>
                                                                 {{ item.id }}
                                                                 <label>
@@ -583,21 +583,73 @@ function onPriceWithTaxs(price){
                                                                 </label>
                                                             </td>
                                                             <td>{{ item.name }}</td>
-                                                            <td>{{ item.has_tipo_impuesto.nombre }}</td>
-                                                            <td>{{ item.has_tipo_factor.nombre }}</td>
+                                                            <td>{{ item.has_tipo_impuesto?.nombre }}</td>
+                                                            <td>{{ item.has_tipo_factor?.nombre }}</td>
                                                             <td>{{ item.tasa_cuota_porcentage }}</td>
                                                             <td>
-                                                                <span :class="item.is_traslado == 1 ? 'badge bg-primary' : 'badge bg-danger'">
-                                                                    {{ item.is_traslado == 1 ? 'Sí aplica' : 'No aplica' }}
+                                                                <span
+                                                                    :class="item.is_traslado == 1 ? 'badge bg-primary' : 'badge bg-danger'">
+                                                                    {{ item.is_traslado == 1 ? 'Sí aplica' : 'No aplica'
+                                                                    }}
                                                                 </span>
                                                             </td>
                                                             <td>
-                                                                <span :class="item.is_retencion == 1 ? 'badge bg-primary' : 'badge bg-danger'">
+                                                                <span
+                                                                    :class="item.is_retencion == 1 ? 'badge bg-primary' : 'badge bg-danger'">
                                                                     {{ item.is_retencion == 1 ? 'Sí aplica' : 'No aplica' }}
                                                                 </span>
                                                             </td>
                                                         </tr>
+
+                                                        <!-- SUB-FILAS: registros de has_taxes -->
+                                                        <tr v-if="item.has_taxes?.length > 0">
+                                                            <td colspan="7" class="bg-light">
+                                                                <table class="table table-sm mb-0">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>ID</th>
+                                                                            <th>Tipo impuesto</th>
+                                                                            <th>Tipo factor</th>
+                                                                            <th>Porcentaje</th>
+                                                                            <th>Traslado</th>
+                                                                            <th>Retención</th>
+                                                                            <th>IEPS</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr v-for="(tax, subKey) in item.has_taxes"
+                                                                            :key="subKey">
+                                                                            <td>{{ tax.id }}</td>
+                                                                            <td>{{ tax.tipo_impuesto_id }}</td>
+                                                                            <td>{{ tax.tipo_factor_id }}</td>
+                                                                            <td>{{ tax.tasa_cuota_porcentage }}</td>
+                                                                            <td>
+                                                                                <span
+                                                                                    :class="tax.is_traslado == 1 ? 'badge bg-primary' : 'badge bg-secondary'">
+                                                                                    {{ tax.is_traslado == 1 ? 'Sí' :
+                                                                                    'No' }}
+                                                                                </span>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span
+                                                                                    :class="tax.is_retencion == 1 ? 'badge bg-primary' : 'badge bg-secondary'">
+                                                                                    {{ tax.is_retencion == 1 ? 'Sí' :
+                                                                                    'No' }}
+                                                                                </span>
+                                                                            </td>
+                                                                            <td>
+                                                                                <span
+                                                                                    :class="tax.is_ieps == 1 ? 'badge bg-primary' : 'badge bg-secondary'">
+                                                                                    {{ tax.is_ieps == 1 ? 'Sí' : 'No' }}
+                                                                                </span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
                                                     </tbody>
+
                                                     <tbody v-else>
                                                         <tr>
                                                             <td colspan="8">

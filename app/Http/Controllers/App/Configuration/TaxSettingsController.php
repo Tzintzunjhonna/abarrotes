@@ -5,6 +5,7 @@ namespace App\Http\Controllers\App\Configuration;
 
 use App\Http\Controllers\Controller;
 use App\Models\Configuration\TaxSettings;
+use App\Models\Configuration\TaxSettingsHasRecord;
 use App\Models\Products\Products;
 use App\Models\Products\ProductsHasTaxes;
 use App\Models\Sat\CatSatImpuesto;
@@ -80,49 +81,97 @@ class TaxSettingsController extends Controller
 
             $request->validate([
                 'name' => 'required',
-                'tipo_impuesto_id' => 'required',
-                'tipo_factor_id' => 'required',
-                'is_retencion' => 'required',
-                'is_traslado' => 'required',
-                'tasa_cuota_porcentage' => 'required',
-                'is_products_new' => 'required',
             ], [
                 'name.required' => 'El nombre del impuesto es obligatorio.',
-                'tipo_impuesto_id.required' => 'El tipo de impuesto es obligatorio.',
-                'tipo_factor_id.required' => 'El tipo de factor es obligatorio.',
-                'is_retencion.required' => 'Si es retencion es obligatorio.',
-                'is_traslado.required' => 'Si es traslado es obligatorio.',
-                'tasa_cuota_porcentage.required' => 'El porcentaje de tasa o cuota es obligatoria es obligatorio.',
-                'is_products_new.required' => 'Aplica para todos los productos nuevos es obligatorio.',
             ]);
 
-            $request['is_retencion']    = $request['is_retencion'] === "true";
-            $request['is_traslado']     = $request['is_traslado'] === "true";
-            $request['is_products_new'] = $request['is_products_new'] === "true";
-
             $find_item = TaxSettings::where([
-                ['is_retencion', $request['is_retencion']],
-                ['is_traslado', $request['is_traslado']],
-                ['tipo_impuesto_id', $request['tipo_impuesto_id']],
-                ['tipo_factor_id', $request['tipo_factor_id']],
-                ['tasa_cuota_porcentage', number_format($request['tasa_cuota_porcentage'], 2, '.')],
+                ['name', $request['name']],
             ])->first();
 
             if($find_item != null){
-                throw new \Exception('La configuración que seleccionó ya esta guardado.');
+                throw new \Exception('El nombre que ingreso ya existe en la base de datos.');
             }
+
+            $request['is_products_new'] = $request['is_products_new'] === "true";
+            
+
             $new_item = new TaxSettings();
 
             $new_item->name                     = $request->name;
-            $new_item->tipo_impuesto_id         = $request->tipo_impuesto_id;
-            $new_item->tipo_factor_id           = $request->tipo_factor_id;
-            $new_item->is_retencion             = $request->is_retencion;
-            $new_item->is_traslado              = $request->is_traslado;
-            $new_item->tasa_cuota_porcentage    = $request->tasa_cuota_porcentage;
             $new_item->is_products_new          = $request->is_products_new;
             $new_item->created_at = Carbon::now();
             $new_item->updated_at = Carbon::now();
             $new_item->save();
+
+            $impuestos_iva = json_decode($request->input('impuestos_iva'), true);
+            $impuestos_isr = json_decode($request->input('impuestos_isr'), true);
+            $impuestos_ieps = json_decode($request->input('impuestos_ieps'), true);
+
+            if ($impuestos_iva != null) {
+
+                foreach ($impuestos_iva as $key => $tax) {
+                    $tax = (object)$tax;
+
+                    $tipoImpuesto = (object) $tax->tipo_impuesto_id;
+                    $tipoFactor   = (object) $tax->tipo_factor_id;
+
+                    $new_record = new TaxSettingsHasRecord();
+                    $new_record->tax_settings_id       = $new_item->id;
+                    $new_record->tipo_impuesto_id      = $tipoImpuesto->id;
+                    $new_record->tipo_factor_id        = $tipoFactor->id;
+                    $new_record->tasa_cuota_porcentage = number_format($tax->tasa_cuota_porcentage, 2, '.', '');
+
+                    $new_record->is_traslado = true;
+
+                    $new_record->created_at = now();
+                    $new_record->updated_at = now();
+                    $new_record->save();
+                }
+            }
+            if ($impuestos_isr != null) {
+
+                foreach ($impuestos_isr as $key => $tax) {
+                    $tax = (object)$tax;
+
+                    $tipoImpuesto = (object) $tax->tipo_impuesto_id;
+                    $tipoFactor   = (object) $tax->tipo_factor_id;
+
+                    $new_record = new TaxSettingsHasRecord();
+                    $new_record->tax_settings_id       = $new_item->id;
+                    $new_record->tipo_impuesto_id      = $tipoImpuesto->id;
+                    $new_record->tipo_factor_id        = $tipoFactor->id;
+                    $new_record->tasa_cuota_porcentage = number_format($tax->tasa_cuota_porcentage, 2, '.', '');
+
+                    $new_record->is_retencion = true;
+
+                    $new_record->created_at = now();
+                    $new_record->updated_at = now();
+                    $new_record->save();
+                }
+            }
+            if ($impuestos_ieps != null) {
+                foreach ($impuestos_ieps as $key => $tax) {
+                    $tax = (object)$tax;
+
+                    $tipoImpuesto = (object) $tax->tipo_impuesto_id;
+                    $tipoFactor   = (object) $tax->tipo_factor_id;
+
+                    $new_record = new TaxSettingsHasRecord();
+                    $new_record->tax_settings_id       = $new_item->id;
+                    $new_record->tipo_impuesto_id      = $tipoImpuesto->id;
+                    $new_record->tipo_factor_id        = $tipoFactor->id;
+                    $new_record->tasa_cuota_porcentage = number_format($tax->tasa_cuota_porcentage, 2, '.', '');
+
+                    $new_record->is_ieps = true;
+
+                    $new_record->created_at = now();
+                    $new_record->updated_at = now();
+                    $new_record->save();
+                }
+            }
+
+
             DB::commit();
 
 
@@ -173,25 +222,9 @@ class TaxSettingsController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
-                'tipo_impuesto_id' => 'required',
-                'tipo_factor_id' => 'required',
-                'is_retencion' => 'required',
-                'is_traslado' => 'required',
-                'tasa_cuota_porcentage' => 'required',
-                'is_products_new' => 'required',
             ], [
                 'name.required' => 'El nombre del impuesto es obligatorio.',
-                'tipo_impuesto_id.required' => 'El tipo de impuesto es obligatorio.',
-                'tipo_factor_id.required' => 'El tipo de factor es obligatorio.',
-                'is_retencion.required' => 'Si es retencion es obligatorio.',
-                'is_traslado.required' => 'Si es traslado es obligatorio.',
-                'tasa_cuota_porcentage.required' => 'El porcentaje de tasa o cuota es obligatoria es obligatorio.',
-                'is_products_new.required' => 'Aplica para todos los productos nuevos es obligatorio.',
             ]);
-
-            $request['is_retencion']    = $request['is_retencion'] === "true";
-            $request['is_traslado']     = $request['is_traslado'] === "true";
-            $request['is_products_new'] = $request['is_products_new'] === "true";
 
             $tax_settings = TaxSettings::find($id);
 
@@ -199,35 +232,104 @@ class TaxSettingsController extends Controller
                 throw new \Exception('No se encuentra la configuración del impuesto.');
             }
 
-            $find_item = TaxSettings::where([
-                ['is_retencion', $request['is_retencion']],
-                ['is_traslado', $request['is_traslado']],
-                ['tipo_impuesto_id', $request['tipo_impuesto_id']],
-                ['tipo_factor_id', $request['tipo_factor_id']],
-                ['tasa_cuota_porcentage', number_format($request['tasa_cuota_porcentage'], 2, '.')],
-            ])->first();
+            $request['is_products_new'] = $request['is_products_new'] === "true";
 
-            if ($find_item != null && $find_item->id != $tax_settings->id) {
-                throw new \Exception('La configuración que seleccionó ya esta guardado.');
+            if($tax_settings->name != $request->name){
+
+                $find_item = TaxSettings::where([
+                    ['name', $request['name']],
+                ])->first();
+
+                if ($find_item != null) {
+                    throw new \Exception('El nombre que ingreso ya existe en la base de datos.');
+                }
+
             }
 
 
             $tax_settings->name                     = $request->name;
-            $tax_settings->tipo_impuesto_id         = $request->tipo_impuesto_id;
-            $tax_settings->tipo_factor_id           = $request->tipo_factor_id;
-            $tax_settings->is_retencion             = $request->is_retencion;
-            $tax_settings->is_traslado              = $request->is_traslado;
-            $tax_settings->tasa_cuota_porcentage    = $request->tasa_cuota_porcentage;
             $tax_settings->is_products_new          = $request->is_products_new;
             $tax_settings->created_at = Carbon::now();
             $tax_settings->updated_at = Carbon::now();
             $tax_settings->save();
 
-            $update_product = self::updateProductsTax($tax_settings);
+            // Eliminar los impuestos anteriores
+            $tax_settings->has_taxes()->delete();
 
-            if($update_product['code'] != 200){
-                return response()->error('Error al actualizar la configuración del impuesto.', $update_product, Response::HTTP_INTERNAL_SERVER_ERROR);
+            $impuestos_iva = json_decode($request->input('impuestos_iva'), true);
+            $impuestos_isr = json_decode($request->input('impuestos_isr'), true);
+            $impuestos_ieps = json_decode($request->input('impuestos_ieps'), true);
+
+            if($impuestos_iva != null){
+
+                foreach ($impuestos_iva as $key => $tax) {
+                    $tax = (object)$tax;
+
+                    $tipoImpuesto = (object) $tax->tipo_impuesto_id;
+                    $tipoFactor   = (object) $tax->tipo_factor_id;
+
+                    $new_record = new TaxSettingsHasRecord();
+                    $new_record->tax_settings_id       = $tax_settings->id;
+                    $new_record->tipo_impuesto_id      = $tipoImpuesto->id;
+                    $new_record->tipo_factor_id        = $tipoFactor->id;
+                    $new_record->tasa_cuota_porcentage = number_format($tax->tasa_cuota_porcentage, 2, '.', '');
+
+                    $new_record->is_traslado = true;
+
+                    $new_record->created_at = now();
+                    $new_record->updated_at = now();
+                    $new_record->save();
+                }
             }
+            if($impuestos_isr != null){
+
+                foreach ($impuestos_isr as $key => $tax) {
+                    $tax = (object)$tax;
+
+                    $tipoImpuesto = (object) $tax->tipo_impuesto_id;
+                    $tipoFactor   = (object) $tax->tipo_factor_id;
+
+                    $new_record = new TaxSettingsHasRecord();
+                    $new_record->tax_settings_id       = $tax_settings->id;
+                    $new_record->tipo_impuesto_id      = $tipoImpuesto->id;
+                    $new_record->tipo_factor_id        = $tipoFactor->id;
+                    $new_record->tasa_cuota_porcentage = number_format($tax->tasa_cuota_porcentage, 2, '.', '');
+
+                    $new_record->is_retencion = true;
+
+                    $new_record->created_at = now();
+                    $new_record->updated_at = now();
+                    $new_record->save();
+                }
+            }
+            if($impuestos_ieps != null){
+                foreach ($impuestos_ieps as $key => $tax) {
+                    $tax = (object)$tax;
+
+                    $tipoImpuesto = (object) $tax->tipo_impuesto_id;
+                    $tipoFactor   = (object) $tax->tipo_factor_id;
+
+                    $new_record = new TaxSettingsHasRecord();
+                    $new_record->tax_settings_id       = $tax_settings->id;
+                    $new_record->tipo_impuesto_id      = $tipoImpuesto->id;
+                    $new_record->tipo_factor_id        = $tipoFactor->id;
+                    $new_record->tasa_cuota_porcentage = number_format($tax->tasa_cuota_porcentage, 2, '.', '');
+
+                    $new_record->is_ieps = true;
+
+                    $new_record->created_at = now();
+                    $new_record->updated_at = now();
+                    $new_record->save();
+                }
+
+            }
+
+            // $update_product = self::updateProductsTax($tax_settings);
+
+            // if($update_product['code'] != 200){
+            //     return response()->error('Error al actualizar la configuración del impuesto.', $update_product, Response::HTTP_INTERNAL_SERVER_ERROR);
+            // }
+            
             DB::commit();
             
             return response()->success($tax_settings, 'Se actualizó la configuración del impuesto.');
@@ -257,6 +359,8 @@ class TaxSettingsController extends Controller
                 throw new \Exception('No se encuentra la configuración del impuesto.');
             }
 
+            $tax_settings->has_taxes()->delete();
+            
             $tax_settings->delete();
 
             $products_with_taxes = ProductsHasTaxes::where(ProductsHasTaxes::TAX_SETTINGS_ID, $tax_settings->id);
