@@ -77,6 +77,16 @@ onMounted(() => {
     // getData()
 });
 
+// CLASES  --------------------------
+const classLabel = (steep) => {
+
+    return steep == 1 ? 'badge bg-primary' : 'badge bg-danger';
+};
+const textLabel = (steep) => {
+    
+    return steep == 1 ? 'Sí aplica' : 'No aplica';
+};
+
 // VALIDACION DE FORMULARIOS --------------------------
 
 const validateRulesForm = {
@@ -228,34 +238,12 @@ function btnIndex() {
 function on_check_tax(key) {
 
     const selectedTax = props.cat_tax_settings[key];
-    let exists = false;
-
-    // Recorrer lista de impuestos para saber si existe una configuracion igual a la seleccionada y no aplicar.
 
     if (selectedTax.select_tax == true){
 
-        for (let index = 0; index < list_taxes.value.length; index++) {
-            const element = list_taxes.value[index];
-
-            if (index === key) {
-                continue;
-            }
-
-            if (
-                element.tipo_impuesto_id === selectedTax.tipo_impuesto_id &&
-                element.tipo_factor_id === selectedTax.tipo_factor_id &&
-                element.tasa_cuota_porcentage === selectedTax.tasa_cuota_porcentage &&
-                element.is_retencion === selectedTax.is_retencion &&
-                element.is_traslado === selectedTax.is_traslado
-            ) {
-                exists = true;
-                break;
-            }
-        }
         
-        if (!exists) {
-            list_taxes.value.push(selectedTax)
-        }
+        list_taxes.value.push(selectedTax)
+
     }else{
         
         const index = list_taxes.value.findIndex(element => element.id === selectedTax.id);
@@ -272,73 +260,39 @@ function on_check_tax(key) {
     }
     
 
-    if (exists) {
-        props.cat_tax_settings[key].select_tax = false;
-        proxy.alert.apiError({
-            title: '',
-            error: 'Ya existe un impuesto seleccionado con la misma configuración.'
-        });
-        return;
-    }
-    
+    console.error('Lista de impuestos seleccionados: ', list_taxes.value);
     handleInputPrice();
 }
 
-
 function handleInputPrice(){
     
-    let str_precio
-
-    if (form.value.price == '' || form.value.price == "") {
-
-        str_precio = 0;
-
-    } else {
-
-        str_precio = String(form.value.price);
-        str_precio = str_precio.slice(0, 10);
-    }
-    
+    let str_precio = form.value.price === '' ? 0 : String(form.value.price).slice(0, 10);
     let total_precio = parseFloat(str_precio);
     
-    let strDiscount
-    if (form.value.discount == '' || form.value.discount == "") {
-
-        strDiscount = 0;
-    } else {
-
-        strDiscount = String(form.value.discount);
-        strDiscount = strDiscount.slice(0, 10);
-    }
+    let strDiscount = form.value.discount === '' ? 0 : String(form.value.discount).slice(0, 10);
     let total_discount = parseFloat(strDiscount);
 
 
     switch (form.value.is_with_tax) {
         case true:
             
-            if (form.value.is_with_discount) {
-                total_precio = total_precio - total_discount;
+        // Se calcula el total del producto y con el descuento
 
-                total_precio = onPriceWithTaxs(total_precio);
 
-                form.value.sale_price = proxy.roundToTwoDecimals(parseFloat(total_precio));
-                handleInputSalePrice();
-            }else{
+            total_precio = proxy.redondear(total_precio - total_discount);
+            total_precio = onPriceWithTaxs(total_precio,);
 
-                total_precio = onPriceWithTaxs(total_precio);
-
-                form.value.sale_price = proxy.roundToTwoDecimals(parseFloat(total_precio));
-
-            }
+            form.value.sale_price = proxy.redondear(total_precio);
+            handleInputSalePrice();
             
             
             break;
     
         case false:
-            form.value.sale_price = proxy.roundToTwoDecimals(total_precio);
+            form.value.sale_price = proxy.redondear(total_precio);
 
             if (form.value.is_with_discount){
-                form.value.sale_price = proxy.roundToTwoDecimals(total_precio - total_discount);
+                form.value.sale_price = proxy.redondear(total_precio - total_discount);
                 handleInputSalePrice();
             }
             
@@ -366,24 +320,44 @@ function handleInputSalePrice(){
 
 function onPriceWithTaxs(price){
 
-    let price_with_tax = price;
+    let total_traslado = 0
+    let total_retenido = 0
+    let total_ieps = 0
 
     list_taxes.value.forEach(element => {
-        let tasa_cuota_porcentage = element.tasa_cuota_porcentage / 100;
-        let tasa_cuota = tasa_cuota_porcentage * price;
+        list_taxes.value.forEach(taxes => { 
+            
+            console.error('taxes', taxes);
 
-        if (element.is_traslado == 1 && element.is_retencion == 0) {
-            
-            price_with_tax += tasa_cuota;
-        }
-        if (element.is_traslado == 0 && element.is_retencion == 1) {
-            
-            price_with_tax -= tasa_cuota;
-        }
+            let tasa_cuota_porcentage = proxy.redondear(taxes.tasa_cuota_porcentage / 100, 6);
+            console.error('tasa_cuota_porcentage', tasa_cuota_porcentage);
+
+            let tasa_cuota = tasa_cuota_porcentage * price;
+            console.error('tasa_cuota', tasa_cuota);
+
+            if (element.is_traslado == 1) {
+
+                total_traslado += tasa_cuota;
+            }
+            if (element.is_retencion == 1) {
+
+                total_retenido += tasa_cuota;
+            }
+            if (element.is_ieps == 1) {
+
+                total_ieps += tasa_cuota;
+            }
+        });
     });
 
+    console.error('total_traslado', total_traslado);
+    console.error('total_retenido', total_retenido);
+    console.error('total_ieps', total_ieps);
+
+    total_traslado = total_traslado + total_ieps;
+    const impuesto_total = proxy.redondear((total_traslado) - (total_retenido), 3);
     
-    return price_with_tax;
+    return impuesto_total;
 
     
 }
@@ -510,13 +484,6 @@ function onPriceWithTaxs(price){
                                         <div class="input-errors" v-for="error of f$.price.$errors" :key="error.$uid">
                                             <div class="text-danger">{{ error.$message }}</div>
                                         </div>
-
-                                        <div class="form-check form-switch">
-                                            <input v-model="form.is_with_tax" class="form-check-input" type="checkbox"
-                                                id="flexSwitchCheckIs_with_tax">
-                                            <label class="form-check-label" for="flexSwitchCheckIs_with_tax">¿El precio
-                                                aplica con IVA?</label>
-                                        </div>
                                     </div>
                                     <div class="mb-2 col-md-6">
                                         <label for="revenue" class="form-label">Ganancia</label>
@@ -549,6 +516,16 @@ function onPriceWithTaxs(price){
                                             :key="error.$uid">
                                             <div class="text-danger">{{ error.$message }}</div>
                                         </div>
+                                    </div>
+                                    <div class="mb-2 col-md-6">
+
+                                        <div class="form-check form-switch">
+                                            <input v-model="form.is_with_tax" class="form-check-input" type="checkbox"
+                                                id="flexSwitchCheckIs_with_tax">
+                                            <label class="form-check-label" for="flexSwitchCheckIs_with_tax">¿El precio
+                                                aplica con IVA?</label>
+                                        </div>
+
                                         <div class="form-check form-switch">
                                             <input v-model="form.is_with_discount" class="form-check-input"
                                                 @change="handleInputPrice" type="checkbox"
@@ -557,99 +534,98 @@ function onPriceWithTaxs(price){
                                                 descuento se aplicará al precio?</label>
                                         </div>
                                     </div>
+                                    
+                                    <div class="mb-2 col-md-6">
+                                        <label for="sale_price" class="form-label">Precio Venta</label>
+                                        <input v-model="form.sale_price" disabled type="number" class="form-control"
+                                            :class="no_valid_price == true ? 'border-danger' : ''" id="sale_price"
+                                            placeholder="Precio Venta" step="1"
+                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                            maxlength="10">
+                                        <div class="input-errors" v-for="error of f$.sale_price.$errors"
+                                            :key="error.$uid">
+                                            <div class="text-danger">{{ error.$message }}</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tabla detalle de impuestos -->
                                     <div class="responsive-table-plugin" v-if="form.is_with_tax">
                                         <div class="table-rep-plugin">
                                             <div class="table-responsive" data-pattern="priority-columns">
                                                 <table class="table table-striped">
                                                     <thead>
                                                         <tr>
-                                                            <th>#</th>
-                                                            <th>Nombre</th>
-                                                            <th>Impuesto</th>
-                                                            <th>Tipo factor</th>
-                                                            <th>Porcentaje %</th>
-                                                            <th>Traslado</th>
-                                                            <th>Retención</th>
+                                                            <th colspan="6">Nombre</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody v-if="props.cat_tax_settings?.length > 0">
-                                                        <tr v-for="(item, key) in props.cat_tax_settings" :key="key">
-                                                            <td>
-                                                                {{ item.id }}
-                                                                <label>
-                                                                    <input type="checkbox" v-model="item.select_tax"
-                                                                        @change.prevent="on_check_tax(key)" />
-                                                                    <span></span>
-                                                                </label>
-                                                            </td>
-                                                            <td>{{ item.name }}</td>
-                                                            <td>{{ item.has_tipo_impuesto?.nombre }}</td>
-                                                            <td>{{ item.has_tipo_factor?.nombre }}</td>
-                                                            <td>{{ item.tasa_cuota_porcentage }}</td>
-                                                            <td>
-                                                                <span
-                                                                    :class="item.is_traslado == 1 ? 'badge bg-primary' : 'badge bg-danger'">
-                                                                    {{ item.is_traslado == 1 ? 'Sí aplica' : 'No aplica'
-                                                                    }}
-                                                                </span>
-                                                            </td>
-                                                            <td>
-                                                                <span
-                                                                    :class="item.is_retencion == 1 ? 'badge bg-primary' : 'badge bg-danger'">
-                                                                    {{ item.is_retencion == 1 ? 'Sí aplica' : 'No aplica' }}
-                                                                </span>
-                                                            </td>
-                                                        </tr>
+                                                        <template v-for="(item, key) in props.cat_tax_settings"
+                                                            :key="key">
+                                                            <tr>
+                                                                <td colspan="5">
+                                                                    {{ item.id }}
+                                                                    <label>
+                                                                        <input type="checkbox" v-model="item.select_tax"
+                                                                            @change.prevent="on_check_tax(key)" />
+                                                                        <span></span>
+                                                                    </label>
+                                                                </td>
+                                                                <td>{{ item.name }}</td>
+                                                            </tr>
 
-                                                        <!-- SUB-FILAS: registros de has_taxes -->
-                                                        <tr v-if="item.has_taxes?.length > 0">
-                                                            <td colspan="7" class="bg-light">
-                                                                <table class="table table-sm mb-0">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>ID</th>
-                                                                            <th>Tipo impuesto</th>
-                                                                            <th>Tipo factor</th>
-                                                                            <th>Porcentaje</th>
-                                                                            <th>Traslado</th>
-                                                                            <th>Retención</th>
-                                                                            <th>IEPS</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        <tr v-for="(tax, subKey) in item.has_taxes"
-                                                                            :key="subKey">
-                                                                            <td>{{ tax.id }}</td>
-                                                                            <td>{{ tax.tipo_impuesto_id }}</td>
-                                                                            <td>{{ tax.tipo_factor_id }}</td>
-                                                                            <td>{{ tax.tasa_cuota_porcentage }}</td>
-                                                                            <td>
-                                                                                <span
-                                                                                    :class="tax.is_traslado == 1 ? 'badge bg-primary' : 'badge bg-secondary'">
-                                                                                    {{ tax.is_traslado == 1 ? 'Sí' :
-                                                                                    'No' }}
-                                                                                </span>
-                                                                            </td>
-                                                                            <td>
-                                                                                <span
-                                                                                    :class="tax.is_retencion == 1 ? 'badge bg-primary' : 'badge bg-secondary'">
-                                                                                    {{ tax.is_retencion == 1 ? 'Sí' :
-                                                                                    'No' }}
-                                                                                </span>
-                                                                            </td>
-                                                                            <td>
-                                                                                <span
-                                                                                    :class="tax.is_ieps == 1 ? 'badge bg-primary' : 'badge bg-secondary'">
-                                                                                    {{ tax.is_ieps == 1 ? 'Sí' : 'No' }}
-                                                                                </span>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
+                                                            <!-- Subfilas si tiene has_taxes -->
+                                                            <tr v-if="item.has_taxes?.length > 0">
+                                                                <td colspan="7" class="bg-light">
+                                                                    <table class="table table-sm mb-0">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Tipo impuesto</th>
+                                                                                <th>Tipo factor</th>
+                                                                                <th>Porcentaje</th>
+                                                                                <th>Traslado</th>
+                                                                                <th>Retención</th>
+                                                                                <th>IEPS</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr v-for="(tax, subKey) in item.has_taxes"
+                                                                                :key="subKey">
+                                                                                <td>
+                                                                                    {{ tax.has_tipo_impuesto?.codigo +
+                                                                                    '-' + tax.has_tipo_impuesto?.nombre
+                                                                                    }}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {{ tax.has_tipo_factor?.nombre }}
+                                                                                </td>
+                                                                                <td>{{ tax.tasa_cuota_porcentage }}</td>
+                                                                                <td>
+                                                                                    <span
+                                                                                        :class="classLabel(tax.is_traslado)">
+                                                                                        {{ textLabel(tax.is_traslado) }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <span
+                                                                                        :class="classLabel(tax.is_retencion)">
+                                                                                        {{ textLabel(tax.is_retencion)
+                                                                                        }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <span
+                                                                                        :class="classLabel(tax.is_ieps)">
+                                                                                        {{ textLabel(tax.is_ieps)
+                                                                                        }}
+                                                                                    </span>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </template>
                                                     </tbody>
-
                                                     <tbody v-else>
                                                         <tr>
                                                             <td colspan="8">
@@ -659,19 +635,6 @@ function onPriceWithTaxs(price){
                                                     </tbody>
                                                 </table>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-2 col-md-6" :class="form.is_with_tax == true ? 'mt-5' : ''">
-                                        <label for="sale_price" class="form-label">Precio Venta</label>
-                                        <input v-model="form.sale_price" disabled type="number" class="form-control"
-                                            :class="no_valid_price == true ? 'border-danger': ''" id="sale_price"
-                                            placeholder="Precio Venta" step="1"
-                                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                                            maxlength="10">
-                                        <div class="input-errors" v-for="error of f$.sale_price.$errors"
-                                            :key="error.$uid">
-                                            <div class="text-danger">{{ error.$message }}</div>
                                         </div>
                                     </div>
                                 </div>

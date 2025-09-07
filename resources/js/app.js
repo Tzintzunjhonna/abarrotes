@@ -15,9 +15,11 @@ import alert from "@/Helps/alert.js";
 import setFormData from "@/Helps/setFormData.js";
 import roundToTwoDecimals from "@/Helps/roundToTwoDecimals.js";
 import btoaSet from "@/Helps/btoaSet.js";
+import useDecimal from "@/Helps/useDecimal";
 
 
 const appName = import.meta.env.VITE_APP_NAME || 'Contreras Corp';
+
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -32,6 +34,9 @@ createInertiaApp({
         app.config.globalProperties.setFormData = setFormData;
         app.config.globalProperties.roundToTwoDecimals = roundToTwoDecimals;
         app.config.globalProperties.btoaSet = btoaSet;
+        app.config.globalProperties.redondear = useDecimal.redondear;
+        app.config.globalProperties.truncateToDecimals = useDecimal.truncateToDecimals;
+        app.config.globalProperties.truncateThreeDecimals = useDecimal.truncateThreeDecimals;
 
         // Añadir la función can para verificar permisos
         app.config.globalProperties.can = (permission) => {

@@ -29,6 +29,7 @@
     },
     "dependencies": {
         "@inertiajs/inertia-vue3": "^0.6.0",
+        "decimal.js": "^10.5.0",
         "sweetalert2": "^11.10.8"
     }
 }
